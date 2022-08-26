@@ -27,7 +27,7 @@
           :workingMessage="workingMessage"
           :navSpec="navSpec"
           @withdraw="withdraw()"
-          @closeSpec="closeSpec()"
+          @toggleSpec="toggleSpec()"
         />
         <!-- END | NAVBAR SECTION -->
 
@@ -163,7 +163,7 @@
                           is-6-fullhd
                         "
                       >
-                        <h5 class="title-table ml-5">DEAL NAME</h5>
+                        <h5 class="title-table ml-5">DEAL TYPE</h5>
                       </div>
                       <div
                         class="
@@ -209,7 +209,7 @@
                           @click="openDeal(index)"
                           style="cursor: pointer"
                         >
-                          Deal ID: #{{ deal.index }}
+                          Retrieval Pinning Deal #{{ deal.index }}
                         </h4>
 
                         <div
@@ -525,6 +525,29 @@
                                         >
                                       </p>
                                     </div>
+
+                                    <div
+                                      class="
+                                        b-bottom-colored-grey
+                                        bg-pink-light
+                                        px-2
+                                      "
+                                      :class="{
+                                        'pb-3 pt-3': isDesktop,
+                                        'pb-1 pt-1': isTablet,
+                                      }"
+                                    >
+                                      <p>
+                                        <b>Referee network: </b>
+                                        <a
+                                          style="word-wrap: break-word"
+                                          class="link-primary"
+                                          @click="toggleSpec"
+                                          target="_blank"
+                                          >Referee network #1</a
+                                        >
+                                      </p>
+                                    </div>
                                     <!-- TIMING DEAL -->
                                     <div
                                       class="
@@ -776,6 +799,7 @@
         <div class="logo">
           <img src="../assets/img/logo.svg" alt="" />
         </div>
+        <br />
         <h2 class="pay-off tertiary-light-text">Onchain.Storage</h2>
         <div class="has-text-centered mt-5">
           <p class="mb-0">Please connect your wallet first</p>
@@ -1055,19 +1079,22 @@ export default {
       app.referees = [];
       let ended = false;
       let i = 0;
+      let unique = [];
       while (!ended) {
         try {
           const provider = await contract.methods.active_providers(i).call();
           if (app.providers.indexOf(provider) === -1) {
-            app.log("Found provider " + provider);
             let providerDetails = await contract.methods
               .providers(provider)
               .call();
             providerDetails.address = provider;
             if (
               providerDetails.endpoint.indexOf("localhost") === -1 &&
-              providerDetails.endpoint.indexOf("https") !== -1
+              providerDetails.endpoint.indexOf("https") !== -1 &&
+              unique.indexOf(providerDetails.endpoint) === -1
             ) {
+              app.log("Found provider " + provider);
+              unique.push(providerDetails.endpoint);
               app.providers.push(providerDetails);
               app.connectSocket(providerDetails.endpoint);
               app.providerEndpoints[provider] = providerDetails.endpoint;
@@ -1086,11 +1113,14 @@ export default {
           const referee = await contract.methods.active_referees(i).call();
           if (app.referees.indexOf(referee) === -1) {
             app.referees.push(referee);
-            app.log("Found referee " + referee);
             const refereeDetails = await contract.methods
               .referees(referee)
               .call();
-            app.connectSocket(refereeDetails.endpoint);
+            if (unique.indexOf(refereeDetails.endpoint) === -1) {
+              app.log("Found referee " + referee);
+              unique.push(refereeDetails.endpoint);
+              app.connectSocket(refereeDetails.endpoint);
+            }
           }
         } catch (e) {
           console.log(e);
@@ -1626,7 +1656,7 @@ export default {
       }
     },
 
-    closeSpec() {
+    toggleSpec() {
       const app = this;
       app.navSpec = !app.navSpec;
     },

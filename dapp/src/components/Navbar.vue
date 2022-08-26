@@ -31,16 +31,12 @@
                 ><span v-if="parseInt(network) === 4">Rinkeby</span>
                 <span v-if="parseInt(network) === 1">Ethereum</span>
               </div>
-              <div class="btn-light ml-2" @click="$emit('closeSpec')">
-                Referee Net #1
-              </div>
               <div
-                v-if="balance.length > 0"
-                class="btn-light btn-withdraw ml-2"
-                @click="$emit('withdraw')"
+                v-if="accountBalance.length > 0"
+                class="btn-light ml-2"
               >
-                <span>{{ balance.substr(0, 4) }}</span>
-                <span style="text-transform: lowercase">r</span>
+                <span>{{ accountBalance.substr(0, 4) }}</span>
+                <span style="text-transform: lowercase"> r</span>
                 <span>ETH</span>
               </div>
               <div
@@ -56,7 +52,7 @@
                   <!-- Nav Button show/hide -->
                   <div
                     @click="navState = !navState"
-                    @mouseleave="closeSpec()"
+                    @mouseleave="toggleSpec()"
                     class="btn-light-icon"
                   >
                     <i class="fa-solid fa-ellipsis"></i>
@@ -113,7 +109,7 @@
                   >
                     <div
                       v-if="navSpec"
-                      @mouseleave="$emit('closeSpec')"
+                      @mouseleave="$emit('toggleSpec')"
                       class="right-col"
                     >
                       <div class="referee-container px-5">
