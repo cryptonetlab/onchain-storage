@@ -59,7 +59,7 @@
                         <p class="control has-icons-left has-icons-right">
                           <input
                             class="input is-info"
-                            type="email"
+                            type="text"
                             placeholder=" Search Deal URI"
                             v-model="searcher"
                           />
@@ -154,38 +154,17 @@
                       v-if="!isMobile"
                     >
                       <div
-                        class="
-                          column
-                          is-4-mobile
-                          is-2-tablet
-                          is-5-desktop
-                          is-6-widescreen
-                          is-6-fullhd
-                        "
+                        class="column is-4-mobile is-2-tablet is-5-desktop is-6-widescreen is-6-fullhd"
                       >
                         <h5 class="title-table ml-5">DEAL TYPE</h5>
                       </div>
                       <div
-                        class="
-                          column
-                          is-4-mobile
-                          is-6-tablet
-                          is-4-desktop
-                          is-4-widescreen
-                          is-4-fullhd
-                        "
+                        class="column is-4-mobile is-6-tablet is-4-desktop is-4-widescreen is-4-fullhd"
                       >
                         <h5 class="title-table ml-5">ACTIONS</h5>
                       </div>
                       <div
-                        class="
-                          column
-                          is-4-mobile
-                          is-2-tablet
-                          is-2-desktop
-                          is-2-widescreen
-                          is-2-fullhd
-                        "
+                        class="column is-4-mobile is-2-tablet is-2-desktop is-2-widescreen is-2-fullhd"
                       >
                         <h5
                           class="title-table"
@@ -199,7 +178,7 @@
 
                     <div
                       class="custom-card"
-                      v-for="(deal, index) in filteredList"
+                      v-for="(deal, index) in deals"
                       :key="deal.index"
                       :class="{ 'custom-card-hover': index !== isOpening }"
                     >
@@ -212,13 +191,9 @@
                           Retrieval Pinning Deal #{{ deal.index }}
                         </h4>
 
+                        <!-- Deal action bar -->
                         <div
-                          class="
-                            is-flex
-                            is-align-items-center
-                            is-justify-content-center
-                            is-flex-wrap-wrap
-                          "
+                          class="is-flex is-align-items-center is-justify-content-center is-flex-wrap-wrap"
                         >
                           <b-button
                             @click="createAppeal(deal)"
@@ -302,9 +277,19 @@
                             </b-button>
                           </a>
                           <div class="divider ml-4 mr-4"></div>
-                          <a class="btn-icon" @click="refreshDeal(index)">
-                            <i class="fa-solid fa-arrow-rotate-right"></i>
-                          </a>
+                          <b-button
+                            :disabled="
+                              (deal.timestamp_start !== undefined &&
+                                parseInt(deal.timestamp_start) !== 0 &&
+                                !deal.expired) ||
+                              (deal.appeal.active !== undefined &&
+                                deal.appeal.active)
+                            "
+                            class="btn-icon"
+                            @click="cancelDealProposal(deal)"
+                          >
+                            <i class="fa-solid fa-trash-can"></i>
+                          </b-button>
                           <div class="divider ml-4 mr-4"></div>
                           <!-- BADGES -->
                           <div
@@ -402,7 +387,9 @@
                             ></i>
                           </div>
                         </div>
+                        <!-- Deal action bar -->
                       </div>
+
                       <!-- DEAL SPECIFICATIONS -->
                       <Transition
                         name="custom-fade"
@@ -414,18 +401,11 @@
                             <div class="content">
                               <div class="columns is-mobile">
                                 <div
-                                  class="
-                                    column
-                                    is-three-quarter-tablet is-half-desktop
-                                  "
+                                  class="column is-three-quarter-tablet is-half-desktop"
                                 >
                                   <div>
                                     <div
-                                      class="
-                                        b-top-colored-grey b-bottom-colored-grey
-                                        bg-pink-light
-                                        px-2
-                                      "
+                                      class="b-top-colored-grey b-bottom-colored-grey bg-pink-light px-2"
                                       :class="{
                                         'pb-3 pt-3': isDesktop,
                                         'pb-1 pt-1': isTablet,
@@ -455,14 +435,7 @@
                                       </p>
                                     </div>
                                     <div
-                                      class="
-                                        is-flex
-                                        is-justify-content-space-between
-                                        is-align-items-center
-                                        b-bottom-colored-grey
-                                        bg-pink-light
-                                        px-2
-                                      "
+                                      class="is-flex is-justify-content-space-between is-align-items-center b-bottom-colored-grey bg-pink-light px-2"
                                       :class="{
                                         'pb-1 pt-1': isTablet,
                                       }"
@@ -482,11 +455,7 @@
                                       </div>
                                     </div>
                                     <div
-                                      class="
-                                        b-bottom-colored-grey
-                                        bg-pink-light
-                                        px-2
-                                      "
+                                      class="b-bottom-colored-grey bg-pink-light px-2"
                                       :class="{
                                         'pb-3 pt-3': isDesktop,
                                         'pb-1 pt-1': isTablet,
@@ -497,11 +466,7 @@
                                       </p>
                                     </div>
                                     <div
-                                      class="
-                                        b-bottom-colored-grey
-                                        bg-pink-light
-                                        px-2
-                                      "
+                                      class="b-bottom-colored-grey bg-pink-light px-2"
                                       :class="{
                                         'pb-3 pt-3': isDesktop,
                                         'pb-1 pt-1': isTablet,
@@ -527,11 +492,7 @@
                                     </div>
 
                                     <div
-                                      class="
-                                        b-bottom-colored-grey
-                                        bg-pink-light
-                                        px-2
-                                      "
+                                      class="b-bottom-colored-grey bg-pink-light px-2"
                                       :class="{
                                         'pb-3 pt-3': isDesktop,
                                         'pb-1 pt-1': isTablet,
@@ -550,19 +511,11 @@
                                     </div>
                                     <!-- TIMING DEAL -->
                                     <div
-                                      class="
-                                        b-bottom-colored-grey
-                                        bg-pink-light
-                                      "
+                                      class="b-bottom-colored-grey bg-pink-light"
                                       :class="{ 'pb-3': openTimingDeal }"
                                     >
                                       <div
-                                        class="
-                                          is-flex
-                                          is-justify-content-space-between
-                                          is-align-items-center
-                                          px-2
-                                        "
+                                        class="is-flex is-justify-content-space-between is-align-items-center px-2"
                                         style="cursor: pointer"
                                         :class="{
                                           'pb-3 pt-3': isDesktop,
@@ -667,12 +620,7 @@
                                       "
                                     >
                                       <div
-                                        class="
-                                          container-appeal
-                                          b-bottom-colored-grey
-                                          bg-primary-color
-                                          px-2
-                                        "
+                                        class="container-appeal b-bottom-colored-grey bg-primary-color px-2"
                                         :class="{
                                           'pb-3 pt-3': isDesktop,
                                           'pb-1 pt-1': isTablet,
@@ -685,11 +633,7 @@
                                         </p>
                                       </div>
                                       <div
-                                        class="
-                                          b-bottom-colored-grey
-                                          bg-pink-dark
-                                          px-2
-                                        "
+                                        class="b-bottom-colored-grey bg-pink-dark px-2"
                                         :class="{
                                           'pb-3 pt-3': isDesktop,
                                           'pb-1 pt-1': isTablet,
@@ -699,19 +643,12 @@
                                           <b>Round: </b>
                                           {{ deal.appeal.round }}/12
                                           <i
-                                            class="
-                                              fa-solid fa-hourglass-half fa-fade
-                                              ml-2
-                                            "
+                                            class="fa-solid fa-hourglass-half fa-fade ml-2"
                                           ></i>
                                         </p>
                                       </div>
                                       <div
-                                        class="
-                                          b-bottom-colored-grey
-                                          bg-pink-dark
-                                          px-2
-                                        "
+                                        class="b-bottom-colored-grey bg-pink-dark px-2"
                                         :class="{
                                           'pb-3 pt-3': isDesktop,
                                           'pb-1 pt-1': isTablet,
@@ -741,10 +678,7 @@
                                   </div>
                                 </div>
                                 <div
-                                  class="
-                                    column
-                                    is-one-quarter-tablet is-half-desktop
-                                  "
+                                  class="column is-one-quarter-tablet is-half-desktop"
                                 >
                                   <div
                                     v-if="!downloads[deal.deal_uri]"
@@ -776,17 +710,24 @@
                   </div>
 
                   <!-- NO DEALS -->
-                  <p v-if="deals.length === 0" class="mt-6">
+                  <p
+                    v-if="deals.length === 0 && searcher.length === 0"
+                    class="mt-6"
+                  >
                     You have no active Deals or Proposal. Create a new one or
                     view the history of Deals you have created.
                   </p>
                   <!-- END | NO DEALS -->
+                  <!-- NO DEALS -->
+                  <p
+                    v-if="deals.length === 0 && searcher.length > 0"
+                    class="mt-6"
+                  >
+                    No deal fouded... try again!
+                  </p>
+                  <!-- END | NO DEALS -->
                 </div>
                 <!-- END - Show all created deals -->
-              </div>
-
-              <div v-if="loading">
-                Loading informations from blockchain, please wait..
               </div>
             </div>
           </div>
@@ -813,15 +754,10 @@
 
       <!-- Working Messages -->
       <div
-        class="
-          workingMessage
-          is-flex
-          is-flex-direction-row
-          is-flex-wrap-wrap
-          is-align-items-center
-          is-justify-content-center
+        class="workingMessage is-flex is-flex-direction-row is-flex-wrap-wrap is-align-items-center is-justify-content-center"
+        v-if="
+          isWorking && workingMessage !== undefined && workingMessage !== ''
         "
-        v-if="isWorking"
       >
         <i class="fas fa-spinner fa-pulse mr-5"></i>
         <p class="text-center">{{ workingMessage }}</p>
@@ -897,6 +833,18 @@ export default {
       searcher: "",
     };
   },
+  watch: {
+    searcher() {
+      const app = this;
+      if (app.searcher !== undefined && app.searcher.length > 3) {
+        console.log("searching wathcer");
+        console.log("searcher length", app.searcher.length);
+        app.searchDealURI();
+      } else if (app.searcher.length === 0) {
+        app.loadState();
+      }
+    },
+  },
 
   methods: {
     async connect() {
@@ -969,6 +917,9 @@ export default {
     },
     async loadState() {
       const app = this;
+      app.showToast(
+        "Loading data from blockchain and fetching your deals, please wait..."
+      );
       app.deals = [];
       app.isWorking = false;
       app.log("Reading state from blockchain..");
@@ -987,7 +938,6 @@ export default {
 
       try {
         app.isWorking = true;
-        app.workingMessage = "Fetching your deals, please wait...";
         let deals = await axios.get(
           process.env.VUE_APP_API_URL + "/deals/" + app.account
         );
@@ -1074,6 +1024,7 @@ export default {
       app.log("Max duration is: " + app.maxDuration);
 
       app.loading = false;
+
       // Connecting to p2p network
       app.providers = [];
       app.referees = [];
@@ -1358,6 +1309,15 @@ export default {
       const app = this;
       console.log("Refreshing deal", app.deals[index]);
       if (!app.isWorking) {
+        this.$buefy.toast.open({
+          duration: 5000,
+          message:
+            `Deal ID #` +
+            app.deals[index].index +
+            ` information is refreshing...`,
+          position: "is-bottom-right",
+          type: "is-warning",
+        });
         try {
           let refreshed = await axios.get(
             process.env.VUE_APP_API_URL + "/parse/" + app.deals[index].index
@@ -1655,6 +1615,14 @@ export default {
         app.refreshDeal(index);
       }
     },
+    searchDealURI() {
+      // filter deal by deal_uri by v-model "searcher"
+      console.log("Starting search...");
+      const app = this;
+      app.deals = app.deals.filter((deal) => {
+        return deal.deal_uri.toLowerCase().includes(app.searcher.toLowerCase());
+      });
+    },
 
     toggleSpec() {
       const app = this;
@@ -1662,18 +1630,18 @@ export default {
     },
   },
   computed: {
-    filteredList() {
-      return this.deals.filter((deal) => {
-        if (this.searcher.length > 0) {
-          return (
-            deal.deal_uri !== undefined &&
-            deal.deal_uri.toLowerCase().includes(this.searcher.toLowerCase())
-          );
-        } else {
-          return Object.keys(deal).sort(); // Do your custom sorting here
-        }
-      });
-    },
+    // filteredList() {
+    //   return this.deals.filter((deal) => {
+    //     if (this.searcher.length > 0) {
+    //       return (
+    //         deal.deal_uri !== undefined &&
+    //         deal.deal_uri.toLowerCase().includes(this.searcher.toLowerCase())
+    //       );
+    //     } else {
+    //       return Object.keys(deal).sort(); // Do your custom sorting here
+    //     }
+    //   });
+    // },
   },
   mounted() {
     this.connect();
