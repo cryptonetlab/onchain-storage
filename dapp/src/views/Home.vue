@@ -82,10 +82,7 @@
                           @click="filtered = !filtered"
                         >
                           <div class="custom_dropdown__text">
-                            <span class="small">FILTER</span>
-                            <span v-if="activeDeal || endedDeal || showallDeals"
-                              >:
-                            </span>
+                            <span class="small">FILTER:</span>
                             <span v-if="activeDeal">Active</span>
                             <span v-if="endedDeal">Ended</span>
                             <span v-if="showallDeals">All</span>
@@ -280,13 +277,12 @@
                           <b-button
                             :disabled="
                               (deal.timestamp_start !== undefined &&
-                                parseInt(deal.timestamp_start) !== 0 &&
-                                !deal.expired) ||
-                              (deal.appeal.active !== undefined &&
-                                deal.appeal.active)
+                                parseInt(deal.timestamp_start) !== 0) ||
+                              (deal.expired !== undefined &&
+                                deal.expired === false)
                             "
                             class="btn-icon"
-                            @click="cancelDealProposal(deal)"
+                            @click="isDeletingDeal(deal)"
                           >
                             <i class="fa-solid fa-trash-can"></i>
                           </b-button>
@@ -711,7 +707,12 @@
 
                   <!-- NO DEALS -->
                   <p
-                    v-if="deals.length === 0 && searcher.length === 0"
+                    v-if="
+                      deals.length === 0 &&
+                      searcher.length === 0 &&
+                      endedDeal !== undefined &&
+                      endendDeal === false
+                    "
                     class="mt-6"
                   >
                     You have no active Deals or Proposal. Create a new one or
@@ -720,7 +721,12 @@
                   <!-- END | NO DEALS -->
                   <!-- NO DEALS -->
                   <p
-                    v-if="deals.length === 0 && searcher.length > 0"
+                    v-if="
+                      (deals.length === 0 && searcher.length > 0) ||
+                      (deals.length === 0 &&
+                        endedDeal !== undefined &&
+                        endedDeal === true)
+                    "
                     class="mt-6"
                   >
                     No deal fouded... try again!
@@ -917,7 +923,7 @@ export default {
     },
     async loadState() {
       const app = this;
-      app.showToast(
+      app.showLoadingToast(
         "Loading data from blockchain and fetching your deals, please wait..."
       );
       app.deals = [];
@@ -1010,7 +1016,7 @@ export default {
         app.$forceUpdate();
         // app.log("Found #" + app.deals.length + " deals.");
         console.log("deals", app.deals);
-
+        this.$toast.clear();
         // app.activeDeals();
       } catch (e) {
         app.alertCustomError(
@@ -1312,7 +1318,8 @@ export default {
         this.$buefy.toast.open({
           duration: 5000,
           message:
-            `Deal ID #` +
+            '<i class="fa-solid fa-hourglass-half"></i> ' +
+            ` Deal ID #` +
             app.deals[index].index +
             ` information is refreshing...`,
           position: "is-bottom-right",
@@ -1424,6 +1431,29 @@ export default {
         }, 6200);
       }
     },
+    showLoadingToast(message) {
+      const app = this;
+      if (!app.isToasting) {
+        app.isToasting = true;
+        app.$toast.warning(message, {
+          position: "top-right",
+          timeout: 10000,
+          closeOnClick: true,
+          pauseOnFocusLoss: true,
+          pauseOnHover: true,
+          draggable: true,
+          draggablePercent: 0.6,
+          showCloseButtonOnHover: true,
+          hideProgressBar: true,
+          closeButton: "button",
+          icon: "fa-solid fa-hourglass-half",
+          rtl: false,
+        });
+        setTimeout(function () {
+          app.isToasting = false;
+        }, 6200);
+      }
+    },
     alertCustomError(message) {
       this.$buefy.dialog.alert({
         title: "Error",
@@ -1436,6 +1466,20 @@ export default {
         ariaModal: true,
       });
     },
+    isDeletingDeal(deal) {
+      const app = this;
+      const index = deal.index;
+      this.$buefy.dialog.confirm({
+        title: "Deleting Deal #" + index,
+        message:
+          "Are you sure you want to <b>delete</b> this Deal? This action cannot be undone.",
+        confirmText: "Delete Deal",
+        type: "is-danger",
+        hasIcon: true,
+        onConfirm: () => app.cancelDealProposal(deal),
+      });
+    },
+
     // FILTERS
     async expiredDeals() {
       const app = this;

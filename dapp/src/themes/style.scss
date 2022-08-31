@@ -279,7 +279,12 @@ p.small {
     margin: 0;
   }
 }
-
+.color-secondary {
+  color: var(--secondary-color);
+}
+.color-error {
+  color: var(--error-color);
+}
 .no-scroll {
   overflow: hidden !important;
   overflow-y: hidden !important;
@@ -1015,12 +1020,23 @@ img.network-logo {
 .control.has-icons-right .select select {
   padding-right: 5px;
 }
+
 /* ==============> LOGS & NOTIFICATIONS <============== */
+
+.modal-card .modal-card-title {
+  @include font-plex();
+}
+
+hr {
+  background-color: var(--primary-color);
+}
+
 .modal-card-body {
   .media {
     align-items: center;
   }
 }
+
 .right-col {
   width: 22rem;
   height: 100vh;
@@ -1073,23 +1089,16 @@ img.network-logo {
   }
 }
 
-@keyframes example {
-  from {
-    left: 5rem;
-  }
-  to {
-    left: 3rem;
-  }
-}
-
-hr {
-  background-color: var(--primary-color);
-}
-
 .Vue-Toastification__toast {
   @include font-plex();
   border-radius: 0;
 }
+
+.Vue-Toastification__toast--warning {
+  background-color: #ffe08a;
+  color: var(--primary-color);
+}
+
 .Vue-Toastification__toast-body {
   @include font-plex();
 }
@@ -1106,69 +1115,6 @@ hr {
   line-height: 1;
   height: 100vh;
   width: 100%;
-}
-
-.slide-in-right {
-  -webkit-animation: slide-in-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)
-    both;
-  animation: slide-in-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-}
-
-@-webkit-keyframes slide-in-right {
-  0% {
-    -webkit-transform: translateX(1000px);
-    transform: translateX(1000px);
-    opacity: 0;
-  }
-  100% {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-@keyframes slide-in-right {
-  0% {
-    -webkit-transform: translateX(1000px);
-    transform: translateX(1000px);
-    opacity: 0;
-  }
-  100% {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.slide-out-right {
-  -webkit-animation: slide-out-right 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)
-    both;
-  animation: slide-out-right 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
-}
-
-@-webkit-keyframes slide-out-right {
-  0% {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-    opacity: 1;
-  }
-  100% {
-    -webkit-transform: translateX(1000px);
-    transform: translateX(1000px);
-    opacity: 0;
-  }
-}
-
-@keyframes slide-out-right {
-  0% {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-    opacity: 1;
-  }
-  100% {
-    -webkit-transform: translateX(1000px);
-    transform: translateX(1000px);
-    opacity: 0;
-  }
 }
 
 /* BUTTON ANIMATION: CTA - SHOW LOGS */
@@ -1381,6 +1327,70 @@ hr {
   100% {
     -webkit-transform: translateY(-50px);
     transform: translateY(-50px);
+    opacity: 0;
+  }
+}
+
+.slide-in-right {
+  -webkit-animation: slide-in-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)
+    both;
+  animation: slide-in-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@-webkit-keyframes slide-in-right {
+  0% {
+    -webkit-transform: translateX(1000px);
+    transform: translateX(1000px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    -webkit-transform: translateX(1000px);
+    transform: translateX(1000px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-out-right {
+  -webkit-animation: slide-out-right 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)
+    both;
+  animation: slide-out-right 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+}
+
+@-webkit-keyframes slide-out-right {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: translateX(1000px);
+    transform: translateX(1000px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-out-right {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: translateX(1000px);
+    transform: translateX(1000px);
     opacity: 0;
   }
 }

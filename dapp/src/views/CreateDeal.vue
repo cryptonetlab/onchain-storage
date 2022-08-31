@@ -33,17 +33,17 @@
       <div class="hero-body pt-5">
         <div class="container">
           <!-- TITLE -->
-          <div class="b-bottom-colored-dark m-0 pb-3 mb-6">
+          <div
+            @click="checkAddressArray()"
+            class="b-bottom-colored-dark m-0 pb-3 mb-6"
+          >
             <h2 class="title is-3 m-0">NEW DEAL PROPOSAL</h2>
           </div>
           <!-- END TITLE -->
 
           <!-- BACK BUTTON AND EXPERT MODE SWITCH -->
           <div
-            class="
-              is-flex is-justify-content-space-between is-align-items-center
-              mb-5
-            "
+            class="is-flex is-justify-content-space-between is-align-items-center mb-5"
           >
             <a class="btn-white" href="/">
               <i class="fa-solid fa-arrow-left"></i> back
@@ -81,14 +81,7 @@
             <p>Uploading file on IPFS, please wait..</p>
           </div>
           <div
-            class="
-              bordered-dashed
-              is-flex
-              is-flex-wrap-wrap
-              is-align-items-start
-              is-justify-content-space-between
-              p-3
-            "
+            class="bordered-dashed is-flex is-flex-wrap-wrap is-align-items-start is-justify-content-space-between p-3"
             v-if="fileToUpload.name"
           >
             <div>
@@ -115,19 +108,56 @@
 
           <!-- Appeal address & Deal URI -->
           <div v-if="expertMode" class="columns is-mobile mt-6">
+            <!-- <div class="column">
+              <h5 class="mb-3">Appeal Address</h5>
+              <div
+                class="is-flex is-align-items-center is-align-content-space-between"
+              >
+                <b-field class="mb-0" type="is-info" style="width: 100%">
+                  <b-input
+                    :disabled="isWorking"
+                    v-model="appealAddress"
+                    placeholder="ex: your ETH address"
+                  ></b-input>
+                </b-field>
+                <div class="pointer">
+                  <i class="fa-solid fa-circle-plus ml-3 color-secondary"></i>
+                </div>
+              </div>
+            </div> -->
+
             <div class="column">
               <h5 class="mb-3">Appeal Address</h5>
-              <b-field type="is-info">
-                <b-input
-                  :disabled="isWorking"
-                  v-model="appealAddress"
-                  placeholder="ex: your ETH address"
-                ></b-input>
-              </b-field>
+              <div
+                v-for="(input, index) in multipleAppealAddress"
+                :key="index"
+                class="is-flex is-align-items-center is-align-content-space-between mb-3"
+              >
+                <b-field class="mb-0" type="is-info" style="width: 100%">
+                  <b-input
+                    :disabled="isWorking"
+                    v-model="input.address"
+                    placeholder="ex: your ETH address"
+                  ></b-input>
+                </b-field>
+                <div
+                  class="pointer"
+                  @click="addField(input, multipleAppealAddress)"
+                >
+                  <i class="fa-solid fa-circle-plus ml-3 color-secondary"></i>
+                </div>
+                <div
+                  class="pointer"
+                  v-show="multipleAppealAddress.length > 1"
+                  @click="removeField(index, multipleAppealAddress)"
+                >
+                  <i class="fa-solid fa-circle-minus ml-3 color-error"></i>
+                </div>
+              </div>
             </div>
             <div class="column">
               <h5 class="mb-3">Deal URI</h5>
-              <b-field type="is-info">
+              <b-field class="mb-0" type="is-info">
                 <b-input
                   :disabled="isWorking || fileToUpload.name"
                   v-model="dealUri"
@@ -211,51 +241,28 @@
                     </div>
 
                     <div
-                      class="
-                        column
-                        is-3-tablet is-3-desktop
-                        b-left-colored-grey b-right-colored-grey
-                        pl-3
-                      "
+                      class="column is-3-tablet is-3-desktop b-left-colored-grey b-right-colored-grey pl-3"
                     >
                       <p>{{ providersPolicy[provider].endpoint }}</p>
                     </div>
                     <div
-                      class="
-                        column
-                        is-2-tablet is-1-desktop
-                        b-right-colored-grey
-                      "
+                      class="column is-2-tablet is-1-desktop b-right-colored-grey"
                       :class="{ 'pl-3': isTablet }"
                     >
                       <p>{{ providersPolicy[provider].maxSize / 1000000 }}MB</p>
                     </div>
                     <div
-                      class="
-                        column
-                        is-2-tablet is-1-desktop
-                        pl-3
-                        b-right-colored-grey
-                      "
+                      class="column is-2-tablet is-1-desktop pl-3 b-right-colored-grey"
                     >
                       <p>{{ providersPolicy[provider].maxDuration }} days</p>
                     </div>
                     <div
-                      class="
-                        column
-                        is-2-tablet is-2-desktop
-                        b-right-colored-grey
-                      "
+                      class="column is-2-tablet is-2-desktop b-right-colored-grey"
                     >
                       <p>{{ providersPolicy[provider].price }}</p>
                     </div>
                     <div
-                      class="
-                        column
-                        is-2-tablet is-1-desktop
-                        has-text-centered
-                        pl-5
-                      "
+                      class="column is-2-tablet is-1-desktop has-text-centered pl-5"
                     >
                       <b-checkbox
                         type="is-info"
@@ -683,14 +690,7 @@
 
       <!-- Working Messages -->
       <div
-        class="
-          workingMessage
-          is-flex
-          is-flex-direction-row
-          is-flex-wrap-wrap
-          is-align-items-center
-          is-justify-content-center
-        "
+        class="workingMessage is-flex is-flex-direction-row is-flex-wrap-wrap is-align-items-center is-justify-content-center"
         v-if="isWorking"
       >
         <i class="fas fa-spinner fa-pulse mr-5"></i>
@@ -700,14 +700,7 @@
 
       <!-- Loading PROVIDERS  -->
       <div
-        class="
-          workingMessage
-          is-flex
-          is-flex-direction-row
-          is-flex-wrap-wrap
-          is-align-items-center
-          is-justify-content-center
-        "
+        class="workingMessage is-flex is-flex-direction-row is-flex-wrap-wrap is-align-items-center is-justify-content-center"
         v-if="providers.length <= 0"
       >
         <i class="fas fa-spinner fa-pulse mr-5"></i>
@@ -771,6 +764,8 @@ export default {
       isUploadingIPFS: false,
       slashingMultiplier: 1000,
       appealAddress: "",
+      multipleAppealAddress: [{ address: "" }],
+      selectedAppealAddresses: [],
       // REFRESH SINGLE DEAL
       selectedDeal: {},
 
@@ -1035,13 +1030,24 @@ export default {
             app.workingMessage = "Please confirm action with metamask..";
             try {
               const contract = new app.web3.eth.Contract(app.abi, app.contract);
+              if (app.expertMode) {
+                let temp = [];
+                for (let i in app.multipleAppealAddress) {
+                  if (app.multipleAppealAddress[i].address !== "") {
+                    temp.push(app.multipleAppealAddress[i].address);
+                  }
+                }
+                app.selectedAppealAddresses = temp;
+              } else {
+                app.selectedAppealAddresses = app.account;
+              }
               const receipt = await contract.methods
                 .createDealProposal(
                   app.dealUri,
                   app.dealDuration,
                   app.dealCollateral.toString(),
                   app.dealProviders,
-                  [app.account]
+                  [app.selectedAppealAddresses]
                 )
                 .send({
                   value: app.dealValue.toString(),
@@ -1121,6 +1127,55 @@ export default {
         console.log("App busy, retry.");
       }
     },
+    alertCustomError(message) {
+      this.$buefy.dialog.alert({
+        title: "Error",
+        message: message,
+        type: "is-danger",
+        hasIcon: true,
+        icon: "times-circle",
+        iconPack: "fa",
+        ariaRole: "alertdialog",
+        ariaModal: true,
+      });
+    },
+    calculateDealValue(priority) {
+      const app = this;
+      app.selectedPriority = priority;
+      app.dealValue = app.baseDealValue * priority;
+    },
+    async withdraw() {
+      const app = this;
+      if (!app.isWorking) {
+        app.isWorking = true;
+        app.workingMessage = "Please confirm action with metamask..";
+        try {
+          const contract = new app.web3.eth.Contract(app.abi, app.contract);
+          const balance = await contract.methods.vault(app.account).call();
+          app.log("Balance found in contract is: " + balance);
+          if (balance > 0) {
+            await contract.methods
+              .withdrawFromVault(balance)
+              .send({
+                from: app.account,
+              })
+              .on("transactionHash", (tx) => {
+                app.workingMessage = "Found pending transaction at " + tx;
+                app.log(app.workingMessage);
+              });
+            app.alertCustomError("Withdraw done!");
+            app.loadState();
+          } else {
+            app.isWorking = false;
+            app.alertCustomError("You have nothing to withdraw");
+          }
+        } catch (e) {
+          app.isWorking = false;
+          app.alertCustomError(e.message);
+        }
+      }
+    },
+
     // NOTIFICATIONS & ALERTS
     showToast(message) {
       const app = this;
@@ -1168,59 +1223,57 @@ export default {
         }, 6200);
       }
     },
-    alertCustomError(message) {
-      this.$buefy.dialog.alert({
-        title: "Error",
-        message: message,
-        type: "is-danger",
-        hasIcon: true,
-        icon: "times-circle",
-        iconPack: "fa",
-        ariaRole: "alertdialog",
-        ariaModal: true,
-      });
-    },
-    calculateDealValue(priority) {
+    showLoadingToast(message) {
       const app = this;
-      app.selectedPriority = priority;
-      app.dealValue = app.baseDealValue * priority;
-    },
-
-    async withdraw() {
-      const app = this;
-      if (!app.isWorking) {
-        app.isWorking = true;
-        app.workingMessage = "Please confirm action with metamask..";
-        try {
-          const contract = new app.web3.eth.Contract(app.abi, app.contract);
-          const balance = await contract.methods.vault(app.account).call();
-          app.log("Balance found in contract is: " + balance);
-          if (balance > 0) {
-            await contract.methods
-              .withdrawFromVault(balance)
-              .send({
-                from: app.account,
-              })
-              .on("transactionHash", (tx) => {
-                app.workingMessage = "Found pending transaction at " + tx;
-                app.log(app.workingMessage);
-              });
-            app.alertCustomError("Withdraw done!");
-            app.loadState();
-          } else {
-            app.isWorking = false;
-            app.alertCustomError("You have nothing to withdraw");
-          }
-        } catch (e) {
-          app.isWorking = false;
-          app.alertCustomError(e.message);
-        }
+      if (!app.isToasting) {
+        app.isToasting = true;
+        app.$toast.warning(message, {
+          position: "top-right",
+          timeout: 5000,
+          closeOnClick: true,
+          pauseOnFocusLoss: true,
+          pauseOnHover: true,
+          draggable: true,
+          draggablePercent: 0.6,
+          showCloseButtonOnHover: true,
+          hideProgressBar: true,
+          closeButton: "button",
+          icon: "fa-solid fa-hourglass-half",
+          rtl: false,
+        });
+        setTimeout(function () {
+          app.isToasting = false;
+        }, 6200);
       }
     },
 
     toggleSpec() {
       const app = this;
       app.navSpec = !app.navSpec;
+    },
+
+    //ADDING APPEAL ADDRESS
+    addField(value, fieldType) {
+      const app = this;
+      fieldType.push({ value: "" });
+      console.log("array", app.multipleAppealAddress);
+    },
+    removeField(index, fieldType) {
+      const app = this;
+      fieldType.splice(index, 1);
+      console.log("array", app.multipleAppealAddress);
+    },
+    checkAddressArray() {
+      const app = this;
+      console.log("array", app.multipleAppealAddress);
+      let temp = [];
+      for (let i in app.multipleAppealAddress) {
+        if (app.multipleAppealAddress[i].address !== "") {
+          temp.push(app.multipleAppealAddress[i].address);
+        }
+      }
+      app.selectedAppealAddresses = temp;
+      console.log("temp", app.selectedAppealAddresses);
     },
   },
 };
