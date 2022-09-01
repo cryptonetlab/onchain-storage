@@ -77,9 +77,6 @@
               </section>
             </b-upload>
           </b-field>
-          <div class="mt-3" v-if="isUploadingIPFS">
-            <p>Uploading file on IPFS, please wait..</p>
-          </div>
           <div
             class="bordered-dashed is-flex is-flex-wrap-wrap is-align-items-start is-justify-content-space-between p-3"
             v-if="fileToUpload.name"
@@ -691,22 +688,12 @@
       <!-- Working Messages -->
       <div
         class="workingMessage is-flex is-flex-direction-row is-flex-wrap-wrap is-align-items-center is-justify-content-center"
-        v-if="isWorking"
+        v-if="isWorking && workingMessage !== undefined && workingMessage !== ''"
       >
         <i class="fas fa-spinner fa-pulse mr-5"></i>
         <p class="text-center">{{ workingMessage }}</p>
       </div>
       <!-- END Working Messages -->
-
-      <!-- Loading PROVIDERS  -->
-      <div
-        class="workingMessage is-flex is-flex-direction-row is-flex-wrap-wrap is-align-items-center is-justify-content-center"
-        v-if="providers.length <= 0"
-      >
-        <i class="fas fa-spinner fa-pulse mr-5"></i>
-        <p class="text-center">Loading Providers, please wait...</p>
-      </div>
-      <!-- END | Loading PROVIDERS -->
     </section>
   </div>
 </template>
@@ -937,6 +924,7 @@ export default {
       app.log("Max duration is: " + app.maxDuration);
       app.loading = false;
       // Connecting to p2p network
+      app.showLoadingToast("Loading Providers, please wait...");
       app.providers = [];
       const providersApi = await axios.get(
         process.env.VUE_APP_API_URL + "/providers"
@@ -960,6 +948,7 @@ export default {
       console.log(app.providers);
       console.log("DEFAULT PROVIDERS:", app.dealProviders);
       app.log("Found " + app.providers.length + " active providers");
+      app.$toast.clear();
     },
     async uploadFile() {
       const app = this;
@@ -970,6 +959,7 @@ export default {
           app.fileToUpload.size <
           app.providersPolicy[app.dealProviders[0]].maxSize
         ) {
+          app.showLoadingToast("Uploading file on IPFS, please wait..");
           app.isUploadingIPFS = true;
           app.canDoProposal = true;
           const formData = new FormData();
@@ -1000,13 +990,13 @@ export default {
             if (response.data.cid !== undefined) {
               app.dealUri = "ipfs://" + response.data.cid;
               app.isUploadingIPFS = false;
+              app.$toast.clear();
               console.log("uploaded correctly");
             } else {
               app.alertCustomError("Error while uploading file, please retry!");
             }
           });
         } else if (!app.expertMode) {
-          // TODO: Change with fancy alert
           app.alertCustomError(
             "File is too big, provider will not accept the deal!"
           );
@@ -1027,7 +1017,7 @@ export default {
           const maximumCollateral = app.slashingMultiplier * app.dealValue;
           if (parseInt(app.dealCollateral) <= parseInt(maximumCollateral)) {
             app.isWorking = true;
-            app.workingMessage = "Please confirm action with metamask..";
+            app.showLoadingToast("Please confirm action with metamask..");
             try {
               const contract = new app.web3.eth.Contract(app.abi, app.contract);
               if (app.expertMode) {
@@ -1037,10 +1027,14 @@ export default {
                     temp.push(app.multipleAppealAddress[i].address);
                   }
                 }
-                app.selectedAppealAddresses = temp;
+                app.selectedAppealAddresses = temp.toString();
               } else {
                 app.selectedAppealAddresses = app.account;
               }
+              console.log(
+                "Appeal Addresses typed are:",
+                app.selectedAppealAddresses
+              );
               const receipt = await contract.methods
                 .createDealProposal(
                   app.dealUri,
@@ -1256,12 +1250,12 @@ export default {
     addField(value, fieldType) {
       const app = this;
       fieldType.push({ value: "" });
-      console.log("array", app.multipleAppealAddress);
+      console.log("Multiple Addresses", app.multipleAppealAddress);
     },
     removeField(index, fieldType) {
       const app = this;
       fieldType.splice(index, 1);
-      console.log("array", app.multipleAppealAddress);
+      console.log("Multiple Addresses", app.multipleAppealAddress);
     },
     checkAddressArray() {
       const app = this;

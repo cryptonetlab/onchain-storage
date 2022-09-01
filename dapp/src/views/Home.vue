@@ -36,7 +36,6 @@
           <div class="container">
             <div>
               <div v-if="!loading">
-                <!-- Show all created deals -->
                 <div>
                   <!-- TITLE -->
                   <div class="b-bottom-colored-dark m-0 pb-3 mb-6">
@@ -55,8 +54,8 @@
 
                     <!-- SEARCH FUNCTION -->
                     <div class="column is-4-mobile is-4-tablet is-5-desktop">
-                      <div class="field">
-                        <p class="control has-icons-left has-icons-right">
+                      <div class="field" style="position: relative">
+                        <div class="control has-icons-left has-icons-right">
                           <input
                             class="input is-info"
                             type="text"
@@ -66,7 +65,16 @@
                           <span class="icon is-small is-left">
                             <i class="fa-solid fa-magnifying-glass"></i>
                           </span>
-                        </p>
+                        </div>
+                        <div
+                          v-if="searcher !== undefined && searcher.length !== 0"
+                          class="placeholder-input"
+                        >
+                          <i
+                            class="fa-solid fa-circle-xmark pointer"
+                            @click="searcher = ''"
+                          ></i>
+                        </div>
                       </div>
                     </div>
                     <!-- END SEARCH FUNCTION -->
@@ -84,7 +92,12 @@
                           <div class="custom_dropdown__text">
                             <span class="small">FILTER:</span>
                             <span v-if="activeDeal">Active</span>
-                            <span v-if="endedDeal">Ended</span>
+                            <span
+                              v-if="
+                                endedDeal !== undefined && endedDeal === true
+                              "
+                              >Ended</span
+                            >
                             <span v-if="showallDeals">All</span>
                             <i
                               v-if="!filtered"
@@ -143,7 +156,6 @@
                   </div>
                   <!-- END | ACTION BAR (button create deal - searchbar - filters) -->
 
-                  <!-- NEW SECTION DEALS -->
                   <div class="mb-5" v-if="deals.length > 0">
                     <!-- TITLES TABLE -->
                     <div
@@ -173,545 +185,32 @@
                     </div>
                     <!-- END TITLES TABLE -->
 
-                    <div
-                      class="custom-card"
-                      v-for="(deal, index) in deals"
-                      :key="deal.index"
-                      :class="{ 'custom-card-hover': index !== isOpening }"
-                    >
-                      <div class="card-header">
-                        <h4
-                          class="card-header-title"
-                          @click="openDeal(index)"
-                          style="cursor: pointer"
-                        >
-                          Retrieval Pinning Deal #{{ deal.index }}
-                        </h4>
-
-                        <!-- Deal action bar -->
-                        <div
-                          class="is-flex is-align-items-center is-justify-content-center is-flex-wrap-wrap"
-                        >
-                          <b-button
-                            @click="createAppeal(deal)"
-                            class="btn-tertiary btn-active"
-                          >
-                            <i class="fa-solid fa-bell mr-3"></i>REQUEST APPEAL
-                          </b-button>
-                          <div class="divider ml-4 mr-4"></div>
-                          <b-button
-                            @click="
-                              downloadFile(
-                                providerEndpoints[deal.provider] +
-                                  '/ipfs/' +
-                                  deal.deal_uri.replace('ipfs://', '')
-                              )
-                            "
-                            :disabled="
-                              new Date().getTime() >
-                                parseInt(deal.timestamp_end * 1000) ||
-                              parseInt(deal.timestamp_start * 1000) === 0
-                            "
-                            class="btn-icon"
-                          >
-                            <i class="fa-solid fa-download"></i>
-                          </b-button>
-                          <div class="divider ml-4 mr-4"></div>
-                          <a
-                            :class="{
-                              'no-pointer':
-                                parseInt(deal.timestamp_start * 1000) === 0,
-                            }"
-                            :href="opensea + '/' + contract + '/' + deal.index"
-                            target="_blank"
-                          >
-                            <b-button
-                              :disabled="
-                                parseInt(deal.timestamp_start * 1000) === 0
-                              "
-                              class="btn-icon svg-icon"
-                            >
-                              <svg
-                                version="1.1"
-                                id="Livello_1"
-                                xmlns="http://www.w3.org/2000/svg"
-                                xmlns:xlink="http://www.w3.org/1999/xlink"
-                                x="0px"
-                                y="0px"
-                                viewBox="0 0 192 192"
-                                style="enable-background: new 0 0 192 192"
-                                xml:space="preserve"
-                              >
-                                <g>
-                                  <g>
-                                    <path
-                                      class="st0"
-                                      d="M9.2,95.8c0-11.3,0.1-22.6,0-34c0-4.2,1-8,2.7-11.8c1.1-2.5,2.6-4.7,4.5-6.6c0.6-0.6,66.8-40.1,68.9-41.1
-			c2.2-1,4.5-1.8,6.9-1.9C93,0.4,93.8,0,94.6,0c1.6-0.1,3.1,0.1,4.7,0.4c1.4,0.3,2.8,0.5,4.3,0.9c1.7,0.4,3.2,1.1,4.6,1.9
-			c1.4,0.7,61.3,34.9,64.1,37.2c3.9,3.2,6.6,7.3,8.8,11.8c-0.1,2,1.5,3.7,1.1,5.7c1,2.6,0.5,5.3,0.5,8c0,21.5,0,43.1,0,64.6
-			c0,1.3-0.3,2.6-0.5,3.9c-0.2,1.3-0.7,2.5-0.9,3.7c-0.2,1.7-1.2,3-1.7,4.5c-0.7,1.8-1.8,3.3-3,4.7c-1.9,2.1-3.9,4.1-6.3,5.7
-			c-3.3,2.3-59.6,35-62.2,36.2c-2.6,1.2-5.4,2-8.3,2.4c-1.7,0.2-3.3,0.6-4.9,0.4c-3.8-0.4-7.6-1.1-11.1-2.9
-			c-4.6-2.3-8.9-5.1-13.3-7.6c-2.4-1.4-39.5-23-42.1-24.4c-4.8-3-9.7-5.8-13.5-10.2c-1.7-2-3.5-5.5-4.5-8.9
-			c-0.6-2.1-1.1-4.3-1.1-6.5C9.3,119.5,9.2,107.7,9.2,95.8z M46.3,103.6c0.8,2.3,1.5,4.7,2.3,7c1.8,5.4,3.6,10.8,5.4,16.3
-			c1.6,4.8,2.8,9.6,4.7,14.3c1.4,3.6,4,4.8,7.8,3.6c0.7-0.2,1.4-0.3,2-0.9c1.7-1.6,2.5-3.6,2.5-5.9c0-27.9,0-55.8,0-83.7
-			c0-0.3-0.1-0.9-0.1-1.2c-0.4-1.8-0.9-3.5-2.4-4.9c-1.5-1.5-5.2-1.7-6.7-0.7c-1.9,1.2-3.2,2.7-3.2,5.2c0.1,15.5,0,30.9,0,46.4
-			c-0.7,0.2,0.2,0-0.6,0.1c-0.7-1.7-1.3-3.3-1.9-5c-1.9-5.7-3.6-11.4-5.8-16.9c-1.4-3.7-2.4-7.6-3.7-11.3c-0.7-1.9-1.3-3.8-2.9-5.2
-			c-1.7-1.5-4.7-2-6.7-0.9c-2,1.1-3.3,2.6-3.3,5.1c0.1,15.4,0,57.1,0,62.5c0,0.7,0,5.4,6.3,5.5c5.9,0.1,6-4.4,6-7.7
-			C46.3,118,46.3,110.8,46.3,103.6z M95.8,45c3.1,1.6,5.9,2.9,8.5,4.5c2.4,1.5,4.6,1.7,7.1,0c1.1-0.7,1.9-1.6,2.3-2.7
-			c0.4-1.2,0.8-2.3,0.1-3.7c-0.7-1.5-0.9-2.4-2.2-3.4c-3-2.2-6.3-3.8-9.5-5.8c-2.8-1.7-5.7-3.3-8.5-5c-2.5-1.6-5.2-2-7.8-0.2
-			c-1.5,1-2.6,2.1-2.6,4.3c0.1,39.5,0.1,79.1,0,118.6c0,1.7,0.5,3,1.7,4.2c1,1,2.1,1.5,3.3,1.9c1,0.3,2.5,0.1,3.2-0.1
-			c0.2-0.1,0.9-0.5,1.1-0.7c2.3-1.9,3.1-4.2,3.1-7.3c-0.1-14.9,0-29.8,0-44.8c0-0.8,0-1.7,0-2.6c3.8,0,7.5,0.1,11.2,0
-			c1.2,0,2.6-0.1,3.5-0.7c1.3-0.8,2.5-2,3.1-3.5c0.6-1.3,0.4-2.6,0.1-4c-0.6-2.3-3-4.1-5.3-4.1c-3,0-5.9,0-8.9,0c-1.3,0-2.5,0-3.8,0
-			V45z M145.1,73.1c1.9,1.1,3.6,1.9,5.2,2.9c2.5,1.5,5.4,2.1,8.1-0.5c0.6-0.6,1.3-1.3,1.6-1.9c0.5-1.3,0.8-3,0.2-4.9
-			c-0.8-1.9-1.6-2.2-3.2-3.3c-1.8-1.3-3.8-2.4-5.8-3.4c-3.3-1.7-6.4-3.7-9.7-5.4c-1.7-0.9-3.5-1.9-5.1-2.9c-2.4-1.5-4.8-2.8-7.3-4
-			c-2-1-3.4-1.1-5.1-0.2c-1.4,0.7-2.6,1.6-3.2,3.4c-0.3,1-0.2,1.8-0.3,2.7c-0.3,2.5,1.2,4.1,3.1,5.2c2.3,1.4,4.6,2.6,7.1,3.8
-			c1.4,0.6,2.2,2,2.2,3.5c-0.1,21.6,0,43.2,0,64.8c0,0.4,0,0.9,0,1.3c0,1.3,0.6,2.2,1.2,3c0.4,0.6,0.5,1,1.2,1.3
-			c1.4,0.8,2.5,1,3.8,1c0.8,0,2-0.3,2.7-0.8c2.3-1.8,3.6-4.1,3.6-7.3c-0.1-18.5,0-37,0-55.5C145.1,74.9,145.1,74.1,145.1,73.1z"
-                                    />
-                                  </g>
-                                </g>
-                              </svg>
-                            </b-button>
-                          </a>
-                          <div class="divider ml-4 mr-4"></div>
-                          <b-button
-                            :disabled="
-                              (deal.timestamp_start !== undefined &&
-                                parseInt(deal.timestamp_start) !== 0) ||
-                              (deal.expired !== undefined &&
-                                deal.expired === false)
-                            "
-                            class="btn-icon"
-                            @click="isDeletingDeal(deal)"
-                          >
-                            <i class="fa-solid fa-trash-can"></i>
-                          </b-button>
-                          <div class="divider ml-4 mr-4"></div>
-                          <!-- BADGES -->
-                          <div
-                            v-if="
-                              (parseInt(deal.timestamp_end) -
-                                new Date().getTime() / 1000 >
-                                0 &&
-                                deal.appeal.round === undefined) ||
-                              (parseInt(deal.timestamp_end) -
-                                new Date().getTime() / 1000 >
-                                0 &&
-                                deal.appeal.round !== undefined &&
-                                deal.appeal.round === 99 &&
-                                deal.appeal.slashed !== undefined &&
-                                deal.appeal.slashed === false)
-                            "
-                            class="badge badge-success"
-                          >
-                            <span>Active</span>
-                          </div>
-                          <div
-                            v-if="
-                              parseInt(deal.timestamp_end) -
-                                new Date().getTime() / 1000 <
-                                0 &&
-                              !deal.canceled &&
-                              deal.timestamp_start > 0
-                            "
-                            class="badge badge-ended"
-                          >
-                            <span>Ended</span>
-                          </div>
-                          <div v-if="deal.canceled" class="badge badge-ended">
-                            <span>Canceled</span>
-                          </div>
-                          <div
-                            v-if="
-                              deal.timestamp_start !== undefined &&
-                              parseInt(deal.timestamp_start) === 0 &&
-                              !deal.expired
-                            "
-                            class="badge badge-pending"
-                          >
-                            <span>Pending</span>
-                          </div>
-                          <div
-                            v-if="
-                              deal.appeal.round !== undefined &&
-                              parseInt(deal.appeal.round) < 99 &&
-                              parseInt(deal.timestamp_end) -
-                                new Date().getTime() / 1000 >
-                                0
-                            "
-                            class="badge badge-requested"
-                          >
-                            <span>Appeal</span>
-                          </div>
-                          <div
-                            v-if="
-                              deal.appeal.round !== undefined &&
-                              deal.slashed !== undefined &&
-                              deal.slashed === true
-                            "
-                            class="badge badge-slashed"
-                          >
-                            <span>Slashed</span>
-                          </div>
-                          <div
-                            v-if="
-                              deal.timestamp_start !== undefined &&
-                              parseInt(deal.timestamp_start) === 0 &&
-                              deal.expired
-                            "
-                            class="badge badge-expired"
-                          >
-                            <span>Expired</span>
-                          </div>
-                          <!-- END BADGES -->
-                          <div class="divider ml-3 mr-3"></div>
-                          <div
-                            @click="
-                              openDeal(index);
-                              openTimingDeal = false;
-                            "
-                            class="card-header-icon mr-3 p-3"
-                            style="width: 35px"
-                          >
-                            <i
-                              v-if="index !== isOpening"
-                              class="fa-solid fa-chevron-right"
-                            ></i>
-                            <i
-                              v-if="index === isOpening"
-                              class="fa-solid fa-chevron-down"
-                            ></i>
-                          </div>
-                        </div>
-                        <!-- Deal action bar -->
+                    <!-- DEALS -->
+                    <div>
+                      <div v-for="(deal, index) in deals" :key="deal.index">
+                        <Deal
+                          :web3="web3"
+                          :account="account"
+                          :storedDeal="deal"
+                          :index="index"
+                          :opensea="opensea"
+                          :contract="contract"
+                          :abi="abi"
+                          :providerEndpoints="providerEndpoints"
+                          @toggleSpec="toggleSpec()"
+                          @alert="alertCustomError($event)"
+                        />
                       </div>
-
-                      <!-- DEAL SPECIFICATIONS -->
-                      <Transition
-                        name="custom-fade"
-                        enter-active-class="fade-in-top"
-                        leave-active-class="fade-out-top"
-                      >
-                        <div class="" v-show="index === isOpening">
-                          <div class="card-content">
-                            <div class="content">
-                              <div class="columns is-mobile">
-                                <div
-                                  class="column is-three-quarter-tablet is-half-desktop"
-                                >
-                                  <div>
-                                    <div
-                                      class="b-top-colored-grey b-bottom-colored-grey bg-pink-light px-2"
-                                      :class="{
-                                        'pb-3 pt-3': isDesktop,
-                                        'pb-1 pt-1': isTablet,
-                                      }"
-                                    >
-                                      <p>
-                                        <b>Deal URI: </b>
-                                        <a
-                                          v-if="deal.provider"
-                                          style="word-wrap: break-word"
-                                          class="link-primary"
-                                          :href="
-                                            providerEndpoints[deal.provider] +
-                                            '/ipfs/' +
-                                            deal.deal_uri.replace('ipfs://', '')
-                                          "
-                                          target="_blank"
-                                          >{{ deal.deal_uri }}</a
-                                        >
-                                        <a
-                                          v-if="!deal.provider"
-                                          style="word-wrap: break-word"
-                                          class="link-primary"
-                                          href="#"
-                                          >{{ deal.deal_uri }}</a
-                                        >
-                                      </p>
-                                    </div>
-                                    <div
-                                      class="is-flex is-justify-content-space-between is-align-items-center b-bottom-colored-grey bg-pink-light px-2"
-                                      :class="{
-                                        'pb-1 pt-1': isTablet,
-                                      }"
-                                    >
-                                      <div style="width: 100%">
-                                        <p><b>Value:</b> {{ deal.value }}</p>
-                                      </div>
-                                      <div class="divider-small"></div>
-                                      <div
-                                        class="has-text-right"
-                                        style="width: 100%"
-                                      >
-                                        <p>
-                                          <b>Collateral:</b>
-                                          {{ deal.collateral }}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div
-                                      class="b-bottom-colored-grey bg-pink-light px-2"
-                                      :class="{
-                                        'pb-3 pt-3': isDesktop,
-                                        'pb-1 pt-1': isTablet,
-                                      }"
-                                    >
-                                      <p>
-                                        <b>Canceled:</b> {{ deal.canceled }}
-                                      </p>
-                                    </div>
-                                    <div
-                                      class="b-bottom-colored-grey bg-pink-light px-2"
-                                      :class="{
-                                        'pb-3 pt-3': isDesktop,
-                                        'pb-1 pt-1': isTablet,
-                                      }"
-                                    >
-                                      <p>
-                                        <b>Provider:</b>
-                                        <span
-                                          v-if="
-                                            deal.provider !== 'NOT_ACCEPTED'
-                                          "
-                                        >
-                                          {{ deal.provider }}</span
-                                        >
-                                        <span
-                                          v-if="
-                                            deal.provider === 'NOT_ACCEPTED'
-                                          "
-                                        >
-                                          Pending Approval</span
-                                        >
-                                      </p>
-                                    </div>
-
-                                    <div
-                                      class="b-bottom-colored-grey bg-pink-light px-2"
-                                      :class="{
-                                        'pb-3 pt-3': isDesktop,
-                                        'pb-1 pt-1': isTablet,
-                                      }"
-                                    >
-                                      <p>
-                                        <b>Referee network: </b>
-                                        <a
-                                          style="word-wrap: break-word"
-                                          class="link-primary"
-                                          @click="toggleSpec"
-                                          target="_blank"
-                                          >Referee network #1</a
-                                        >
-                                      </p>
-                                    </div>
-                                    <!-- TIMING DEAL -->
-                                    <div
-                                      class="b-bottom-colored-grey bg-pink-light"
-                                      :class="{ 'pb-3': openTimingDeal }"
-                                    >
-                                      <div
-                                        class="is-flex is-justify-content-space-between is-align-items-center px-2"
-                                        style="cursor: pointer"
-                                        :class="{
-                                          'pb-3 pt-3': isDesktop,
-                                          'pb-1 pt-1': isTablet,
-                                        }"
-                                        @click="
-                                          openTimingDeal = !openTimingDeal
-                                        "
-                                      >
-                                        <div
-                                          v-if="
-                                            parseInt(deal.timestamp_end) -
-                                              new Date().getTime() / 1000 >
-                                            0
-                                          "
-                                        >
-                                          <p>
-                                            <b>Time remaining:</b>
-                                            {{
-                                              secondsToDhms(
-                                                parseInt(deal.timestamp_end) -
-                                                  new Date().getTime() / 1000
-                                              )
-                                            }}<br />
-                                          </p>
-                                        </div>
-                                        <div
-                                          v-if="
-                                            parseInt(deal.timestamp_end) -
-                                              new Date().getTime() / 1000 <
-                                            0
-                                          "
-                                        >
-                                          <p>
-                                            <b>Deal Timing</b>
-                                          </p>
-                                        </div>
-                                        <div
-                                          v-if="
-                                            parseInt(deal.timestamp_end) -
-                                              new Date().getTime() / 1000 <
-                                              0 &&
-                                            parseInt(deal.timestamp_start) !== 0
-                                          "
-                                        >
-                                          <p>
-                                            <b>Time remaining:</b> deal ended
-                                          </p>
-                                        </div>
-                                        <i
-                                          v-if="!openTimingDeal"
-                                          class="fa-solid fa-chevron-right"
-                                        ></i>
-                                        <i
-                                          v-if="openTimingDeal"
-                                          class="fa-solid fa-chevron-down"
-                                        ></i>
-                                      </div>
-                                      <div v-show="openTimingDeal">
-                                        <div class="px-2">
-                                          <p>
-                                            <b>Deal request:</b>
-                                            {{
-                                              returnDate(deal.timestamp_request)
-                                            }}
-                                          </p>
-                                        </div>
-                                        <div
-                                          class="bg-pink-light px-2"
-                                          v-if="
-                                            parseInt(deal.timestamp_start) !== 0
-                                          "
-                                        >
-                                          <p>
-                                            <b>Deal start:</b>
-                                            {{ returnDate(deal.timestamp_start)
-                                            }}<br />
-                                          </p>
-                                        </div>
-                                        <div
-                                          v-if="
-                                            parseInt(deal.timestamp_end) -
-                                              new Date().getTime() / 1000 >
-                                            0
-                                          "
-                                          class="px-2"
-                                        >
-                                          <p>
-                                            <b>Deal end:</b>
-                                            {{ returnDate(deal.timestamp_end)
-                                            }}<br />
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <!-- TIMING DEAL -->
-                                    <div
-                                      class=""
-                                      v-if="
-                                        deal.appeal.round !== undefined &&
-                                        parseInt(deal.appeal.round) < 99
-                                      "
-                                    >
-                                      <div
-                                        class="container-appeal b-bottom-colored-grey bg-primary-color px-2"
-                                        :class="{
-                                          'pb-3 pt-3': isDesktop,
-                                          'pb-1 pt-1': isTablet,
-                                        }"
-                                      >
-                                        <p>
-                                          <b style="color: white !important"
-                                            >Appeal Status</b
-                                          >
-                                        </p>
-                                      </div>
-                                      <div
-                                        class="b-bottom-colored-grey bg-pink-dark px-2"
-                                        :class="{
-                                          'pb-3 pt-3': isDesktop,
-                                          'pb-1 pt-1': isTablet,
-                                        }"
-                                      >
-                                        <p>
-                                          <b>Round: </b>
-                                          {{ deal.appeal.round }}/12
-                                          <i
-                                            class="fa-solid fa-hourglass-half fa-fade ml-2"
-                                          ></i>
-                                        </p>
-                                      </div>
-                                      <div
-                                        class="b-bottom-colored-grey bg-pink-dark px-2"
-                                        :class="{
-                                          'pb-3 pt-3': isDesktop,
-                                          'pb-1 pt-1': isTablet,
-                                        }"
-                                      >
-                                        <p>
-                                          <b>Slashes: </b>
-                                          {{ deal.appeal.slashes }}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <!-- CANCEL DEAL PROPOSAL -->
-                                    <!-- <div v-if="!isWorking">
-                                      <a
-                                        href="#"
-                                        v-if="
-                                          deal.timestamp_start !== undefined &&
-                                          parseInt(deal.timestamp_start) ===
-                                            0 &&
-                                          !deal.expired
-                                        "
-                                        @click="cancelDealProposal(deal)"
-                                        >🗑️ cancel deal proposal</a
-                                      >
-                                    </div> -->
-                                    <!-- CANCEL DEAL PROPOSAL -->
-                                  </div>
-                                </div>
-                                <div
-                                  class="column is-one-quarter-tablet is-half-desktop"
-                                >
-                                  <div
-                                    v-if="!downloads[deal.deal_uri]"
-                                    class="box-img"
-                                    style="
-                                      background-image: url(../assets/img/no-avail.png);
-                                    "
-                                  ></div>
-                                  <div
-                                    v-if="downloads[deal.deal_uri]"
-                                    class="box-img"
-                                  >
-                                    <img
-                                      :src="
-                                        providerEndpoints[deal.provider] +
-                                        '/ipfs/' +
-                                        deal.deal_uri.replace('ipfs://', '')
-                                      "
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Transition>
-                      <!-- END DEAL SPECIFICATIONS -->
                     </div>
+                    <!-- DEALS -->
                   </div>
-
                   <!-- NO DEALS -->
                   <p
                     v-if="
                       deals.length === 0 &&
                       searcher.length === 0 &&
                       endedDeal !== undefined &&
-                      endendDeal === false
+                      endedDeal === false
                     "
                     class="mt-6"
                   >
@@ -719,6 +218,7 @@
                     view the history of Deals you have created.
                   </p>
                   <!-- END | NO DEALS -->
+
                   <!-- NO DEALS -->
                   <p
                     v-if="
@@ -733,7 +233,9 @@
                   </p>
                   <!-- END | NO DEALS -->
                 </div>
-                <!-- END - Show all created deals -->
+              </div>
+              <div v-if="loading" class="">
+                <p>Wait a moment, we are preparing your dashboard</p>
               </div>
             </div>
           </div>
@@ -777,7 +279,7 @@ import Web3 from "web3";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Navbar from "@/components/Navbar.vue";
-
+import Deal from "@/components/Deal.vue";
 import checkViewport from "@/mixins/checkViewport";
 import { io } from "socket.io-client";
 const axios = require("axios");
@@ -788,6 +290,7 @@ export default {
   mixins: [checkViewport],
   components: {
     Navbar,
+    Deal,
   },
   data() {
     return {
@@ -806,7 +309,6 @@ export default {
       minDuration: 3600,
       maxDuration: 42000,
       proposalTimeout: 0,
-      downloads: {},
       deals: [],
       providers: [],
       providerEndpoints: {},
@@ -827,9 +329,7 @@ export default {
       selectedDeal: {},
       // FOR LAYOUT
       expertMode: false,
-      isOpening: -1,
       navSpec: false,
-      openTimingDeal: false,
       // FILTER
       changeNetwork: false,
       filtered: false,
@@ -954,8 +454,6 @@ export default {
           let deal = deals.data[k];
           if (keys.indexOf(parseInt(deal.index)) === -1) {
             keys.push(parseInt(deal.index));
-            app.downloads[deal.deal_uri] = false;
-
             // Check if deal can appeal or not
             deal.canAppeal = true;
 
@@ -1087,123 +585,6 @@ export default {
       }
       app.log("Found " + app.providers.length + " active providers");
     },
-
-    async cancelDealProposal(deal) {
-      const app = this;
-      const index = deal.index;
-      if (!app.isWorking) {
-        app.isWorking = true;
-        app.workingMessage = "Please confirm action with metamask..";
-        console.log("cancel deal number", index);
-        try {
-          const contract = new app.web3.eth.Contract(app.abi, app.contract);
-          await contract.methods
-            .cancelDealProposal(index)
-            .send({
-              from: app.account,
-            })
-            .on("transactionHash", (tx) => {
-              app.workingMessage = "Found pending transaction at " + tx;
-              app.log(app.workingMessage);
-            });
-          app.alertCustomError("Deal proposal canceled!");
-          app.loadState();
-        } catch (e) {
-          app.isWorking = false;
-          app.alertCustomError(e.message);
-        }
-      }
-    },
-
-    async createAppeal(deal) {
-      const app = this;
-      const index = deal.index;
-      console.log("Try create appeal of", index);
-      const contract = new app.web3.eth.Contract(app.abi, app.contract);
-      const max_appeals = await contract.methods.max_appeals().call();
-      const n_appeals = await contract.methods.tot_appeals(index).call();
-      console.log("Max appeal is;", parseInt(max_appeals));
-      console.log("n appeals is:", parseInt(n_appeals));
-      if (!app.isWorking && parseInt(n_appeals) < parseInt(max_appeals)) {
-        app.isWorking = true;
-        app.workingMessage = "Creating Appeal...";
-        const active_appeal = await contract.methods
-          .active_appeals(deal.deal_uri)
-          .call();
-        const round = await contract.methods.getRound(active_appeal).call();
-        console.log("active appeal is:", active_appeal);
-        console.log("round is:", round);
-        if (parseInt(round) === 99 || parseInt(round) === 0) {
-          app.workingMessage = "Please confirm action with metamask..";
-          try {
-            const fee = await contract.methods.returnAppealFee(index).call();
-            app.log("Fee needed for appeal is: " + fee);
-            await contract.methods
-              .createAppeal(index)
-              .send({
-                value: fee,
-                from: app.account,
-              })
-              .on("transactionHash", (tx) => {
-                app.workingMessage =
-                  "Found pending transaction at " +
-                  tx.substr(0, 4) +
-                  "..." +
-                  tx.substr(-4);
-                this.$toast.warning("Found pending transaction at:" + tx, {
-                  position: "top-right",
-                  timeout: 5000,
-                  closeOnClick: true,
-                  pauseOnFocusLoss: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  draggablePercent: 0.6,
-                  showCloseButtonOnHover: true,
-                  hideProgressBar: true,
-                  closeButton: "button",
-                  icon: "fa-solid fa-arrow-right-arrow-left",
-                  rtl: false,
-                });
-                app.log(app.workingMessage);
-              });
-            this.$toast("Appeal created!", {
-              position: "top-right",
-              timeout: 5000,
-              closeOnClick: true,
-              pauseOnFocusLoss: true,
-              pauseOnHover: true,
-              draggable: true,
-              draggablePercent: 0.6,
-              showCloseButtonOnHover: true,
-              hideProgressBar: true,
-              closeButton: "button",
-              icon: "fa-solid fa-check",
-              rtl: false,
-            });
-            app.isWorking = false;
-            app.workingMessage = "";
-            app.loadState();
-          } catch (e) {
-            app.isWorking = false;
-            app.workingMessage = "";
-            app.alertCustomError(e.message);
-          }
-        } else {
-          app.isWorking = false;
-          app.workingMessage = "";
-          app.alertCustomError(
-            "You can't create appeal, there's an active appeal for this URI yet."
-          );
-        }
-      } else {
-        app.isWorking = false;
-        app.workingMessage = "";
-        app.alertCustomError(
-          "You can't create appeal, max appeal for this file is reached"
-        );
-      }
-    },
-
     async withdraw() {
       const app = this;
       if (!app.isWorking) {
@@ -1235,7 +616,6 @@ export default {
         }
       }
     },
-
     connectSocket(endpoint) {
       const app = this;
       app.log("Connecting to socket: " + endpoint);
@@ -1254,7 +634,6 @@ export default {
         }
       });
     },
-
     parseMessage(message) {
       const app = this;
       try {
@@ -1309,79 +688,6 @@ export default {
         console.log("Error parsing message from socket");
         console.log(e);
       }
-    },
-
-    async refreshDeal(index) {
-      const app = this;
-      console.log("Refreshing deal", app.deals[index]);
-      if (!app.isWorking) {
-        this.$buefy.toast.open({
-          duration: 5000,
-          message:
-            '<i class="fa-solid fa-hourglass-half"></i> ' +
-            ` Deal ID #` +
-            app.deals[index].index +
-            ` information is refreshing...`,
-          position: "is-bottom-right",
-          type: "is-warning",
-        });
-        try {
-          let refreshed = await axios.get(
-            process.env.VUE_APP_API_URL + "/parse/" + app.deals[index].index
-          );
-          console.log("refreshed", refreshed.data);
-          app.deals[index] = refreshed.data;
-          this.$buefy.toast.open({
-            duration: 5000,
-            message:
-              `Deal ID #` + app.deals[index].index + ` information refreshed`,
-            position: "is-bottom-right",
-            type: "is-warning",
-          });
-          app.$forceUpdate();
-        } catch (e) {
-          app.alertCustomError(e.message);
-        }
-      }
-    },
-
-    async downloadFile(uri) {
-      const app = this;
-      app.isWorking = true;
-      app.workingMessage = "Try to download your file. Please Wait...";
-      console.log("try download start");
-      try {
-        console.log("Downloading file from:", uri);
-        const downloaded = await axios.get(uri);
-        console.log(downloaded);
-        window.open(uri, "_blank");
-        app.isWorking = false;
-        app.workingMessage = "";
-      } catch (e) {
-        console.log("RETRIEVE_ERROR", e);
-        app.alertCustomError("Can't retrieve file!");
-        app.isWorking = false;
-        app.workingMessage = "";
-      }
-    },
-
-    secondsToDhms(seconds) {
-      seconds = Number(seconds);
-      var d = Math.floor(seconds / (3600 * 24));
-      var h = Math.floor((seconds % (3600 * 24)) / 3600);
-      var m = Math.floor((seconds % 3600) / 60);
-      var s = Math.floor(seconds % 60);
-
-      var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
-      var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
-      var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-      var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-      return dDisplay + hDisplay + mDisplay + sDisplay;
-    },
-
-    returnDate(s) {
-      const date = new Date(s * 1000).toUTCString();
-      return date.split("GMT")[0].trim();
     },
 
     // NOTIFICATION AND ALERT
@@ -1464,19 +770,6 @@ export default {
         iconPack: "fa",
         ariaRole: "alertdialog",
         ariaModal: true,
-      });
-    },
-    isDeletingDeal(deal) {
-      const app = this;
-      const index = deal.index;
-      this.$buefy.dialog.confirm({
-        title: "Deleting Deal #" + index,
-        message:
-          "Are you sure you want to <b>delete</b> this Deal? This action cannot be undone.",
-        confirmText: "Delete Deal",
-        type: "is-danger",
-        hasIcon: true,
-        onConfirm: () => app.cancelDealProposal(deal),
       });
     },
 
@@ -1634,40 +927,19 @@ export default {
         }
       }
     },
-    async openDeal(index) {
-      const app = this;
-      if (app.isOpening === index) {
-        app.isOpening = -1;
-      } else {
-        console.log("Opening deal", app.deals[index]);
-        setTimeout(async function () {
-          const uri =
-            app.providerEndpoints[app.deals[index].provider] +
-            "/ipfs/" +
-            app.deals[index].deal_uri.replace("ipfs://", "");
-          try {
-            console.log("Downloading file from:", uri);
-            const downloaded = await axios.get(uri);
-            if (downloaded.data !== undefined) {
-              app.downloads[app.deals[index].deal_uri] = true;
-            }
-          } catch (e) {
-            console.log("Error while downloading from:", uri);
-          }
-        }, 2000);
-        app.isOpening = index;
-        app.refreshDeal(index);
-      }
-    },
     searchDealURI() {
       // filter deal by deal_uri by v-model "searcher"
       console.log("Starting search...");
       const app = this;
-      app.deals = app.deals.filter((deal) => {
-        return deal.deal_uri.toLowerCase().includes(app.searcher.toLowerCase());
-      });
+      if (app.searcher.length > 0) {
+        app.deals = app.deals.filter((deal) => {
+          return deal.deal_uri
+            .toLowerCase()
+            .includes(app.searcher.toLowerCase());
+        });
+        console.log("deal founded", app.deals);
+      }
     },
-
     toggleSpec() {
       const app = this;
       app.navSpec = !app.navSpec;
