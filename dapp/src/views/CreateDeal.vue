@@ -11,7 +11,7 @@
       </p>
     </div>
     <!-- END MOBILE BLOCKER DAPP -->
-    <section v-if="!isMobile" class="hero" :class="{ 'no-scroll': isWorking }">
+    <section v-if="!isMobile" class="hero">
       <!-- NAVBAR SECTION -->
       <Navbar
         :account="account"
@@ -52,6 +52,7 @@
               <b-switch
                 v-model="expertMode"
                 :rounded="false"
+                :disabled="isWorking"
                 leftLabel
                 type="is-info"
               >
@@ -91,6 +92,7 @@
             <b-button
               class="btn-secondary"
               style="float: right"
+              :disabled="isWorking"
               @click="
                 fileToUpload = {};
                 dealUri = '';
@@ -105,48 +107,27 @@
 
           <!-- Appeal address & Deal URI -->
           <div v-if="expertMode" class="columns is-mobile mt-6">
-            <!-- <div class="column">
-              <h5 class="mb-3">Appeal Address</h5>
-              <div
-                class="is-flex is-align-items-center is-align-content-space-between"
-              >
-                <b-field class="mb-0" type="is-info" style="width: 100%">
-                  <b-input
-                    :disabled="isWorking"
-                    v-model="appealAddress"
-                    placeholder="ex: your ETH address"
-                  ></b-input>
-                </b-field>
-                <div class="pointer">
-                  <i class="fa-solid fa-circle-plus ml-3 color-secondary"></i>
-                </div>
-              </div>
-            </div> -->
-
             <div class="column">
               <h5 class="mb-3">Appeal Address</h5>
               <div
-                v-for="(input, index) in multipleAppealAddress"
+                v-for="(address, index) in appealAddresses"
                 :key="index"
                 class="is-flex is-align-items-center is-align-content-space-between mb-3"
               >
                 <b-field class="mb-0" type="is-info" style="width: 100%">
                   <b-input
                     :disabled="isWorking"
-                    v-model="input.address"
+                    v-model="appealAddresses[index]"
                     placeholder="ex: your ETH address"
                   ></b-input>
                 </b-field>
-                <div
-                  class="pointer"
-                  @click="addField(input, multipleAppealAddress)"
-                >
+                <div class="pointer" @click="addField()">
                   <i class="fa-solid fa-circle-plus ml-3 color-secondary"></i>
                 </div>
                 <div
                   class="pointer"
-                  v-show="multipleAppealAddress.length > 1"
-                  @click="removeField(index, multipleAppealAddress)"
+                  v-show="appealAddresses.length > 1"
+                  @click="removeField(index)"
                 >
                   <i class="fa-solid fa-circle-minus ml-3 color-error"></i>
                 </div>
@@ -180,6 +161,7 @@
             native-value="false"
             v-model="service"
             checked
+            :disabled="isWorking"
           >
           </b-checkbox>
           Retrieval Pinning
@@ -193,6 +175,7 @@
               native-value="false"
               v-model="refereenetwork"
               checked
+              :disabled="isWorking"
             >
             </b-checkbox>
             Referee Network #1 ({{ contract }})
@@ -417,24 +400,28 @@
                       <div class="is-flex is-align-items-center">
                         <b-button
                           class="btn-transparent fixed-width mr-4"
+                          :disabled="isWorking"
                           :type="{ 'is-info': selectedPriority === 0 }"
                           @click="calculateDealValue(0)"
                           >Free</b-button
                         >
                         <b-button
                           class="btn-transparent fixed-width mr-4"
+                          :disabled="isWorking"
                           :type="{ 'is-info': selectedPriority === 1 }"
                           @click="calculateDealValue(1)"
                           >Low</b-button
                         >
                         <b-button
                           class="btn-transparent fixed-width mr-4"
+                          :disabled="isWorking"
                           :type="{ 'is-info': selectedPriority === 2 }"
                           @click="calculateDealValue(2)"
                           >Medium</b-button
                         >
                         <b-button
                           class="btn-transparent fixed-width"
+                          :disabled="isWorking"
                           :type="{ 'is-info': selectedPriority === 5 }"
                           @click="calculateDealValue(5)"
                           >High</b-button
@@ -543,7 +530,7 @@
                     <div v-if="!expertMode">
                       <div class="is-flex is-align-items-center">
                         <b-button
-                          :disabled="dealValue === 0"
+                          :disabled="dealValue === 0 || isWorking"
                           class="btn-transparent fixed-width mr-4"
                           :type="{
                             'is-info':
@@ -554,7 +541,7 @@
                           >Minimum</b-button
                         >
                         <b-button
-                          :disabled="dealValue === 0"
+                          :disabled="dealValue === 0 || isWorking"
                           class="btn-transparent fixed-width mr-4"
                           :type="{
                             'is-info':
@@ -569,7 +556,7 @@
                           >Low</b-button
                         >
                         <b-button
-                          :disabled="dealValue === 0"
+                          :disabled="dealValue === 0 || isWorking"
                           class="btn-transparent fixed-width mr-4"
                           :type="{
                             'is-info':
@@ -584,7 +571,7 @@
                           >Medium</b-button
                         >
                         <b-button
-                          :disabled="dealValue === 0"
+                          :disabled="dealValue === 0 || isWorking"
                           class="btn-transparent fixed-width"
                           :type="{
                             'is-info':
@@ -652,7 +639,11 @@
 
                   <div class="is-flex is-align-items-center mb-5">
                     <b-field class="mb-0">
-                      <b-checkbox v-model="termsOfService" type="is-info inter">
+                      <b-checkbox
+                        :disabled="isWorking"
+                        v-model="termsOfService"
+                        type="is-info inter"
+                      >
                         I agree to the referee net #1 terms and conditions
                       </b-checkbox>
                     </b-field>
@@ -666,9 +657,10 @@
                   <b-button
                     class="btn-secondary"
                     :disabled="
-                      termsOfService !== undefined &&
-                      !termsOfService &&
-                      !isUploadingIPFS
+                      (termsOfService !== undefined &&
+                        !termsOfService &&
+                        !isUploadingIPFS) ||
+                      isWorking
                     "
                     v-if="!isWorking && canDoProposal"
                     @click="createDealProposal()"
@@ -688,7 +680,9 @@
       <!-- Working Messages -->
       <div
         class="workingMessage is-flex is-flex-direction-row is-flex-wrap-wrap is-align-items-center is-justify-content-center"
-        v-if="isWorking && workingMessage !== undefined && workingMessage !== ''"
+        v-if="
+          isWorking && workingMessage !== undefined && workingMessage !== ''
+        "
       >
         <i class="fas fa-spinner fa-pulse mr-5"></i>
         <p class="text-center">{{ workingMessage }}</p>
@@ -750,9 +744,7 @@ export default {
       fileToUpload: {},
       isUploadingIPFS: false,
       slashingMultiplier: 1000,
-      appealAddress: "",
-      multipleAppealAddress: [{ address: "" }],
-      selectedAppealAddresses: [],
+      appealAddresses: [],
       // REFRESH SINGLE DEAL
       selectedDeal: {},
 
@@ -864,7 +856,7 @@ export default {
         const accounts = await app.web3.eth.getAccounts();
         if (accounts.length > 0) {
           app.account = accounts[0];
-          app.appealAddress = app.account;
+          app.appealAddresses = [app.account];
           app.accountBalance = await app.web3.eth.getBalance(accounts[0]);
           app.accountBalance = parseFloat(
             app.web3.utils.fromWei(app.accountBalance, "ether")
@@ -1020,48 +1012,30 @@ export default {
             app.showLoadingToast("Please confirm action with metamask..");
             try {
               const contract = new app.web3.eth.Contract(app.abi, app.contract);
-              if (app.expertMode) {
-                let temp = [];
-                for (let i in app.multipleAppealAddress) {
-                  if (app.multipleAppealAddress[i].address !== "") {
-                    temp.push(app.multipleAppealAddress[i].address);
-                  }
-                }
-                app.selectedAppealAddresses = temp.toString();
-              } else {
-                app.selectedAppealAddresses = app.account;
-              }
-              console.log(
-                "Appeal Addresses typed are:",
-                app.selectedAppealAddresses
-              );
+              console.log("Appeal Addresses typed are:", app.appealAddresses);
               const receipt = await contract.methods
                 .createDealProposal(
                   app.dealUri,
                   app.dealDuration,
                   app.dealCollateral.toString(),
                   app.dealProviders,
-                  [app.selectedAppealAddresses]
+                  app.appealAddresses
                 )
                 .send({
                   value: app.dealValue.toString(),
                   from: app.account,
                 })
                 .on("transactionHash", (tx) => {
-                  app.workingMessage =
-                    "Found pending transaction at " +
-                    tx.substr(0, 4) +
-                    "..." +
-                    tx.substr(-4);
                   app.log(
                     "Found pending transaction at " +
                       tx.substr(0, 4) +
                       "..." +
                       tx.substr(-4)
                   );
+                  localStorage.setItem("pendingTx", tx);
                   this.$toast.warning("Found pending transaction at: " + tx, {
                     position: "top-right",
-                    timeout: 5000,
+                    timeout: 15000,
                     closeOnClick: true,
                     pauseOnFocusLoss: true,
                     pauseOnHover: true,
@@ -1074,6 +1048,7 @@ export default {
                     rtl: false,
                   });
                 });
+              app.$toast.clear();
               console.log("BLOCKCHAIN_RECEIPT ", receipt);
               app.log(
                 "Transaction success at: ",
@@ -1084,11 +1059,6 @@ export default {
               setTimeout(async function () {
                 window.location.href = "/";
               }, 2000);
-              app.workingMessage =
-                "Transaction success at: " +
-                receipt.blockHash.substr(0, 4) +
-                "..." +
-                receipt.blockHash.substr(-4);
               this.$toast("Transaction success at: " + receipt.blockHash, {
                 position: "top-right",
                 timeout: 5000,
@@ -1142,7 +1112,7 @@ export default {
       const app = this;
       if (!app.isWorking) {
         app.isWorking = true;
-        app.workingMessage = "Please confirm action with metamask..";
+        app.showLoadingToast("Please confirm action with metamask..");
         try {
           const contract = new app.web3.eth.Contract(app.abi, app.contract);
           const balance = await contract.methods.vault(app.account).call();
@@ -1154,9 +1124,23 @@ export default {
                 from: app.account,
               })
               .on("transactionHash", (tx) => {
-                app.workingMessage = "Found pending transaction at " + tx;
+                this.$toast.warning("Found pending transaction at: " + tx, {
+                  position: "top-right",
+                  timeout: 15000,
+                  closeOnClick: true,
+                  pauseOnFocusLoss: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  draggablePercent: 0.6,
+                  showCloseButtonOnHover: true,
+                  hideProgressBar: true,
+                  closeButton: "button",
+                  icon: "fa-solid fa-arrow-right-arrow-left",
+                  rtl: false,
+                });
                 app.log(app.workingMessage);
               });
+            app.$toast.clear();
             app.alertCustomError("Withdraw done!");
             app.loadState();
           } else {
@@ -1240,34 +1224,26 @@ export default {
         }, 6200);
       }
     },
-
     toggleSpec() {
       const app = this;
       app.navSpec = !app.navSpec;
     },
 
     //ADDING APPEAL ADDRESS
-    addField(value, fieldType) {
+    addField() {
       const app = this;
-      fieldType.push({ value: "" });
-      console.log("Multiple Addresses", app.multipleAppealAddress);
+      app.appealAddresses.push("");
     },
-    removeField(index, fieldType) {
+    removeField(index) {
       const app = this;
-      fieldType.splice(index, 1);
-      console.log("Multiple Addresses", app.multipleAppealAddress);
-    },
-    checkAddressArray() {
-      const app = this;
-      console.log("array", app.multipleAppealAddress);
-      let temp = [];
-      for (let i in app.multipleAppealAddress) {
-        if (app.multipleAppealAddress[i].address !== "") {
-          temp.push(app.multipleAppealAddress[i].address);
+      console.log("Removing index:", index);
+      let temp = app.appealAddresses;
+      app.appealAddresses = [];
+      for (let k in temp) {
+        if (parseInt(k) !== parseInt(index)) {
+          app.appealAddresses.push(temp[k]);
         }
       }
-      app.selectedAppealAddresses = temp;
-      console.log("temp", app.selectedAppealAddresses);
     },
   },
 };

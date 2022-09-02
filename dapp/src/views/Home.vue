@@ -26,6 +26,7 @@
           :isWorking="isWorking"
           :workingMessage="workingMessage"
           :navSpec="navSpec"
+          :deals="deals"
           @withdraw="withdraw()"
           @toggleSpec="toggleSpec()"
         />
@@ -42,6 +43,12 @@
                     <h2 class="title is-3 m-0">MANAGE DEALS</h2>
                   </div>
                   <!-- END TITLE -->
+
+                  <!-- Message pending Tx -->
+                  <!-- <div v-if="pendingTx">
+                    Searching for latest transaction {{ pendingTx }}, please
+                    wait...<br /><br />
+                  </div> -->
 
                   <!-- ACTION BAR (button create deal - searchbar - filters) -->
                   <div class="columns is-mobile is-multiline is-vcentered mb-5">
@@ -234,8 +241,16 @@
                   <!-- END | NO DEALS -->
                 </div>
               </div>
-              <div v-if="loading" class="">
-                <p>Wait a moment, we are preparing your dashboard</p>
+              <div
+                v-if="loading"
+                class="mt-6 mb-6 has-text-centered pulse_loading"
+              >
+                <div class="btn-loader">
+                  <h2 class="m-0">
+                    <i class="fas fa-spinner fa-pulse mr-3"></i> PREPARING
+                    DASHBOARD
+                  </h2>
+                </div>
               </div>
             </div>
           </div>
@@ -311,6 +326,7 @@ export default {
       proposalTimeout: 0,
       deals: [],
       providers: [],
+      txids: [],
       providerEndpoints: {},
       logs: "",
       dealUri: "",
@@ -321,10 +337,11 @@ export default {
       balance: 0,
       infuraURL: "https://ipfs.infura.io:5001/api/v0/add",
       currentNetwork: { icon: "fa-solid fa-user-secret", text: "Rinkeby" },
-      fileToUpload: {},
+      appealsByUri: {},
       isUploadingIPFS: false,
       slashingMultiplier: 10,
       appealAddress: "",
+      pendingTx: "",
       // REFRESH SINGLE DEAL
       selectedDeal: {},
       // FOR LAYOUT
@@ -421,8 +438,107 @@ export default {
       }
       app.logs += "<hr>" + temp;
     },
+    async searchPending() {
+      const app = this;
+      const pendingTx = localStorage.getItem("pendingTx");
+      app.pendingTx = pendingTx;
+      console.log("Stored pending tx:", pendingTx);
+      let found = false;
+      if (pendingTx === null || pendingTx.length === 0) {
+        found = true;
+      }
+      if (!found) {
+        app.$buefy.toast.open({
+          duration: 500000,
+          message:
+            '<i class="fa-solid fa-hourglass-half"></i> ' +
+            ` Searching for latest transaction: ` +
+            pendingTx +
+            ` please wait...`,
+          position: "is-bottom-right",
+          type: "is-warning",
+        });
+        let deals = await axios.get(
+          process.env.VUE_APP_API_URL + "/deals/" + app.account
+        );
+        for (let k in deals.data) {
+          let deal = deals.data[k];
+          if (
+            deal.proposal_tx !== undefined &&
+            deal.proposal_tx === pendingTx
+          ) {
+            found = true;
+            app.$toast.clear();
+            if (app.txids.indexOf(deal.proposal_tx) === -1) {
+              app.txids.push(deal.proposal_tx);
+              app.deals.push(deal);
+            }
+          }
+        }
+        // Still not found
+        if (!found) {
+          app.log("Pending tx not found, refreshing in 2 seconds..");
+          setTimeout(function () {
+            app.searchPending();
+          }, 2000);
+        } else {
+          app.$toast.clear();
+          app.log("Pending tx found, removing from cache.");
+          localStorage.removeItem("pendingTx");
+          app.pendingTx = "";
+        }
+      }
+    },
+    async parseDeal(deal) {
+      const app = this;
+      deal.canAppeal = true;
+      // TODO: Optimize contract
+      const contract = new app.web3.eth.Contract(app.abi, app.contract);
+      const appeal_index = await contract.methods
+        .active_appeals(deal.deal_uri)
+        .call();
+      const round = await contract.methods.getRound(appeal_index).call();
+      console.log(
+        "deal " + deal.index + " with appeal index ",
+        appeal_index + " have a round " + round
+      );
+
+      // Check if appeal ended
+      if (
+        deal.appeal !== undefined &&
+        deal.appeal.round !== undefined &&
+        parseInt(deal.appeal.round) < 99
+      ) {
+        deal.canAppeal = false;
+        app.appealsByUri[deal.deal_uri] = deal.appeal;
+      }
+      // Check if deal ended
+      if (deal.timestamp_end * 1000 < new Date().getTime() || deal.canceled) {
+        deal.canAppeal = false;
+      }
+      // Check if appeal doesn't exists
+      if (deal.appeal === undefined || Object.keys(deal.appeal) === 0) {
+        deal.canAppeal = true;
+      }
+      if (app.appealsByUri[deal.deal_uri] !== undefined) {
+        deal.canAppeal = false;
+      }
+      // Set expiration timestamp
+      const expires_at =
+        (parseInt(deal.timestamp_request) + parseInt(app.proposalTimeout)) *
+        1000;
+      // Check if expired
+      if (new Date().getTime() > expires_at) {
+        deal.expired = true;
+      } else {
+        deal.expired = false;
+      }
+      // Getting round appel
+      return deal;
+    },
     async loadState() {
       const app = this;
+      app.appealsByUri = {};
       app.showLoadingToast(
         "Loading data from blockchain and fetching your deals, please wait..."
       );
@@ -449,74 +565,36 @@ export default {
         );
         app.isWorking = false;
         let keys = [];
-        let appealsByUri = {};
         for (let k in deals.data) {
-          let deal = deals.data[k];
+          let deal = await app.parseDeal(deals.data[k]);
+          if (deal.proposal_tx !== undefined && deal.proposal_tx !== null) {
+            app.txids.push(deal.proposal_tx);
+          }
           if (keys.indexOf(parseInt(deal.index)) === -1) {
             keys.push(parseInt(deal.index));
             // Check if deal can appeal or not
-            deal.canAppeal = true;
-
-            const contract = new app.web3.eth.Contract(app.abi, app.contract);
-            const appeal_index = await contract.methods
-              .active_appeals(deal.deal_uri)
-              .call();
-            const round = await contract.methods.getRound(appeal_index).call();
-            console.log(
-              "deal " + deal.index + " with appeal index ",
-              appeal_index + " have a round " + round
-            );
-
-            // Check if appeal ended
-            if (
-              deal.appeal !== undefined &&
-              deal.appeal.round !== undefined &&
-              parseInt(deal.appeal.round) < 99
-            ) {
-              deal.canAppeal = false;
-              appealsByUri[deal.deal_uri] = deal.appeal;
-            }
-            // Check if deal ended
-            if (deal.timestamp_end * 1000 < new Date().getTime()) {
-              deal.canAppeal = false;
-            }
-            // Check if appeal doesn't exists
-            if (deal.appeal === undefined || Object.keys(deal.appeal) === 0) {
-              deal.canAppeal = true;
-            }
-            if (appealsByUri[deal.deal_uri] !== undefined) {
-              deal.canAppeal = false;
-            }
-            // Set expiration timestamp
-            const expires_at =
-              (parseInt(deal.timestamp_request) +
-                parseInt(app.proposalTimeout)) *
-              1000;
-            // Check if expired
-            if (new Date().getTime() > expires_at) {
-              deal.expired = true;
-            } else {
-              deal.expired = false;
-            }
-            // Getting round appel
 
             // Getting active deals
             if (
               parseInt(deal.timestamp_end) - new Date().getTime() / 1000 > 0 ||
-              (parseInt(deal.timestamp_start) === 0 && !deal.expired)
+              (parseInt(deal.timestamp_start) === 0 &&
+                !deal.expired &&
+                !deal.canceled)
             ) {
               keys.push(parseInt(deal.index));
               app.deals.push(deal);
             }
-            console.log("Can deal appeal?", deal.canAppeal);
+            // console.log("Can deal appeal?", deal.canAppeal);
           }
         }
+        app.searchPending();
         app.$forceUpdate();
         // app.log("Found #" + app.deals.length + " deals.");
         console.log("deals", app.deals);
         this.$toast.clear();
         // app.activeDeals();
       } catch (e) {
+        console.log(e);
         app.alertCustomError(
           "Can't fetch deals from blockchain, please retry!"
         );
@@ -589,7 +667,7 @@ export default {
       const app = this;
       if (!app.isWorking) {
         app.isWorking = true;
-        app.workingMessage = "Please confirm action with metamask..";
+        app.showLoadingToast("Please confirm action with metamask..");
         try {
           const contract = new app.web3.eth.Contract(app.abi, app.contract);
           const balance = await contract.methods.vault(app.account).call();
@@ -601,9 +679,23 @@ export default {
                 from: app.account,
               })
               .on("transactionHash", (tx) => {
-                app.workingMessage = "Found pending transaction at " + tx;
+                this.$toast.warning("Found pending transaction at: " + tx, {
+                  position: "top-right",
+                  timeout: 15000,
+                  closeOnClick: true,
+                  pauseOnFocusLoss: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  draggablePercent: 0.6,
+                  showCloseButtonOnHover: true,
+                  hideProgressBar: true,
+                  closeButton: "button",
+                  icon: "fa-solid fa-arrow-right-arrow-left",
+                  rtl: false,
+                });
                 app.log(app.workingMessage);
               });
+            app.$toast.clear();
             app.alertCustomError("Withdraw done!");
             app.loadState();
           } else {
@@ -849,7 +941,8 @@ export default {
                 deal.dealisEnded === true ||
                 (deal.dealisEnded === true &&
                   deal.expired === true &&
-                  !deal.dealPending)
+                  !deal.dealPending) ||
+                deal.canceled
               ) {
                 keys.push(parseInt(deal.index));
                 app.deals.push(deal);

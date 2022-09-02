@@ -1,6 +1,9 @@
 <template>
-  <div class="custom-card" :class="{ 'custom-card-hover': index !== isOpen }">
-    <div class="card-header">
+  <div class="custom-card p-0">
+    <div
+      class="card-header p-2"
+      :class="{ 'custom-card-hover': deal.index !== isOpen }"
+    >
       <h4
         class="card-header-title"
         @click="toggleDeal()"
@@ -13,10 +16,17 @@
       <div
         class="is-flex is-align-items-center is-justify-content-center is-flex-wrap-wrap"
       >
-        <b-button @click="createAppeal()" class="btn-tertiary btn-active">
+        <!-- create appeal button -->
+        <b-button
+          @click="createAppeal()"
+          :disabled="isWorking"
+          class="btn-tertiary btn-active"
+        >
           <i class="fa-solid fa-bell mr-3"></i>REQUEST APPEAL
         </b-button>
         <div class="divider ml-4 mr-4"></div>
+
+        <!-- download file button -->
         <b-button
           @click="
             downloadFile(
@@ -34,6 +44,7 @@
           <i class="fa-solid fa-download"></i>
         </b-button>
         <div class="divider ml-4 mr-4"></div>
+
         <a
           :class="{
             'no-pointer': parseInt(deal.timestamp_start * 1000) === 0,
@@ -89,87 +100,108 @@
         </a>
         <div class="divider ml-4 mr-4"></div>
         <b-button
-          :disabled="deal.canceled !== undefined && deal.canceled === true"
+          :disabled="
+            (deal.canceled !== undefined && deal.canceled === true) ||
+            (deal.timestamp_start !== undefined && deal.timestamp_start !== 0)
+          "
           class="btn-icon"
           @click="isDeletingDeal()"
         >
           <i class="fa-solid fa-trash-can"></i>
         </b-button>
         <div class="divider ml-4 mr-4"></div>
+
         <!-- BADGES -->
-        <div
-          v-if="
-            (parseInt(deal.timestamp_end) - new Date().getTime() / 1000 > 0 &&
-              deal.appeal !== undefined &&
-              deal.appeal.round === undefined) ||
-            (parseInt(deal.timestamp_end) - new Date().getTime() / 1000 > 0 &&
+        <div>
+          <!-- active badge -->
+          <div
+            v-if="
+              (parseInt(deal.timestamp_end) - new Date().getTime() / 1000 > 0 &&
+                deal.appeal !== undefined &&
+                deal.appeal.round === undefined) ||
+              (parseInt(deal.timestamp_end) - new Date().getTime() / 1000 > 0 &&
+                deal.appeal !== undefined &&
+                deal.appeal.round !== undefined &&
+                deal.appeal.round === 99 &&
+                deal.appeal.slashed !== undefined &&
+                deal.appeal.slashed === false)
+            "
+            class="badge badge-success"
+          >
+            <span>Active</span>
+          </div>
+
+          <!-- ended badge -->
+          <div
+            v-if="
+              parseInt(deal.timestamp_end) - new Date().getTime() / 1000 < 0 &&
+              !deal.canceled &&
+              deal.timestamp_start > 0
+            "
+            class="badge badge-ended"
+          >
+            <span>Ended</span>
+          </div>
+
+          <!-- canceled badge -->
+          <div v-if="deal.canceled" class="badge badge-ended">
+            <span>Canceled</span>
+          </div>
+
+          <!-- pending badge -->
+          <div
+            v-if="
+              deal.timestamp_start !== undefined &&
+              parseInt(deal.timestamp_start) === 0 &&
+              !deal.expired &&
+              !deal.canceled
+            "
+            class="badge badge-pending"
+          >
+            <span>Pending</span>
+          </div>
+
+          <!-- appeal badge -->
+          <div
+            v-if="
               deal.appeal !== undefined &&
               deal.appeal.round !== undefined &&
-              deal.appeal.round === 99 &&
-              deal.appeal.slashed !== undefined &&
-              deal.appeal.slashed === false)
-          "
-          class="badge badge-success"
-        >
-          <span>Active</span>
-        </div>
-        <div
-          v-if="
-            parseInt(deal.timestamp_end) - new Date().getTime() / 1000 < 0 &&
-            !deal.canceled &&
-            deal.timestamp_start > 0
-          "
-          class="badge badge-ended"
-        >
-          <span>Ended</span>
-        </div>
-        <div v-if="deal.canceled" class="badge badge-ended">
-          <span>Canceled</span>
-        </div>
-        <div
-          v-if="
-            deal.timestamp_start !== undefined &&
-            parseInt(deal.timestamp_start) === 0 &&
-            !deal.expired &&
-            !deal.canceled
-          "
-          class="badge badge-pending"
-        >
-          <span>Pending</span>
-        </div>
-        <div
-          v-if="
-            deal.appeal !== undefined &&
-            deal.appeal.round !== undefined &&
-            parseInt(deal.appeal.round) < 99 &&
-            parseInt(deal.timestamp_end) - new Date().getTime() / 1000 > 0
-          "
-          class="badge badge-requested"
-        >
-          <span>Appeal</span>
-        </div>
-        <div
-          v-if="
-            deal.appeal !== undefined &&
-            deal.appeal.round !== undefined &&
-            deal.slashed !== undefined &&
-            deal.slashed === true
-          "
-          class="badge badge-slashed"
-        >
-          <span>Slashed</span>
-        </div>
-        <div
-          v-if="
-            deal.timestamp_start !== undefined &&
-            parseInt(deal.timestamp_start) === 0 &&
-            deal.expired
-          "
-          class="badge badge-expired"
-        >
-          <span>Expired</span>
+              parseInt(deal.appeal.round) < 99 &&
+              parseInt(deal.timestamp_end) - new Date().getTime() / 1000 > 0
+            "
+            class="badge badge-requested"
+          >
+            <span>Appeal</span>
+          </div>
+
+          <!-- slashed badge -->
+          <div
+            v-if="
+              deal.appeal !== undefined &&
+              deal.appeal.round !== undefined &&
+              deal.slashed !== undefined &&
+              deal.slashed === true
+            "
+            class="badge badge-slashed"
+          >
+            <span>Slashed</span>
+          </div>
+
+          <!-- expired badge -->
+          <div
+            v-if="
+              deal.timestamp_start !== undefined &&
+              parseInt(deal.timestamp_start) === 0 &&
+              deal.expired &&
+              !deal.canceled
+            "
+            class="badge badge-expired"
+          >
+            <span>Expired</span>
+          </div>
         </div>
         <!-- END BADGES -->
+
         <div class="divider ml-3 mr-3"></div>
         <div
           @click="
@@ -179,8 +211,8 @@
           class="card-header-icon mr-3 p-3"
           style="width: 35px"
         >
-          <i v-if="index !== isOpen" class="fa-solid fa-chevron-right"></i>
-          <i v-if="index === isOpen" class="fa-solid fa-chevron-down"></i>
+          <i v-if="deal.index !== isOpen" class="fa-solid fa-chevron-right"></i>
+          <i v-if="deal.index === isOpen" class="fa-solid fa-chevron-down"></i>
         </div>
       </div>
       <!-- Deal action bar -->
@@ -192,7 +224,7 @@
       enter-active-class="fade-in-top"
       leave-active-class="fade-out-top"
     >
-      <div class="" v-show="isOpen">
+      <div class="" v-show="isOpen === deal.index">
         <div class="card-content">
           <div class="content">
             <div class="columns is-mobile">
@@ -276,7 +308,6 @@
                       >
                     </p>
                   </div>
-
                   <div
                     v-if="deal.appeal_requested !== undefined"
                     class="b-bottom-colored-grey bg-pink-light px-2"
@@ -290,7 +321,6 @@
                       {{ deal.appeal_requested }}/5
                     </p>
                   </div>
-
                   <div
                     class="b-bottom-colored-grey bg-pink-light px-2"
                     :class="{
@@ -450,21 +480,6 @@
                       </p>
                     </div>
                   </div>
-                  <!-- CANCEL DEAL PROPOSAL -->
-                  <!-- <div v-if="!isWorking">
-                        <a
-                            href="#"
-                            v-if="
-                            deal.timestamp_start !== undefined &&
-                            parseInt(deal.timestamp_start) ===
-                                0 &&
-                            !deal.expired
-                            "
-                            @click="cancelDealProposal(deal)"
-                            >🗑️ cancel deal proposal</a
-                        >
-                        </div> -->
-                  <!-- CANCEL DEAL PROPOSAL -->
                 </div>
               </div>
               <div class="column is-one-quarter-tablet is-half-desktop">
@@ -514,7 +529,7 @@ export default {
     return {
       openTimingDeal: false,
       download: false,
-      isOpen: false,
+      isOpen: -1,
       isWorking: false,
       deal: {},
     };
@@ -528,8 +543,11 @@ export default {
   methods: {
     async toggleDeal() {
       const app = this;
-      if (app.isOpen === false) {
-        app.isOpen = true;
+      app.download = false;
+      if (app.isOpen === app.deal.index) {
+        app.isOpen = -1;
+      } else {
+        console.log("Opening deal", app.deal.index);
         const uri =
           app.providerEndpoints[app.deal.provider] +
           "/ipfs/" +
@@ -538,23 +556,23 @@ export default {
           console.log("Downloading file from:", uri);
           const downloaded = await axios.get(uri);
           if (downloaded.data !== undefined) {
-            app.downloads[app.deal.deal_uri] = true;
+            // app.download[app.deal.deal_uri] = true;
+            app.download = true;
+            console.log("download became", app.download);
           }
         } catch (e) {
           console.log("Error while downloading from:", uri);
         }
-
+        app.isOpen = app.deal.index;
         app.refreshDeal();
-      } else {
-        app.isOpen = false;
       }
     },
     async refreshDeal() {
       const app = this;
       console.log("Refreshing deal", app.deal);
       if (!app.isWorking) {
-        this.$buefy.toast.open({
-          duration: 5000,
+        app.$buefy.toast.open({
+          duration: 50000,
           message:
             '<i class="fa-solid fa-hourglass-half"></i> ' +
             ` Deal ID #` +
@@ -569,9 +587,14 @@ export default {
           );
           console.log("refreshed", refreshed.data);
           app.deal = refreshed.data;
+          app.$toast.clear();
           this.$buefy.toast.open({
             duration: 5000,
-            message: `Deal ID #` + app.deal.index + ` information refreshed`,
+            message:
+              `<i class="fa-solid fa-file-invoice"></i>` +
+              ` Deal ID #` +
+              app.deal.index +
+              ` information refreshed`,
             position: "is-bottom-right",
             type: "is-warning",
           });
@@ -579,6 +602,8 @@ export default {
         } catch (e) {
           app.$emit("alert", e.message);
         }
+      } else {
+        console.log("Working, please wait..");
       }
     },
     async createAppeal() {
@@ -603,7 +628,7 @@ export default {
           app.workingMessage = "Please confirm action with metamask..";
           try {
             const fee = await contract.methods.returnAppealFee(index).call();
-            app.log("Fee needed for appeal is: " + fee);
+            console.log("Fee needed for appeal is: " + fee);
             await contract.methods
               .createAppeal(index)
               .send({
@@ -618,7 +643,7 @@ export default {
                   tx.substr(-4);
                 this.$toast.warning("Found pending transaction at:" + tx, {
                   position: "top-right",
-                  timeout: 5000,
+                  timeout: 500000,
                   closeOnClick: true,
                   pauseOnFocusLoss: true,
                   pauseOnHover: true,
@@ -630,9 +655,10 @@ export default {
                   icon: "fa-solid fa-arrow-right-arrow-left",
                   rtl: false,
                 });
-                app.log(app.workingMessage);
+                console.log(app.workingMessage);
               });
-            this.$toast("Appeal created!", {
+            app.$toast.clear();
+            app.$toast("Appeal created!", {
               position: "top-right",
               timeout: 5000,
               closeOnClick: true,
@@ -702,7 +728,7 @@ export default {
             })
             .on("transactionHash", (tx) => {
               app.workingMessage = "Found pending transaction at " + tx;
-              app.log(app.workingMessage);
+              console.log(app.workingMessage);
             });
           app.$emit("alert", "Deal proposal canceled!");
           app.isWorking = false;

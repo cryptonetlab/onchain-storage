@@ -3,10 +3,7 @@
     <div class="header py-5" :class="{ 'px-3': !isDesktop }">
       <div class="container">
         <div
-          class="
-            columns
-            is-mobile is-multiline is-vcentered is-justify-content-space-between
-          "
+          class="columns is-mobile is-multiline is-vcentered is-justify-content-space-between"
         >
           <div class="column is-2-mobile is-1-tablet is-3-desktop">
             <a href="/">
@@ -33,15 +30,22 @@
               </div>
               <div
                 v-if="accountBalance.length > 0"
+                @click="isWithdraw = !isWithdraw"
                 class="btn-light ml-2"
               >
                 <span>{{ accountBalance.substr(0, 4) }}</span>
-                <span style="text-transform: lowercase"> r</span>
+                <span
+                  v-if="parseInt(network) === 4"
+                  style="text-transform: lowercase"
+                >
+                  r</span
+                >
                 <span>ETH</span>
               </div>
               <div
-                class="btn-minimal-noHover"
-                style="margin-left: -1px; cursor: default"
+                class="btn-light"
+                style="margin-left: -1px"
+                @click="isWithdraw = !isWithdraw"
               >
                 <i class="fa-solid fa-wallet mr-2"></i>
                 {{ account.substr(0, 4) + "..." + account.substr(-4) }}
@@ -50,11 +54,7 @@
               <div class="ml-2">
                 <div>
                   <!-- Nav Button show/hide -->
-                  <div
-                    @click="navState = !navState"
-                    @mouseleave="toggleSpec()"
-                    class="btn-light-icon"
-                  >
+                  <div @click="navState = !navState" class="btn-light-icon">
                     <i class="fa-solid fa-ellipsis"></i>
                   </div>
                   <!--End | Nav Button show/hide -->
@@ -159,6 +159,84 @@
                     </div>
                   </Transition>
                   <!-- END REFEREE SPECIFICATION -->
+
+                  <!-- WITHDRAW NAVBAR -->
+                  <Transition
+                    enter-active-class="slide-in-right"
+                    leave-active-class="slide-out-right"
+                  >
+                    <div
+                      v-if="isWithdraw"
+                      @mouseleave="isWithdraw = false"
+                      class="right-col"
+                    >
+                      <div class="nav-container">
+                        <div class="mt-5">
+                          <h3>
+                            <i class="fa-solid fa-user mr-3"></i> User Details:
+                          </h3>
+                          <div class="mt-6">
+                            <h5 class="pb-2 b-bottom-colored-dark">
+                              Account Connected
+                              <i class="fa-solid fa-link ml-3"></i>
+                            </h5>
+                            <p v-if="account" class="mt-3">
+                              {{
+                                account.substr(0, 5) +
+                                "..." +
+                                account.substr(-5)
+                              }}
+                            </p>
+                            <p v-if="!account">No account connected</p>
+                          </div>
+                          <div class="mt-3">
+                            <h5 class="pb-2 b-bottom-colored-dark">
+                              Total Balance
+                              <i class="fa-solid fa-wallet ml-3"></i>
+                            </h5>
+                            <p class="mt-3">{{ accountBalance }} ETH</p>
+                          </div>
+                          <div class="mt-3">
+                            <h5 class="pb-2 b-bottom-colored-dark">
+                              Vault funds
+                              <i class="fa-solid fa-vault ml-3"></i>
+                            </h5>
+                            <p class="mt-3">
+                              {{ balance }}
+                              <span
+                                v-if="parseInt(network) === 4"
+                                style="text-transform: lowercase"
+                              >
+                                r</span
+                              >ETH
+                            </p>
+                          </div>
+                          <div class="mt-5">
+                            <b-button
+                              :disabled="parseInt(balance) === 0"
+                              @click="$emit('withdraw')"
+                              class="btn-icon"
+                            >
+                              WITHDRAW
+                            </b-button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="nav-container">
+                        <div class="logo-navbar mb-3">
+                          <img src="../assets/img/icon-tr.svg" alt="" />
+                        </div>
+                        <div class="">
+                          <h5 class="pb-2 b-bottom-colored-dark">
+                            Total Deal Created
+                            <i class="fa-solid fa-wallet ml-3"></i>
+                          </h5>
+                          <p class="mt-3">{{ deals.length }} Deals</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Transition>
+                  <!-- END NAVBAR -->
                 </div>
 
                 <!-- END - Navbar -->
@@ -206,20 +284,13 @@
     <!-- END - Application Logs -->
 
     <!-- Working Messages -->
-    <div
-      class="
-        workingMessage
-        is-flex
-        is-flex-direction-row
-        is-flex-wrap-wrap
-        is-align-items-center
-        is-justify-content-center
-      "
+    <!-- <div
+      class="workingMessage is-flex is-flex-direction-row is-flex-wrap-wrap is-align-items-center is-justify-content-center"
       v-if="isWithdraw"
     >
       <i class="fas fa-spinner fa-pulse mr-5"></i>
       <p class="text-center">{{ withdrawMessage }}</p>
-    </div>
+    </div> -->
     <!-- END Working Messages -->
   </div>
 </template>
@@ -237,6 +308,7 @@ export default {
     "logs",
     "balance",
     "navSpec",
+    "deals"
   ],
   data() {
     return {
@@ -257,6 +329,10 @@ export default {
     closeLogs() {
       const app = this;
       app.logState = false;
+    },
+    closeWithdraw() {
+      const app = this;
+      app.isWithdraw = false;
     },
 
     alertCustomError(message) {

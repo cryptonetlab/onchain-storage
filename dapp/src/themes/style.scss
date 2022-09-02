@@ -444,6 +444,15 @@ input,
   }
 }
 
+.btn-loader {
+  @include btn();
+  background-color: var(--light-color);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  -webkit-box-shadow: 6px 6px 0px 1px var(--primary-color);
+  box-shadow: 6px 6px 0px 1px var(--primary-color);
+}
+
 .btn-minimal-noHover {
   @include btn-minimal-noHover();
 }
@@ -1392,5 +1401,37 @@ hr {
     -webkit-transform: translateX(1000px);
     transform: translateX(1000px);
     opacity: 0;
+  }
+}
+
+.pulse_loading {
+  -webkit-animation: pulse_loading 0.9s infinite ease-in-out both;
+  animation: pulse_loading 0.9s infinite ease-in-out both;
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+  }
+}
+
+@-webkit-keyframes pulse_loading {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes pulse_loading {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 1;
   }
 }
