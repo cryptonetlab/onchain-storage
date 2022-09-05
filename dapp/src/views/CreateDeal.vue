@@ -24,6 +24,7 @@
         :isWorking="isWorking"
         :workingMessage="workingMessage"
         :navSpec="navSpec"
+        :referees="referees"
         @withdraw="withdraw()"
         @toggleSpec="toggleSpec()"
       />
@@ -63,45 +64,47 @@
           <!--END | BACK BUTTON AND EXPERT MODE SWITCH -->
 
           <!-- Upload file -->
-          <b-field v-if="!fileToUpload.name && !expertMode">
-            <b-upload
-              v-model="fileToUpload"
-              expanded
-              drag-drop
-              :disabled="isWorking"
-              type="is-info"
+          <div>
+            <b-field v-if="!fileToUpload.name && !expertMode">
+              <b-upload
+                v-model="fileToUpload"
+                expanded
+                drag-drop
+                :disabled="isWorking"
+                type="is-info"
+              >
+                <section class="section">
+                  <div class="content has-text-centered">
+                    <p>Drop your file here or click to upload</p>
+                  </div>
+                </section>
+              </b-upload>
+            </b-field>
+            <div
+              class="bordered-dashed is-flex is-flex-wrap-wrap is-align-items-start is-justify-content-space-between p-3"
+              v-if="fileToUpload.name"
             >
-              <section class="section">
-                <div class="content has-text-centered">
-                  <p>Drop your file here or click to upload</p>
-                </div>
-              </section>
-            </b-upload>
-          </b-field>
-          <div
-            class="bordered-dashed is-flex is-flex-wrap-wrap is-align-items-start is-justify-content-space-between p-3"
-            v-if="fileToUpload.name"
-          >
-            <div>
-              <h5>File name:</h5>
-              <p>{{ fileToUpload.name }}</p>
-              <h5>Deal URI:</h5>
-              <p v-if="dealUri">{{ dealUri }}</p>
-              <p v-if="!dealUri">Calculating...</p>
+              <div>
+                <h5>File name:</h5>
+                <p>{{ fileToUpload.name }}</p>
+                <h5>Deal URI:</h5>
+                <p v-if="dealUri">{{ dealUri }}</p>
+                <p v-if="!dealUri">Calculating...</p>
+              </div>
+              <b-button
+                class="btn-secondary"
+                style="float: right"
+                :disabled="isWorking"
+                @click="
+                  fileToUpload = {};
+                  dealUri = '';
+                  dealValue = 0;
+                  dealCollateral = 0;
+                  baseDealValue = 0;
+                "
+                ><i class="fa-solid fa-circle-xmark"></i> Change file</b-button
+              >
             </div>
-            <b-button
-              class="btn-secondary"
-              style="float: right"
-              :disabled="isWorking"
-              @click="
-                fileToUpload = {};
-                dealUri = '';
-                dealValue = 0;
-                dealCollateral = 0;
-                baseDealValue = 0;
-              "
-              ><i class="fa-solid fa-circle-xmark"></i> Change file</b-button
-            >
           </div>
           <!-- END | Upload File -->
 
@@ -153,32 +156,41 @@
             </div>
           </div>
           <!-- END | Appeal address & Deal URI -->
-          <br />
-          <h5 class="title-table">ONCHAIN PROTOCOLS</h5>
-          <br />
-          <b-checkbox
-            type="is-info"
-            native-value="false"
-            v-model="service"
-            checked
-            :disabled="isWorking"
-          >
-          </b-checkbox>
-          Retrieval Pinning
+
+          <!-- Select service and provider -->
+          <div class="columns mt-6">
+            <div class="column is-half">
+              <h5 class="title-table mb-3">ONCHAIN PROTOCOLS</h5>
+              <b-checkbox
+                type="is-info"
+                native-value="false"
+                v-model="service"
+                checked
+                :disabled="isWorking"
+              >
+                <p>Retrieval Pinning</p>
+              </b-checkbox>
+            </div>
+            <div v-if="service" class="column is-half">
+              <h5 class="title-table mb-3">Referees Network</h5>
+
+              <b-checkbox
+                type="is-info"
+                native-value="false"
+                v-model="refereenetwork"
+                checked
+                :disabled="isWorking"
+              >
+                <div>
+                  <p>Referee Network #1</p>
+                  <p class="small">({{ contract }})</p>
+                </div>
+              </b-checkbox>
+            </div>
+          </div>
+          <!-- END | Select service and provider -->
+
           <div v-if="service">
-            <br />
-            <br />
-            <h5 class="title-table">Referees Network</h5>
-            <br />
-            <b-checkbox
-              type="is-info"
-              native-value="false"
-              v-model="refereenetwork"
-              checked
-              :disabled="isWorking"
-            >
-            </b-checkbox>
-            Referee Network #1 ({{ contract }})
             <div v-if="refereenetwork">
               <div v-if="providers.length > 0" class="mt-6">
                 <!-- TITLES TABLE -->
@@ -745,6 +757,7 @@ export default {
       isUploadingIPFS: false,
       slashingMultiplier: 1000,
       appealAddresses: [],
+      referees: [],
       // REFRESH SINGLE DEAL
       selectedDeal: {},
 
@@ -936,6 +949,21 @@ export default {
           app.dealProviders.push(provider.address);
           app.canDoProposal = true;
         }
+      }
+      // Checking Referees
+      let ended = false;
+      let i = 0;
+      while (!ended) {
+        try {
+          const referee = await contract.methods.active_referees(i).call();
+          if (app.referees.indexOf(referee) === -1) {
+            app.referees.push(referee);
+          }
+        } catch (e) {
+          console.log(e);
+          ended = true;
+        }
+        i++;
       }
       console.log(app.providers);
       console.log("DEFAULT PROVIDERS:", app.dealProviders);

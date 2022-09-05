@@ -544,10 +544,10 @@ export default {
     async toggleDeal() {
       const app = this;
       app.download = false;
+      console.log("isOpen start", app.isOpen);
       if (app.isOpen === app.deal.index) {
         app.isOpen = -1;
       } else {
-        console.log("Opening deal", app.deal.index);
         const uri =
           app.providerEndpoints[app.deal.provider] +
           "/ipfs/" +
@@ -564,6 +564,7 @@ export default {
           console.log("Error while downloading from:", uri);
         }
         app.isOpen = app.deal.index;
+        console.log("Opening deal", app.isOpen);
         app.refreshDeal();
       }
     },

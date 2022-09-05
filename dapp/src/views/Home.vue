@@ -26,7 +26,8 @@
           :isWorking="isWorking"
           :workingMessage="workingMessage"
           :navSpec="navSpec"
-          :deals="deals"
+          :referees="referees"
+          :web3="web3"
           @withdraw="withdraw()"
           @toggleSpec="toggleSpec()"
         />
@@ -75,7 +76,7 @@
                         </div>
                         <div
                           v-if="searcher !== undefined && searcher.length !== 0"
-                          class="placeholder-input"
+                          class="placeholder-input-search"
                         >
                           <i
                             class="fa-solid fa-circle-xmark pointer"
@@ -354,6 +355,7 @@ export default {
       endedDeal: false,
       showallDeals: false,
       searcher: "",
+      referees: [],
     };
   },
   watch: {
@@ -398,6 +400,7 @@ export default {
           app.account = accounts[0];
           app.appealAddress = app.account;
           app.accountBalance = await app.web3.eth.getBalance(accounts[0]);
+          console.log("account balance is", app.accountBalance);
           app.accountBalance = parseFloat(
             app.web3.utils.fromWei(app.accountBalance, "ether")
           ).toFixed(10);
@@ -502,7 +505,6 @@ export default {
         "deal " + deal.index + " with appeal index ",
         appeal_index + " have a round " + round
       );
-
       // Check if appeal ended
       if (
         deal.appeal !== undefined &&
@@ -587,6 +589,7 @@ export default {
             // console.log("Can deal appeal?", deal.canAppeal);
           }
         }
+
         app.searchPending();
         app.$forceUpdate();
         // app.log("Found #" + app.deals.length + " deals.");
@@ -616,6 +619,7 @@ export default {
       while (!ended) {
         try {
           const provider = await contract.methods.active_providers(i).call();
+          console.log("active provider are", provider);
           if (app.providers.indexOf(provider) === -1) {
             let providerDetails = await contract.methods
               .providers(provider)
@@ -650,7 +654,6 @@ export default {
               .referees(referee)
               .call();
             if (unique.indexOf(refereeDetails.endpoint) === -1) {
-              app.log("Found referee " + referee);
               unique.push(refereeDetails.endpoint);
               app.connectSocket(refereeDetails.endpoint);
             }
@@ -661,7 +664,6 @@ export default {
         }
         i++;
       }
-      app.log("Found " + app.providers.length + " active providers");
     },
     async withdraw() {
       const app = this;

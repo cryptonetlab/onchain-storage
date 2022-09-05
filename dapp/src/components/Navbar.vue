@@ -123,13 +123,29 @@
                               <i class="fa-solid fa-wallet ml-3"></i>
                             </h5>
 
-                            <p class="mt-3">
-                              0x9E613...D6C6<br />
-                              0x6c3B6...2290A<br />
-                              0x3337...1B9a11<br />
-                              0x7ee8d...BDb68<br />
-                              0x4698c...b1d2F
-                            </p>
+                            <div
+                              v-if="
+                                referees !== undefined && referees.length > 0
+                              "
+                            >
+                              <a
+                                class="hover-underline"
+                                style="display: block"
+                                :href="
+                                  'https://rinkeby.etherscan.io/address/' +
+                                  referee
+                                "
+                                target="_blank"
+                                v-for="referee in referees"
+                                :key="referee.index"
+                              >
+                                {{
+                                  referee.substr(0, 4) +
+                                  "..." +
+                                  referee.substr(-4)
+                                }}
+                              </a>
+                            </div>
                           </div>
                         </div>
                         <div class="mt-5">
@@ -212,13 +228,22 @@
                             </p>
                           </div>
                           <div class="mt-5">
-                            <b-button
-                              :disabled="parseInt(balance) === 0"
-                              @click="$emit('withdraw')"
-                              class="btn-icon"
+                            <b-tooltip
+                              class="b-tooltip-withdraw"
+                              position="is-right"
+                              type="is-info"
+                              size="is-small"
+                              :label="canWithdraw"
+                              multilined
                             >
-                              WITHDRAW
-                            </b-button>
+                              <b-button
+                                :disabled="parseInt(balance) === 0"
+                                @click="$emit('withdraw')"
+                                class="btn-icon"
+                              >
+                                WITHDRAW
+                              </b-button>
+                            </b-tooltip>
                           </div>
                         </div>
                       </div>
@@ -226,12 +251,19 @@
                         <div class="logo-navbar mb-3">
                           <img src="../assets/img/icon-tr.svg" alt="" />
                         </div>
-                        <div class="">
+                        <div v-if="allDeals !== undefined">
                           <h5 class="pb-2 b-bottom-colored-dark">
                             Total Deal Created
-                            <i class="fa-solid fa-wallet ml-3"></i>
+                            <i class="fa-solid fa-file-invoice ml-3"></i>
                           </h5>
-                          <p class="mt-3">{{ deals.length }} Deals</p>
+                          <p class="mt-3">{{ parseInt(allDeals) }} Deals</p>
+                        </div>
+                        <div v-if="allDeals !== undefined">
+                          <h5 class="pb-2 b-bottom-colored-dark">
+                            Total Spent
+                            <i class="fa-solid fa-file-invoice ml-3"></i>
+                          </h5>
+                          <p class="mt-3">{{ TotalSpent }} ETH</p>
                         </div>
                       </div>
                     </div>
@@ -297,6 +329,7 @@
 
 <script>
 import checkViewport from "@/mixins/checkViewport";
+import axios from "axios";
 
 export default {
   mixins: [checkViewport],
@@ -308,7 +341,8 @@ export default {
     "logs",
     "balance",
     "navSpec",
-    "deals"
+    "referees",
+    "web3",
   ],
   data() {
     return {
@@ -319,9 +353,64 @@ export default {
       hideForNow: true,
       isWithdraw: false,
       withdrawMessage: false,
+      allDeals: [],
+      canWithdraw: "",
+      TotalSpent: "",
+      totalValue: [],
     };
   },
+  watch: {
+    async isWithdraw() {
+      const app = this;
+      if (app.isWithdraw === true) {
+        try {
+          let allDeals = await axios.get(
+            process.env.VUE_APP_API_URL + "/deals/" + app.account
+          );
+          app.allDeals = allDeals.data.length;
+        } catch (e) {
+          console.log("Error while calculating deals");
+        }
+      }
+    },
+    balance() {
+      const app = this;
+      if (app.balance !== undefined && parseInt(app.balance) > 0) {
+        app.canWithdraw = "Withdraw from you Vault";
+      } else {
+        app.canWithdraw = "Nothing to withdraw";
+      }
+    },
+  },
+  mounted() {
+    this.loadAccountSpecs();
+  },
   methods: {
+    async loadAccountSpecs() {
+      const app = this;
+      // Checking account Spendt
+      try {
+        let deals = await axios.get(
+          process.env.VUE_APP_API_URL + "/deals/" + app.account
+        );
+        for (let k in deals.data) {
+          let deal = await app.deals.data[k];
+          if (deal.value !== undefined && deal.value > 0) {
+            app.totalValue.push(parseInt(deal.value));
+          }
+        }
+      } catch (e) {
+        console.log(e.message);
+      }
+      let sum = 0;
+      for (let s = 0; s < app.totalValue.length; s += 1) {
+        sum += app.totalValue[s];
+      }
+      sum = sum.toString();
+      app.TotalSpent = parseFloat(app.web3.utils.fromWei(sum, "ether")).toFixed(
+        10
+      );
+    },
     closeNav() {
       const app = this;
       app.navState = false;
@@ -350,3 +439,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.b-tooltip.is-multiline.is-medium .tooltip-content {
+  width: 100px !important;
+}
+</style>
