@@ -258,13 +258,6 @@
                           </h5>
                           <p class="mt-3">{{ parseInt(allDeals) }} Deals</p>
                         </div>
-                        <div v-if="allDeals !== undefined">
-                          <h5 class="pb-2 b-bottom-colored-dark">
-                            Total Spent
-                            <i class="fa-solid fa-file-invoice ml-3"></i>
-                          </h5>
-                          <p class="mt-3">{{ TotalSpent }} ETH</p>
-                        </div>
                       </div>
                     </div>
                   </Transition>
@@ -382,35 +375,7 @@ export default {
       }
     },
   },
-  mounted() {
-    this.loadAccountSpecs();
-  },
   methods: {
-    async loadAccountSpecs() {
-      const app = this;
-      // Checking account Spendt
-      try {
-        let deals = await axios.get(
-          process.env.VUE_APP_API_URL + "/deals/" + app.account
-        );
-        for (let k in deals.data) {
-          let deal = await app.deals.data[k];
-          if (deal.value !== undefined && deal.value > 0) {
-            app.totalValue.push(parseInt(deal.value));
-          }
-        }
-      } catch (e) {
-        console.log(e.message);
-      }
-      let sum = 0;
-      for (let s = 0; s < app.totalValue.length; s += 1) {
-        sum += app.totalValue[s];
-      }
-      sum = sum.toString();
-      app.TotalSpent = parseFloat(app.web3.utils.fromWei(sum, "ether")).toFixed(
-        10
-      );
-    },
     closeNav() {
       const app = this;
       app.navState = false;
