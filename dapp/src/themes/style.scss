@@ -285,7 +285,8 @@ span.small {
   color: var(--error-color);
 }
 
-.control.has-icons-right .input, .control.has-icons-right .select select {
+.control.has-icons-right .input,
+.control.has-icons-right .select select {
   padding-right: 30px !important;
 }
 
@@ -919,7 +920,7 @@ img.network-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   .logo {
     width: 150px;
     height: 150px;

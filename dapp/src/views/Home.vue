@@ -261,7 +261,7 @@
 
       <!-- Connect Wallet container -->
       <div v-if="!account" class="connect-container">
-        <div class="logo">
+        <div class="logo mt-6 pt-6">
           <img src="../assets/img/logo.svg" alt="" />
         </div>
         <br />
