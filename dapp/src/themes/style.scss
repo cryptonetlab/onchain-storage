@@ -159,6 +159,21 @@ b {
 }
 
 .connect-container {
+  overflow-y: hidden;
+  position: relative;
+  .grid-img {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 72vw;
+    img {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      opacity: 0.28;
+    }
+  }
   p {
     @include font-inter;
     font-size: 1rem;
@@ -171,6 +186,15 @@ b {
 }
 
 h2.pay-off {
+  @include font-inter;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 3rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+h2.pay-off-2 {
   @include font-inter;
   font-style: normal;
   font-weight: 600;
@@ -919,8 +943,9 @@ img.network-logo {
   background-color: #002b4d;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
+  padding-left: 10vw;
+  justify-content: center;
   .logo {
     width: 150px;
     height: 150px;

@@ -11,7 +11,7 @@
                 <img src="../assets/img/logo.svg" alt="" />
                 <h2
                   v-if="!isMobile && !isTablet"
-                  class="pay-off tertiary-light-text ml-4"
+                  class="pay-off-2 tertiary-light-text ml-4"
                 >
                   Onchain.Storage
                 </h2>

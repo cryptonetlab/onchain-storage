@@ -5,7 +5,7 @@
       <div class="logo mb-3">
         <img src="../assets/img/logo.svg" alt="" />
       </div>
-      <h2 class="pay-off tertiary-light-text">Onchain.Storage</h2>
+      <h2 class="pay-off-2 tertiary-light-text">Onchain.Storage</h2>
       <p class="has-text-centered mt-5">
         For a better experience, use dApp from Desktop.
       </p>
@@ -261,15 +261,20 @@
 
       <!-- Connect Wallet container -->
       <div v-if="!account" class="connect-container">
-        <div class="logo mt-6 pt-6">
-          <img src="../assets/img/logo.svg" alt="" />
+        <div class="grid-img">
+          <img src="../assets/img/grid.svg" alt="">
         </div>
-        <br />
-        <h2 class="pay-off tertiary-light-text">Onchain.Storage</h2>
-        <div class="has-text-centered mt-5">
-          <p class="mb-0">Please connect your wallet first</p>
-          <div class="btn-primary mt-4" @click="connect()">
-            <i class="fa-solid fa-wallet mr-3"></i> Connect Wallet
+        <div>
+          <div class="logo">
+            <img src="../assets/img/logo.svg" alt="" />
+          </div>
+          <br />
+          <h2 class="pay-off tertiary-light-text">Onchain.Storage</h2>
+          <div class="mt-5">
+            <p class="mb-0">Please connect your wallet first</p>
+            <div class="btn-primary mt-4" @click="connect()">
+              <i class="fa-solid fa-wallet mr-3"></i> Connect Wallet
+            </div>
           </div>
         </div>
       </div>
