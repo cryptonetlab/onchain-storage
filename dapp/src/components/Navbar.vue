@@ -13,7 +13,7 @@
                   v-if="!isMobile && !isTablet"
                   class="pay-off-2 tertiary-light-text ml-4"
                 >
-                  Onchain.Storage
+                  Retrieval Pinning
                 </h2>
               </div></a
             >
@@ -94,7 +94,7 @@
                           <img src="../assets/img/icon-tr.svg" alt="" />
                         </div>
                         <p class="navbar-text">
-                          Onchain.Storage is an interoperable ecosystem of
+                          Retrieval Pinning is an interoperable ecosystem of
                           on-chain storage products.
                         </p>
                       </div>
@@ -284,7 +284,7 @@
         <p>
           <i class="fa-solid fa-circle-exclamation mr-3"></i>
           <b
-            >Onchain.Storage is in testnet. This is an alpha version and storage
+            >Retrieval Pinning is in testnet. This is an alpha version and storage
             is at your own risk.</b
           >
         </p>

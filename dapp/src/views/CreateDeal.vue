@@ -5,7 +5,7 @@
       <div class="logo mb-3">
         <img src="../assets/img/logo.svg" alt="" />
       </div>
-      <h2 class="pay-off tertiary-light-text">Onchain.Storage</h2>
+      <h2 class="pay-off tertiary-light-text">Retrieval Pinning</h2>
       <p class="has-text-centered mt-5">
         For a better experience, use dApp from Desktop.
       </p>
