@@ -94,8 +94,11 @@
                           <img src="../assets/img/icon-tr.svg" alt="" />
                         </div>
                         <p class="navbar-text">
-                          Retrieval Pinning is an interoperable ecosystem of
-                          on-chain storage products.
+                          Retrieval Pinning is part of an interoperable
+                          ecosystem of
+                          <a href="https://onchain.storage" target="_blank"
+                            >on-chain storage products</a
+                          >.
                         </p>
                       </div>
                     </div>
@@ -284,8 +287,8 @@
         <p>
           <i class="fa-solid fa-circle-exclamation mr-3"></i>
           <b
-            >Retrieval Pinning is in testnet. This is an alpha version and storage
-            is at your own risk.</b
+            >Retrieval Pinning is in testnet. This is an alpha version and
+            storage is at your own risk.</b
           >
         </p>
       </div>
