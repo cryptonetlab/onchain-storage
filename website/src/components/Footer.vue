@@ -15,7 +15,7 @@
               :class="{ 'b-top pt-3 ps-0': isMobile }"
             >
               <h4>
-                Onchain.Storage is an interoperable ecosystem of
+                Retrieval Pinning is part of an interoperable ecosystem of
                 on-chain storage products.
               </h4>
             </div>

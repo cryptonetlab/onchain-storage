@@ -15,7 +15,7 @@
               </p>
             </div>
             <div class="mt-5">
-              <h3>WHY ONCHAIN.STORAGE?</h3>
+              <h3>WHY RETRIEVAL PINNING?</h3>
               <p>
                 Adding a "retrievability assurance" for such storage service is
                 key to boost confidence and usage of decentralized storage
