@@ -16,7 +16,7 @@ async function main() {
 
     try {
         console.log("Create bridge request for token id:", tokenId)
-        const tx = await contract.create721Bridge(configs.nft_721_contract, tokenId, oracles)
+        const tx = await contract.create1155Bridge(configs.nft_1155_contract, tokenId, oracles)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("Request created successfully at", tx.hash)

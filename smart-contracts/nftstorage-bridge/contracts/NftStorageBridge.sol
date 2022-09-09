@@ -3,6 +3,7 @@ pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "hardhat/console.sol";
 
 /**
@@ -62,7 +63,7 @@ contract NftStorageBridge is Ownable {
         dealers[_dealer] = _state;
     }
 
-    // Function to create a bridge request
+    // Function to create a bridge request for a 721 token
     function create721Bridge(
         address _contract,
         uint256 _token_id,
@@ -76,6 +77,23 @@ contract NftStorageBridge is Ownable {
         string memory _deal_uri = IERC721Metadata(_contract).tokenURI(
             _token_id
         );
+        console.log("Token uri is %s", _deal_uri);
+        // Pass everything to the internal function
+        createBridge(_deal_uri, _contract, _token_id, _oracles);
+    }
+
+    // Function to create a bridge request for an 1155 token
+    function create1155Bridge(
+        address _contract,
+        uint256 _token_id,
+        address[] memory _oracles
+    ) external {
+        // Check if user is the owner of the token
+        uint256 balance = IERC1155MetadataURI(_contract).balanceOf(msg.sender, _token_id);
+        console.log("Balance is %s", balance);
+        require(balance > 0, "You don't own copies of the NFT");
+        // Read tokenURI from contract
+        string memory _deal_uri = IERC1155MetadataURI(_contract).uri(_token_id);
         console.log("Token uri is %s", _deal_uri);
         // Pass everything to the internal function
         createBridge(_deal_uri, _contract, _token_id, _oracles);
@@ -117,11 +135,9 @@ contract NftStorageBridge is Ownable {
     // Function to cancel a bridge request before is accepted
     function cancelBridge(uint256 _bridge_id) external {
         require(bridges[_bridge_id].active, "Bridge is not active");
-        address owner = IERC721Metadata(bridges[_bridge_id].contract_address).ownerOf(bridges[_bridge_id].token_id);
-        require(
-            owner == msg.sender,
-            "Sender is not the owner"
-        );
+        address owner = IERC721Metadata(bridges[_bridge_id].contract_address)
+            .ownerOf(bridges[_bridge_id].token_id);
+        require(owner == msg.sender, "Sender is not the owner");
         require(
             bridges[_bridge_id].timestamp_start == 0,
             "Bridge started yet, can't cancel"

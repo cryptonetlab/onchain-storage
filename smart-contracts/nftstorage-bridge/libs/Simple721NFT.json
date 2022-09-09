@@ -1,7 +1,7 @@
 {
     "_format": "hh-sol-artifact-1",
-    "contractName": "SimpleNFT",
-    "sourceName": "contracts/SimpleNFT.sol",
+    "contractName": "Simple721NFT",
+    "sourceName": "contracts/Simple721NFT.sol",
     "abi": [
       {
         "inputs": [

@@ -3,14 +3,14 @@ const fs = require('fs');
 
 async function main() {
   const configs = JSON.parse(fs.readFileSync(process.env.CONFIG).toString())
-  const nftContract = JSON.parse(fs.readFileSync("./libs/SimpleNFT.json").toString())
+  const nftContract = JSON.parse(fs.readFileSync("./libs/Simple1155NFT.json").toString())
   console.log('Deploying contract..')
   const Contract = await hre.ethers.getContractFactory(nftContract.abi, nftContract.bytecode);
-  const contract = await Contract.deploy("TestNFT", "TNFT");
+  const contract = await Contract.deploy();
   console.log('Deploy transaction is: ' + contract.deployTransaction.hash)
   await contract.deployed();
   console.log("Contract deployed to:", contract.address);
-  configs.nft_contract_address = contract.address
+  configs.nft_1155_contract = contract.address
   fs.writeFileSync(process.env.CONFIG, JSON.stringify(configs, null, 4))
 }
 
