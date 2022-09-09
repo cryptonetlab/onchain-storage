@@ -18,6 +18,7 @@ async function main() {
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("Request created successfully at", tx.hash)
+        console.log("💸 Gas used:", receipt.gasUsed.toString())
         const stored = await contract.bridges(bridge_id)
         console.log(stored)
     } catch (e) {

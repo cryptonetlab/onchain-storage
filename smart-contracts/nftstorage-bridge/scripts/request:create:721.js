@@ -11,16 +11,16 @@ async function main() {
     const wallet = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/1").connect(provider)
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
-    const deal_uri = "ipfs://QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG-" + new Date().getTime()
+    const tokenId = 1
     const oracles = [oracle.address]
-    const duration = 0
 
     try {
-        console.log("Create bridge request for deal uri:", deal_uri)
-        const tx = await contract.createBridge(deal_uri, oracles, duration)
+        console.log("Create bridge request for token id:", tokenId)
+        const tx = await contract.create721Bridge(configs.nft_contract_address, tokenId, oracles)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("Request created successfully at", tx.hash)
+        console.log("💸 Gas used:", receipt.gasUsed.toString())
         console.log("Bridge ID is:", receipt.events[0].args.bridge_id.toString())
         const stored = await contract.bridges(receipt.events[0].args.bridge_id)
         console.log(stored)
