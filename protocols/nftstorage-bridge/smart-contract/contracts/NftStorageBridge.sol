@@ -108,7 +108,7 @@ contract NftStorageBridge is Ownable {
     function createTrustedBridge(
         address _contract,
         uint256 _token_id,
-        uint256 _deal_uri,
+        string memory _deal_uri,
         address[] memory _oracles
     ) external {
         require(trusted_parties[msg.sender], "You can't send requests here");
