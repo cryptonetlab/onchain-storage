@@ -28,7 +28,7 @@ contract NftStorageBridge is Ownable {
     // Timeout for bridge requests (default 8h)
     uint256 public request_timeout = 28_800;
     // Counter for bridges
-    uint256 internal bridges_counter;
+    uint256 public bridges_counter;
     // Mapping to store bridges
     mapping(uint256 => Bridge) public bridges;
     // Mapping to store active bridges for each use
@@ -39,6 +39,8 @@ contract NftStorageBridge is Ownable {
     mapping(uint256 => uint256) public proofs_counter;
     // Mapping allowed dealers
     mapping(address => bool) public dealers;
+    // Mapping trusted addressees
+    mapping(address => bool) public trusted_parties;
 
     // Events
     event BridgeRequestCreated(
@@ -89,12 +91,27 @@ contract NftStorageBridge is Ownable {
         address[] memory _oracles
     ) external {
         // Check if user is the owner of the token
-        uint256 balance = IERC1155MetadataURI(_contract).balanceOf(msg.sender, _token_id);
+        uint256 balance = IERC1155MetadataURI(_contract).balanceOf(
+            msg.sender,
+            _token_id
+        );
         console.log("Balance is %s", balance);
         require(balance > 0, "You don't own copies of the NFT");
         // Read tokenURI from contract
         string memory _deal_uri = IERC1155MetadataURI(_contract).uri(_token_id);
         console.log("Token uri is %s", _deal_uri);
+        // Pass everything to the internal function
+        createBridge(_deal_uri, _contract, _token_id, _oracles);
+    }
+
+    // Function to create a bridge request from a trusted source
+    function createTrustedBridge(
+        address _contract,
+        uint256 _token_id,
+        uint256 _deal_uri,
+        address[] memory _oracles
+    ) external {
+        require(trusted_parties[msg.sender], "You can't send requests here");
         // Pass everything to the internal function
         createBridge(_deal_uri, _contract, _token_id, _oracles);
     }

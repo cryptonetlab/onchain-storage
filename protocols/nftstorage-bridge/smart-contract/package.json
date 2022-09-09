@@ -1,12 +1,11 @@
 {
-  "name": "mrs-contract",
+  "name": "nftstorage-wrapper-contract",
   "version": "1.0.0",
-  "description": "MRS Smart Contract.",
+  "description": "NFT-Storage Wrapper Smart Contract.",
   "scripts": {
     "test": "npx hardhat test",
     "network": "node scripts/_network.js",
     "verify": "node scripts/_verify.js",
-    "analyze:mythx": "node scripts/_analyze.js",
     "analyze:slither": "slither . --print human-summary",
     "task": "node scripts/_task.js",
     "merge-contracts": "sol-merger \"./contracts/*.sol\" ./merge"
