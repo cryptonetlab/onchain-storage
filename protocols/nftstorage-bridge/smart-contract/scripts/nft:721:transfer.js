@@ -10,17 +10,18 @@ async function main() {
     const wallet = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/1").connect(provider)
     const contract = new ethers.Contract(configs.nft_721_contract, ABI.abi, wallet)
 
-    const tokenURI = "bafkreifw7m5gyjngafyyxkx4zpjcezz6u3vjzkf57kl5ph5e2qrex3nysm"
+    const tokenId = 2
+    const to = "0xE6c30AD5AeE7AD22e9F39D51d67667587cdD05A1"
     try {
-        console.log("Minting NFT in contract..")
-        const tx = await contract.mint(tokenURI)
+        console.log("Transferring NFT..")
+        const tx = await contract.transferFrom(wallet.address, to, tokenId)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("NFT created successfully at", tx.hash)
         console.log(receipt)
     } catch (e) {
         console.log(e)
-        console.log('Can\'t mint new nft, check transaction.')
+        console.log('Can\'t transfer nft, check transaction.')
     }
 }
 

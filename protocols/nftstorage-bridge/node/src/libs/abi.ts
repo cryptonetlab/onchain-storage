@@ -9,7 +9,7 @@ export const ABI = [
         "type": "uint256"
       }
     ],
-    "name": "BridgeInvalidated",
+    "name": "BridgeRequestAccepted",
     "type": "event"
   },
   {
@@ -22,7 +22,7 @@ export const ABI = [
         "type": "uint256"
       }
     ],
-    "name": "BridgeRequestAccepted",
+    "name": "BridgeRequestCanceled",
     "type": "event"
   },
   {
@@ -194,11 +194,6 @@ export const ABI = [
         "type": "bool"
       },
       {
-        "internalType": "bool",
-        "name": "terminated",
-        "type": "bool"
-      },
-      {
         "internalType": "uint256",
         "name": "timestamp_request",
         "type": "uint256"
@@ -206,11 +201,6 @@ export const ABI = [
       {
         "internalType": "uint256",
         "name": "timestamp_start",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "proving_schedule",
         "type": "uint256"
       }
     ],

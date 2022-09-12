@@ -62,7 +62,7 @@ export const parseBridge = async (bridge_index, proposal_tx = '', accept_tx = ''
             console.log("[BRIDGES] --> Image downloaded correctly, weight is:", image.data.length, "bytes")
             const ft = await fileTypeFromBuffer(image.data)
             console.log("[BRIDGES] --> File type is:", ft)
-            nft_metadata.image = new File(image.data, nft_metadata.image + '.' + ft?.ext, { type: ft?.mime })
+            nft_metadata.image = new File(image.data, new Date().getTime() + '.' + ft?.ext, { type: ft?.mime })
             downloaded = true
           }
         } catch (e) {
@@ -92,6 +92,7 @@ export const parseBridge = async (bridge_index, proposal_tx = '', accept_tx = ''
               accept_tx = await instance.contract.acceptBridge(bridge_index, nftstorage_response.ipnft)
               console.log('[BRIDGES] --> Pending transaction at: ' + accept_tx.hash)
               await accept_tx.wait()
+              console.log("[BRIDGES] --> Transaction confirmed")
               accepted = true
             } catch (e) {
               console.log(e)
@@ -192,11 +193,11 @@ export const listenEvents = async () => {
       parseBridge(bridge_index, event.transactionHash)
     }
   })
-  instance.contract.on("BridgeInvalidated", async (bridge_id) => {
+  instance.contract.on("BridgeRequestCanceled", async (bridge_id, event) => {
     if (!isParsingBridges) {
-      console.log("[EVENT] Bridge invalidated")
+      console.log("[EVENT] Bridge canceled")
       const bridge_index = parseInt(bridge_id.toString())
-      await parseBridge(bridge_index)
+      await parseBridge(bridge_index, '', event.transactionHash)
     }
   })
 }
