@@ -13,6 +13,7 @@ contract NftStorageBridge is Ownable {
     // Defining bridge object
     struct Bridge {
         string deal_uri;
+        string bridge_uri;
         address contract_address;
         uint8 contract_type;
         uint256 token_id;
@@ -70,10 +71,7 @@ contract NftStorageBridge is Ownable {
     }
 
     // Function to create a bridge request for a 721 token
-    function create721Bridge(
-        address _contract,
-        uint256 _token_id
-    ) external {
+    function create721Bridge(address _contract, uint256 _token_id) external {
         // Check if user is the owner of the token
         address owner = IERC721Metadata(_contract).ownerOf(_token_id);
         console.log("Owner is %s", owner);
@@ -88,10 +86,7 @@ contract NftStorageBridge is Ownable {
     }
 
     // Function to create a bridge request for an 1155 token
-    function create1155Bridge(
-        address _contract,
-        uint256 _token_id
-    ) external {
+    function create1155Bridge(address _contract, uint256 _token_id) external {
         // Check if user is the owner of the token
         uint256 balance = IERC1155MetadataURI(_contract).balanceOf(
             msg.sender,
@@ -182,7 +177,9 @@ contract NftStorageBridge is Ownable {
     }
 
     // Function to create a bridge request
-    function acceptBridge(uint256 _bridge_id) external {
+    function acceptBridge(uint256 _bridge_id, string memory _bridge_uri)
+        external
+    {
         require(dealers[msg.sender], "Can't accept bridge, not a dealer");
         require(
             !isBridgeRequestExpired(_bridge_id),
@@ -193,14 +190,12 @@ contract NftStorageBridge is Ownable {
             "Bridge started yet, can't cancel"
         );
         bridges[_bridge_id].timestamp_start = block.timestamp;
+        bridges[_bridge_id].bridge_uri = _bridge_uri;
     }
 
     // Function to check storage
     function checkStorage(uint256 _bridge_id, string memory _proof) external {
-        require(
-            oracles[msg.sender],
-            "Can't check storage, not an oracle"
-        );
+        require(oracles[msg.sender], "Can't check storage, not an oracle");
         require(bridges[_bridge_id].active, "Bridge is not active");
         // Setting new proof id
         proofs_counter[_bridge_id]++;

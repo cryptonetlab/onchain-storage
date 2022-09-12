@@ -11,10 +11,11 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, dealer)
 
     const bridge_id = 1
-
+    const bridge_uri = "ipfs://bafyreib7u3c5cyuzfn2j6wto7qyryagjehrgufkdlpzow74du5oyssqfha"
+    
     try {
         console.log("Accepting bridge:", bridge_id)
-        const tx = await contract.acceptBridge(bridge_id)
+        const tx = await contract.acceptBridge(bridge_id, bridge_uri)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("Request created successfully at", tx.hash)

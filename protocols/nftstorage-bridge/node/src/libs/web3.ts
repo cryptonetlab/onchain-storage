@@ -47,21 +47,21 @@ export const parseBridge = async (bridge_index, proposal_tx = '', accept_tx = ''
         let nft_metadata
         try {
           const parsed_metadata_uri = onchain_request.deal_uri.replace('ipfs://', process.env.IPFS_GATEWAY)
-          console.log("Downloading metadata from:", parsed_metadata_uri)
+          console.log("[BRIDGES] --> Downloading metadata from:", parsed_metadata_uri)
           const metadata = await axios.get(parsed_metadata_uri)
           nft_metadata = metadata.data
-          console.log("Metadata downloaded successfully:", nft_metadata)
+          console.log("[BRIDGES] --> Metadata downloaded successfully:", nft_metadata)
         } catch (e) {
           console.log(e)
         }
         try {
           if (nft_metadata.image !== undefined) {
             const parsed_image_uri = nft_metadata.image.replace('ipfs://', process.env.IPFS_GATEWAY)
-            console.log("Downloading image from:", parsed_image_uri)
+            console.log("[BRIDGES] --> Downloading image from:", parsed_image_uri)
             const image = await axios.get(parsed_image_uri, { responseType: "arraybuffer" })
-            console.log("Image downloaded correctly, weight is:", image.data.length, "bytes")
+            console.log("[BRIDGES] --> Image downloaded correctly, weight is:", image.data.length, "bytes")
             const ft = await fileTypeFromBuffer(image.data)
-            console.log("File type is:", ft)
+            console.log("[BRIDGES] --> File type is:", ft)
             nft_metadata.image = new File(image.data, nft_metadata.image + '.' + ft?.ext, { type: ft?.mime })
             downloaded = true
           }
@@ -70,40 +70,75 @@ export const parseBridge = async (bridge_index, proposal_tx = '', accept_tx = ''
         }
         // Be sure NFT was downloaded correctly
         if (process.env.NFT_STORAGE_KEY !== undefined && downloaded) {
+          let uploaded = false
+          let nftstorage_response
           try {
-            console.log("Uploading on NFT.storage..")
+            console.log("[BRIDGES] --> Uploading on NFT.storage..")
             const client = new NFTStorage({ token: process.env.NFT_STORAGE_KEY })
-            const uploaded = await client.store(nft_metadata)
-            console.log("NFT.storage response is:", uploaded)
+            nftstorage_response = await client.store(nft_metadata)
+            console.log("[BRIDGES] --> NFT.storage response is:", nftstorage_response)
             // Store processed bridge request
-            let bridge = {
-              index: bridge_index,
-              timestamp_start: onchain_request.timestamp_start.toString(),
-              timestamp_request: onchain_request.timestamp_request.toString(),
-              deal_uri: onchain_request.deal_uri,
-              contract_address: onchain_request.contract_address,
-              token_id: onchain_request.token_id.toString(),
-              canceled: onchain_request.canceled,
-              terminated: onchain_request.terminated,
-              proposal_tx: proposal_tx,
-              nft_storage: uploaded
-            }
-            console.log('[BRIDGES] --> Inserting new bridge request')
-            let inserted = false
-            while (!inserted) {
-              await db.insert('bridges', bridge)
-              const checkDB = await db.find('bridges', { index: bridge_index })
-              if (checkDB !== null) {
-                inserted = true
-              }
-            }
-            response(true)
+            uploaded = true
           } catch (e) {
             console.log(e)
-            console.log("Can't upload on NFT.storage")
+            console.log("[BRIDGES] --> Can't upload on NFT.storage")
+          }
+          // Accept onchain bridge request
+          if (uploaded) {
+            let accepted = false
+            let accept_tx
+            try {
+              console.log("[BRIDGES] --> Accepting bridge #", bridge_index)
+              accept_tx = await instance.contract.acceptBridge(bridge_index, nftstorage_response.ipnft)
+              console.log('[BRIDGES] --> Pending transaction at: ' + accept_tx.hash)
+              await accept_tx.wait()
+              accepted = true
+            } catch (e) {
+              console.log(e)
+              console.log("[BRIDGES] --> Can't upload on NFT.storage")
+            }
+
+            if (accepted) {
+              try {
+                let bridge = {
+                  index: bridge_index,
+                  timestamp_start: onchain_request.timestamp_start.toString(),
+                  timestamp_request: onchain_request.timestamp_request.toString(),
+                  deal_uri: onchain_request.deal_uri,
+                  contract_address: onchain_request.contract_address,
+                  token_id: onchain_request.token_id.toString(),
+                  contract_type: onchain_request.contract_type.toString(),
+                  canceled: onchain_request.canceled,
+                  terminated: onchain_request.terminated,
+                  proposal_tx: proposal_tx,
+                  nftstorage_response: nftstorage_response,
+                  accept_tx: accept_tx
+                }
+                console.log('[BRIDGES] --> Inserting new bridge request')
+                let inserted = false
+                while (!inserted) {
+                  await db.insert('bridges', bridge)
+                  const checkDB = await db.find('bridges', { index: bridge_index })
+                  if (checkDB !== null) {
+                    inserted = true
+                  }
+                }
+                response(true)
+              } catch (e) {
+                console.log(e)
+                console.log("[BRIDGES] --> Can't store on DB")
+                response(false)
+              }
+            } else {
+              console.log("[BRIDGES] --> On-chain bridge transaction failed")
+              response(false)
+            }
+          } else {
+            console.log("[BRIDGES] --> Upload to NFT.storage failed")
             response(false)
           }
         } else {
+          console.log("[BRIDGES] --> NFT download failed")
           response(false)
         }
       } else {
@@ -151,13 +186,17 @@ export const listenEvents = async () => {
   const instance = await contract()
   console.log('Setting up on-chain event listeners..')
   instance.contract.on("BridgeRequestCreated", async (deal_uri, bridge_id, oracleAddress, contract_address, token_id, event) => {
-    console.log("[EVENT] Bridge proposal created")
-    const bridge_index = parseInt(bridge_id.toString())
-    parseBridge(bridge_index, event.transactionHash)
+    if (!isParsingBridges) {
+      console.log("[EVENT] Bridge proposal created")
+      const bridge_index = parseInt(bridge_id.toString())
+      parseBridge(bridge_index, event.transactionHash)
+    }
   })
   instance.contract.on("BridgeInvalidated", async (bridge_id) => {
-    console.log("[EVENT] Bridge invalidated")
-    const bridge_index = parseInt(bridge_id.toString())
-    await parseBridge(bridge_index)
+    if (!isParsingBridges) {
+      console.log("[EVENT] Bridge invalidated")
+      const bridge_index = parseInt(bridge_id.toString())
+      await parseBridge(bridge_index)
+    }
   })
 }

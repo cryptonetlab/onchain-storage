@@ -20,7 +20,7 @@ async function main() {
         console.log(receipt)
     } catch (e) {
         console.log(e)
-        console.log('Can\'t accept request, check transaction.')
+        console.log('Can\'t mint new nft, check transaction.')
     }
 }
 
