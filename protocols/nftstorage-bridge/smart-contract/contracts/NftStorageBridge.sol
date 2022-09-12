@@ -14,6 +14,7 @@ contract NftStorageBridge is Ownable {
     struct Bridge {
         string deal_uri;
         address contract_address;
+        uint8 contract_type;
         uint256 token_id;
         bool active;
         bool canceled;
@@ -23,8 +24,6 @@ contract NftStorageBridge is Ownable {
         address[] oracles;
         uint256 proving_schedule;
     }
-    // Default oracle, which will be used if no oracle is sent
-    address public default_oracle;
     // Timeout for bridge requests (default 8h)
     uint256 public request_timeout = 28_800;
     // Counter for bridges
@@ -39,24 +38,22 @@ contract NftStorageBridge is Ownable {
     mapping(uint256 => uint256) public proofs_counter;
     // Mapping allowed dealers
     mapping(address => bool) public dealers;
-    // Mapping trusted addressees
+    // Mapping allowed oracles
+    mapping(address => bool) public oracles;
+    // Mapping trusted addresses
     mapping(address => bool) public trusted_parties;
 
     // Events
     event BridgeRequestCreated(
         string deal_uri,
         uint256 bridge_id,
-        address[] oracleAddress,
         address contract_address,
-        uint256 token_id
+        uint256 token_id,
+        uint8 contract_type
     );
     event BridgeRequestAccepted(uint256 bridge_id);
     event BridgeInvalidated(uint256 bridge_id);
     event ProofSent(uint256 bridge_id, uint256 proof_id, string proof);
-
-    constructor() {
-        default_oracle = msg.sender;
-    }
 
     /*
         This method will allow owner to enable or disable a dealer
@@ -65,11 +62,17 @@ contract NftStorageBridge is Ownable {
         dealers[_dealer] = _state;
     }
 
+    /*
+        This method will allow owner to enable or disable a dealer
+    */
+    function setOracleStatus(address _oracle, bool _state) external onlyOwner {
+        oracles[_oracle] = _state;
+    }
+
     // Function to create a bridge request for a 721 token
     function create721Bridge(
         address _contract,
-        uint256 _token_id,
-        address[] memory _oracles
+        uint256 _token_id
     ) external {
         // Check if user is the owner of the token
         address owner = IERC721Metadata(_contract).ownerOf(_token_id);
@@ -81,14 +84,13 @@ contract NftStorageBridge is Ownable {
         );
         console.log("Token uri is %s", _deal_uri);
         // Pass everything to the internal function
-        createBridge(_deal_uri, _contract, _token_id, _oracles);
+        createBridge(_deal_uri, _contract, _token_id, 0);
     }
 
     // Function to create a bridge request for an 1155 token
     function create1155Bridge(
         address _contract,
-        uint256 _token_id,
-        address[] memory _oracles
+        uint256 _token_id
     ) external {
         // Check if user is the owner of the token
         uint256 balance = IERC1155MetadataURI(_contract).balanceOf(
@@ -101,26 +103,26 @@ contract NftStorageBridge is Ownable {
         string memory _deal_uri = IERC1155MetadataURI(_contract).uri(_token_id);
         console.log("Token uri is %s", _deal_uri);
         // Pass everything to the internal function
-        createBridge(_deal_uri, _contract, _token_id, _oracles);
+        createBridge(_deal_uri, _contract, _token_id, 1);
     }
 
     // Function to create a bridge request from a trusted source
     function createTrustedBridge(
         address _contract,
         uint256 _token_id,
-        string memory _deal_uri,
-        address[] memory _oracles
+        string memory _deal_uri
     ) external {
+        // Be sure there's at least 1 oracle
         require(trusted_parties[msg.sender], "You can't send requests here");
         // Pass everything to the internal function
-        createBridge(_deal_uri, _contract, _token_id, _oracles);
+        createBridge(_deal_uri, _contract, _token_id, 2);
     }
 
     function createBridge(
         string memory _deal_uri,
         address _contract,
         uint256 _token_id,
-        address[] memory _oracles
+        uint8 _contract_type
     ) private {
         // Check if the user don't have same bridge active or a request expired
         require(
@@ -135,7 +137,6 @@ contract NftStorageBridge is Ownable {
         // Create bridge object
         bridges[bridges_counter].deal_uri = _deal_uri;
         bridges[bridges_counter].active = true;
-        bridges[bridges_counter].oracles = _oracles;
         bridges[bridges_counter].timestamp_request = block.timestamp;
         bridges[bridges_counter].contract_address = _contract;
         bridges[bridges_counter].token_id = _token_id;
@@ -143,9 +144,9 @@ contract NftStorageBridge is Ownable {
         emit BridgeRequestCreated(
             _deal_uri,
             bridges_counter,
-            _oracles,
             _contract,
-            _token_id
+            _token_id,
+            _contract_type
         );
     }
 
@@ -164,21 +165,6 @@ contract NftStorageBridge is Ownable {
         bridges[_bridge_id].canceled = true;
         // Emitting bridge invalidated event
         emit BridgeInvalidated(_bridge_id);
-    }
-
-    // Function to check if oracle address exists in bridge
-    function isOracleInBridge(address _oracle, uint256 _bridge_id)
-        public
-        view
-        returns (bool)
-    {
-        for (uint256 i = 0; i < bridges[_bridge_id].oracles.length; i++) {
-            if (bridges[_bridge_id].oracles[i] == _oracle) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     // Function to check if bridge request expired
@@ -212,8 +198,8 @@ contract NftStorageBridge is Ownable {
     // Function to check storage
     function checkStorage(uint256 _bridge_id, string memory _proof) external {
         require(
-            isOracleInBridge(msg.sender, _bridge_id),
-            "Can't accept bridge, not an allowed oracle"
+            oracles[msg.sender],
+            "Can't check storage, not an oracle"
         );
         require(bridges[_bridge_id].active, "Bridge is not active");
         // Setting new proof id

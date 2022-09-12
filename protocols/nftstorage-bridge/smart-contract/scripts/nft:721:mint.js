@@ -10,7 +10,7 @@ async function main() {
     const wallet = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/1").connect(provider)
     const contract = new ethers.Contract(configs.nft_721_contract, ABI.abi, wallet)
 
-    const tokenURI = "ipfs://bafkreib4c57ebfi2ttwtkh4da7d5woatdhvxhmm5gz4jqvpih2yt6f65na"
+    const tokenURI = "bafkreib4c57ebfi2ttwtkh4da7d5woatdhvxhmm5gz4jqvpih2yt6f65na"
     try {
         console.log("Minting NFT in contract..")
         const tx = await contract.mint(tokenURI)

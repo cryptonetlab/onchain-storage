@@ -12,11 +12,10 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
     const tokenId = 1
-    const oracles = [oracle.address]
 
     try {
         console.log("Create bridge request for token id:", tokenId)
-        const tx = await contract.create1155Bridge(configs.nft_1155_contract, tokenId, oracles)
+        const tx = await contract.create1155Bridge(configs.nft_1155_contract, tokenId)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("Request created successfully at", tx.hash)
