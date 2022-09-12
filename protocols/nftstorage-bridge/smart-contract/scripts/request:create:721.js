@@ -11,7 +11,7 @@ async function main() {
     const wallet = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/1").connect(provider)
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
-    const tokenId = 2
+    const tokenId = 1
 
     try {
         console.log("Create bridge request for token id:", tokenId)
