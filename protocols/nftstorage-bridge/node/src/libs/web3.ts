@@ -4,6 +4,7 @@ import * as Database from "./database";
 import * as dotenv from "dotenv"
 import axios from "axios"
 import { NFTStorage, File } from 'nft.storage'
+import { fileTypeFromBuffer } from 'file-type';
 
 dotenv.config();
 let isParsingBridges = false
@@ -59,7 +60,9 @@ export const parseBridge = async (bridge_index, proposal_tx = '', accept_tx = ''
             console.log("Downloading image from:", parsed_image_uri)
             const image = await axios.get(parsed_image_uri, { responseType: "arraybuffer" })
             console.log("Image downloaded correctly, weight is:", image.data.length, "bytes")
-            nft_metadata.image = new File(image.data, nft_metadata.image)
+            const ft = await fileTypeFromBuffer(image.data)
+            console.log("File type is:", ft)
+            nft_metadata.image = new File(image.data, nft_metadata.image + '.' + ft?.ext, { type: ft?.mime })
             downloaded = true
           }
         } catch (e) {
@@ -68,8 +71,11 @@ export const parseBridge = async (bridge_index, proposal_tx = '', accept_tx = ''
         // Be sure NFT was downloaded correctly
         if (process.env.NFT_STORAGE_KEY !== undefined && downloaded) {
           try {
+            console.log("Uploading on NFT.storage..")
             const client = new NFTStorage({ token: process.env.NFT_STORAGE_KEY })
             const uploaded = await client.store(nft_metadata)
+            console.log("NFT.storage response is:", uploaded)
+            // Store processed bridge request
             let bridge = {
               index: bridge_index,
               timestamp_start: onchain_request.timestamp_start.toString(),
