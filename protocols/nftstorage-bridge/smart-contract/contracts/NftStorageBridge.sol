@@ -4,7 +4,6 @@ pragma solidity 0.8.6;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
-import "hardhat/console.sol";
 
 /**
  * @title NftStorageBridge
@@ -19,11 +18,8 @@ contract NftStorageBridge is Ownable {
         uint256 token_id;
         bool active;
         bool canceled;
-        bool terminated;
         uint256 timestamp_request;
         uint256 timestamp_start;
-        address[] oracles;
-        uint256 proving_schedule;
     }
     // Timeout for bridge requests (default 8h)
     uint256 public request_timeout = 28_800;
@@ -53,7 +49,7 @@ contract NftStorageBridge is Ownable {
         uint8 contract_type
     );
     event BridgeRequestAccepted(uint256 bridge_id);
-    event BridgeInvalidated(uint256 bridge_id);
+    event BridgeRequestCanceled(uint256 bridge_id);
     event ProofSent(uint256 bridge_id, uint256 proof_id, string proof);
 
     /*
@@ -74,13 +70,11 @@ contract NftStorageBridge is Ownable {
     function create721Bridge(address _contract, uint256 _token_id) external {
         // Check if user is the owner of the token
         address owner = IERC721Metadata(_contract).ownerOf(_token_id);
-        console.log("Owner is %s", owner);
         require(msg.sender == owner, "You're not the owner of the NFT");
         // Read tokenURI from contract
         string memory _deal_uri = IERC721Metadata(_contract).tokenURI(
             _token_id
         );
-        console.log("Token uri is %s", _deal_uri);
         // Pass everything to the internal function
         createBridge(_deal_uri, _contract, _token_id, 0);
     }
@@ -92,11 +86,9 @@ contract NftStorageBridge is Ownable {
             msg.sender,
             _token_id
         );
-        console.log("Balance is %s", balance);
         require(balance > 0, "You don't own copies of the NFT");
         // Read tokenURI from contract
         string memory _deal_uri = IERC1155MetadataURI(_contract).uri(_token_id);
-        console.log("Token uri is %s", _deal_uri);
         // Pass everything to the internal function
         createBridge(_deal_uri, _contract, _token_id, 1);
     }
@@ -148,18 +140,11 @@ contract NftStorageBridge is Ownable {
     // Function to cancel a bridge request before is accepted
     function cancelBridge(uint256 _bridge_id) external {
         require(bridges[_bridge_id].active, "Bridge is not active");
-        address owner = IERC721Metadata(bridges[_bridge_id].contract_address)
-            .ownerOf(bridges[_bridge_id].token_id);
-        require(owner == msg.sender, "Sender is not the owner");
-        require(
-            bridges[_bridge_id].timestamp_start == 0,
-            "Bridge started yet, can't cancel"
-        );
         // Invalidating bridge request
         bridges[_bridge_id].active = false;
         bridges[_bridge_id].canceled = true;
         // Emitting bridge invalidated event
-        emit BridgeInvalidated(_bridge_id);
+        emit BridgeRequestCanceled(_bridge_id);
     }
 
     // Function to check if bridge request expired
@@ -170,7 +155,7 @@ contract NftStorageBridge is Ownable {
     {
         uint256 expiration = bridges[_bridge_id].timestamp_request +
             request_timeout;
-        if (block.timestamp > expiration) {
+        if (block.timestamp > expiration ) {
             return true;
         }
         return false;
