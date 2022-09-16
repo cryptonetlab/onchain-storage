@@ -5,9 +5,9 @@
       <div v-if="isWorking">{{ workingMessage }}</div>
       <div v-if="filesUri && !isWorking">
         Your file is ready here {{ filesUri }}<br />Please create now the
-        storage request..
+        storage request.
       </div>
-      <b-field v-if="!fileToUpload.name">
+      <b-field v-if="!fileToUpload.name" style="padding:0 20%">
         <b-upload v-model="fileToUpload" expanded drag-drop>
           <section class="section">
             <div class="content has-text-centered">
