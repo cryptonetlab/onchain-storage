@@ -10,17 +10,16 @@ async function main() {
     const dealer = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/3").connect(provider)
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, dealer)
 
-    const bridge_id = 1
-    const bridge_uri = "ipfs://bafyreib7u3c5cyuzfn2j6wto7qyryagjehrgufkdlpzow74du5oyssqfha"
+    const deal_id = 5
     
     try {
-        console.log("Accepting bridge:", bridge_id)
-        const tx = await contract.acceptBridge(bridge_id, bridge_uri)
+        console.log("Accepting deal:", deal_id)
+        const tx = await contract.acceptDealProposal(deal_id)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("Request created successfully at", tx.hash)
         console.log("💸 Gas used:", receipt.gasUsed.toString())
-        const stored = await contract.bridges(bridge_id)
+        const stored = await contract.deals(deal_id)
         console.log(stored)
     } catch (e) {
         console.log(e)

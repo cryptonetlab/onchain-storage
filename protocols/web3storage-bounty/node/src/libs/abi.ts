@@ -5,11 +5,11 @@ export const ABI = [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "bridge_id",
+        "name": "deal_id",
         "type": "uint256"
       }
     ],
-    "name": "BridgeRequestAccepted",
+    "name": "BountyClaimed",
     "type": "event"
   },
   {
@@ -18,11 +18,24 @@ export const ABI = [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "bridge_id",
+        "name": "deal_id",
         "type": "uint256"
       }
     ],
-    "name": "BridgeRequestCanceled",
+    "name": "DealAccepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "deal_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "DealProposalCanceled",
     "type": "event"
   },
   {
@@ -37,29 +50,11 @@ export const ABI = [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "bridge_id",
+        "name": "deal_id",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "contract_address",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "token_id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "contract_type",
-        "type": "uint8"
       }
     ],
-    "name": "BridgeRequestCreated",
+    "name": "DealProposalCreated",
     "type": "event"
   },
   {
@@ -82,44 +77,14 @@ export const ABI = [
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bridge_id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "proof_id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "proof",
-        "type": "string"
-      }
-    ],
-    "name": "ProofSent",
-    "type": "event"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_bridge_id",
+        "name": "_deal_id",
         "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_bridge_uri",
-        "type": "string"
       }
     ],
-    "name": "acceptBridge",
+    "name": "acceptDealProposal",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -127,94 +92,37 @@ export const ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "name": "active_bridges",
-    "outputs": [
-      {
         "internalType": "uint256",
-        "name": "",
+        "name": "_deal_id",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "cancelDealProposal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_deal_id",
         "type": "uint256"
       }
     ],
-    "name": "bridges",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "deal_uri",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "bridge_uri",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "contract_address",
-        "type": "address"
-      },
-      {
-        "internalType": "uint8",
-        "name": "contract_type",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "token_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "active",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "canceled",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp_request",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp_start",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "claimBounty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "bridges_counter",
+    "name": "contract_protected",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bool",
         "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -223,91 +131,29 @@ export const ABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_bridge_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "cancelBridge",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_bridge_id",
-        "type": "uint256"
-      },
-      {
         "internalType": "string",
-        "name": "_proof",
+        "name": "_data_uri",
         "type": "string"
-      }
-    ],
-    "name": "checkStorage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
-        "internalType": "address",
-        "name": "_contract",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "_dealers",
+        "type": "address[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_oracle_addresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
-        "name": "_token_id",
+        "name": "_duration",
         "type": "uint256"
       }
     ],
-    "name": "create1155Bridge",
+    "name": "createDealProposal",
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_contract",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_token_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "create721Bridge",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_contract",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_token_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_deal_uri",
-        "type": "string"
-      }
-    ],
-    "name": "createTrustedBridge",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -333,11 +179,91 @@ export const ABI = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_bridge_id",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "isBridgeRequestExpired",
+    "name": "deals",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "deal_uri",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "canceled",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "claimed",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp_request",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp_start",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "deals_counter",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_state",
+        "type": "bool"
+      }
+    ],
+    "name": "fixContractProtection",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_deal_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "isDealActive",
     "outputs": [
       {
         "internalType": "bool",
@@ -351,12 +277,12 @@ export const ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_deal_id",
+        "type": "uint256"
       }
     ],
-    "name": "oracles",
+    "name": "isDealProposalExpired",
     "outputs": [
       {
         "internalType": "bool",
@@ -375,49 +301,6 @@ export const ABI = [
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "proofs",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "proofs_counter",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -465,24 +348,6 @@ export const ABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "_oracle",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_state",
-        "type": "bool"
-      }
-    ],
-    "name": "setOracleStatus",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "newOwner",
         "type": "address"
       }
@@ -490,25 +355,6 @@ export const ABI = [
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "trusted_parties",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]

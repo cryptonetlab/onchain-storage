@@ -5,7 +5,12 @@ let provider = 'http://localhost:8545'
 let hardhatConfigs = {
   defaultNetwork: "hardhat",
   networks: {
-    hardhat: {},
+    hardhat: {
+      mining: {
+        auto: false,
+        interval: 500
+      }
+    },
     rinkeby: {
       url: provider
     },

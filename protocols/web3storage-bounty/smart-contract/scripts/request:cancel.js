@@ -10,11 +10,11 @@ async function main() {
     const wallet = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/1").connect(provider)
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
-    const bridge_id = 1
+    const deal_id = 1
 
     try {
-        console.log("Cancel bridge request:", bridge_id)
-        const tx = await contract.cancelBridge(bridge_id)
+        console.log("Cancel bridge request:", deal_id)
+        const tx = await contract.cancelDealProposal(deal_id)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
         console.log("Request created successfully at", tx.hash)

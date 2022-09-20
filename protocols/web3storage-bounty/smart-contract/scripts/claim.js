@@ -7,25 +7,23 @@ async function main() {
     const ABI = JSON.parse(fs.readFileSync('./artifacts/contracts/' + configs.contract_name + '.sol/' + configs.contract_name + '.json').toString())
     const provider = new ethers.providers.JsonRpcProvider(configs.provider);
     // Setting up dealers's wallet
-    const oracle = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/2").connect(provider)
-    const wallet = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/1").connect(provider)
-    const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
+    const dealer = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/3").connect(provider)
+    const contract = new ethers.Contract(configs.contract_address, ABI.abi, dealer)
 
-    const tokenId = 1
-
+    const deal_id = 5
+    
     try {
-        console.log("Create bridge request for token id:", tokenId)
-        const tx = await contract.create721Bridge(configs.nft_721_contract, tokenId)
+        console.log("Claiming bounty for id:", deal_id)
+        const tx = await contract.claimBounty(deal_id)
         console.log('Pending transaction at: ' + tx.hash)
         const receipt = await tx.wait()
-        console.log("Request created successfully at", tx.hash)
+        console.log("Bounty claimed at", tx.hash)
         console.log("💸 Gas used:", receipt.gasUsed.toString())
-        console.log("Bridge ID is:", receipt.events[0].args.bridge_id.toString())
-        const stored = await contract.bridges(receipt.events[0].args.bridge_id)
+        const stored = await contract.deals(deal_id)
         console.log(stored)
     } catch (e) {
         console.log(e)
-        console.log('Can\'t create request, check transaction.')
+        console.log('Can\'t accept request, check transaction.')
     }
 }
 

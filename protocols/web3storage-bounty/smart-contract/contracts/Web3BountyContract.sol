@@ -12,10 +12,10 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     struct Deal {
         address owner;
         string deal_uri;
-        bool active;
+        uint256 duration;
+        uint256 value;
         bool canceled;
         bool claimed;
-        uint256 value;
         uint256 timestamp_request;
         uint256 timestamp_start;
     }
@@ -24,15 +24,11 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     // Counter for deals
     uint256 public deals_counter;
     // Allow or disallow payments
-    bool public contract_protected = false;
+    bool public contract_protected = true;
     // Mapping to store deals
     mapping(uint256 => Deal) public deals;
-    // Mapping to store active deals for each use
-    mapping(address => mapping(string => uint256)) public active_deals;
     // Mapping allowed dealers
     mapping(address => bool) public dealers;
-    // Mapping allowed oracles
-    mapping(address => bool) public oracles;
 
     // Events
     event DealProposalCreated(string deal_uri, uint256 deal_id);
@@ -48,12 +44,8 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     }
 
     /*
-        This method will allow owner to enable or disable a dealer
+        This method will allow owner to enable or disable contract protection
     */
-    function setOracleStatus(address _oracle, bool _state) external onlyOwner {
-        oracles[_oracle] = _state;
-    }
-
     function fixContractProtection(bool _state) external onlyOwner {
         contract_protected = _state;
     }
@@ -61,9 +53,9 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     // Function to create a storage request
     function createDealProposal(
         string memory _data_uri,
-        address[] memory dealers,
-        address[] memory oracle_addresses,
-        uint256 duration
+        address[] memory _dealers,
+        address[] memory _oracle_addresses,
+        uint256 _duration
     ) external payable {
         // Check if contract is protected
         if (contract_protected) {
@@ -77,29 +69,43 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         // QUESTION: Do we need to store oracle addresses or not?
         // QUESTION: Is duration in web3.storage bounty hardcoded?
 
-        // Check if the user don't have same deal active or a request expired
-        require(
-            active_deals[msg.sender][_data_uri] == 0 ||
-                isDealProposalExpired(active_deals[msg.sender][_data_uri]),
-            "Deal proposal is expired"
-        );
         // Setting next counter
         deals_counter++;
-        // Define active deal as new one
-        active_deals[msg.sender][_data_uri] = deals_counter;
         // Create deal object
         deals[deals_counter].deal_uri = _data_uri;
         deals[deals_counter].owner = msg.sender;
         deals[deals_counter].value = msg.value;
-        deals[deals_counter].active = true;
+        deals[deals_counter].duration = _duration;
         deals[deals_counter].timestamp_request = block.timestamp;
         // Emitting deal request created event
         emit DealProposalCreated(_data_uri, deals_counter);
     }
 
+    // Function to determine if deal is active or not
+    function isDealActive(uint256 _deal_id) public view returns (bool) {
+        bool active = true;
+        // Check if deal proposal exists
+        if (deals[_deal_id].timestamp_request == 0) {
+            active = false;
+        }
+        // Check if deal is canceled
+        if (active && deals[_deal_id].canceled) {
+            active = false;
+        }
+        // Check if deal expired
+        if (
+            active &&
+            block.timestamp >
+            (deals[_deal_id].timestamp_start + deals[_deal_id].duration)
+        ) {
+            active = false;
+        }
+        return active;
+    }
+
     // Function to cancel a deal request before is accepted
     function cancelDealProposal(uint256 _deal_id) external nonReentrant {
-        require(deals[_deal_id].active, "Deal is not active");
+        require(isDealActive(_deal_id), "Deal is not active");
         require(
             deals[_deal_id].owner == msg.sender,
             "Can't cancel someone else request"
@@ -111,7 +117,6 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         );
         require(success, "Withdraw to user failed");
         // Invalidating deal request
-        deals[_deal_id].active = false;
         deals[_deal_id].canceled = true;
         // Emitting deal invalidated event
         emit DealProposalCanceled(_deal_id);
@@ -132,7 +137,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     }
 
     // Function to create a deal request
-    function acceptDealRequest(uint256 _deal_id) external {
+    function acceptDealProposal(uint256 _deal_id) external {
         require(
             dealers[msg.sender],
             "Can't accept deal proposal, not a dealer"
@@ -143,7 +148,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         );
         require(
             deals[_deal_id].timestamp_start == 0,
-            "Deal started yet, can't cancel"
+            "Deal started yet, can't start"
         );
         // Set timestamp start
         deals[_deal_id].timestamp_start = block.timestamp;
@@ -152,9 +157,9 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     }
 
     // Function to create a deal request
-    function ClaimBounty(uint256 _deal_id) external nonReentrant {
+    function claimBounty(uint256 _deal_id) external nonReentrant {
         require(dealers[msg.sender], "Can't claim bounty, not a dealer");
-        require(deals[_deal_id].active, "Deal is not active");
+        require(deals[_deal_id].timestamp_start > 0, "Deal didn't started");
         require(!deals[_deal_id].claimed, "Deal claimed yet");
         require(deals[_deal_id].value > 0, "Deal doesn't have value to claim");
         // Send bounty to dealer
