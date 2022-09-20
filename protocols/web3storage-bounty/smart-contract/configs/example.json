@@ -1,6 +1,6 @@
 {
     "network": "localhost",
-    "contract_name": "Web3StorageBounty",
+    "contract_name": "Web3BountyContract",
     "constructor_arguments": [],
     "contract_address": "",
     "owner_mnemonic": "",

@@ -14,6 +14,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         string deal_uri;
         bool active;
         bool canceled;
+        bool claimed;
         uint256 value;
         uint256 timestamp_request;
         uint256 timestamp_start;
@@ -53,15 +54,15 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         oracles[_oracle] = _state;
     }
 
-    function fixContractProtection(_state) external onlyOwner {
-        contract_protected = state;
+    function fixContractProtection(bool _state) external onlyOwner {
+        contract_protected = _state;
     }
 
     // Function to create a storage request
     function createDealProposal(
         string memory _data_uri,
-        address[] dealers,
-        address[] oracle_addresses,
+        address[] memory dealers,
+        address[] memory oracle_addresses,
         uint256 duration
     ) external payable {
         // Check if contract is protected
@@ -155,7 +156,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         require(dealers[msg.sender], "Can't claim bounty, not a dealer");
         require(deals[_deal_id].active, "Deal is not active");
         require(!deals[_deal_id].claimed, "Deal claimed yet");
-        require(!deals[_deal_id].value > 0, "Deal doesn't have value to claim");
+        require(deals[_deal_id].value > 0, "Deal doesn't have value to claim");
         // Send bounty to dealer
         bool success;
         (success, ) = payable(msg.sender).call{value: deals[_deal_id].value}(
