@@ -3,8 +3,10 @@ import { ABI } from "./abi";
 import * as Database from "./database";
 import * as dotenv from "dotenv"
 import axios from "axios"
+import { ipfs } from "./ipfs"
 import { Web3Storage, File } from 'web3.storage'
 import { fileTypeFromBuffer } from 'file-type';
+import FormData from "form-data"
 
 dotenv.config();
 let isParsingRequests = false
@@ -35,6 +37,8 @@ export const parseRequest = async (bridge_index, proposal_tx = '') => {
         if (parseInt(onchain_request.timestamp_start.toString()) === 0 && parseInt(onchain_request.timestamp_request.toString()) > 0 && !onchain_request.canceled) {
           let downloaded = false
           let files
+          let filebuffer
+          let filename
           try {
             const parsed_uri = onchain_request.deal_uri.replace('ipfs://', process.env.IPFS_GATEWAY)
             console.log("[REQUESTS] --> Downloading file from:", parsed_uri)
@@ -43,7 +47,9 @@ export const parseRequest = async (bridge_index, proposal_tx = '') => {
             // TODO: Check max size if needed
             const ft = await fileTypeFromBuffer(buf.data)
             console.log("[REQUESTS] --> File type is:", ft)
-            files = [new File([buf.data], new Date().getTime() + '.' + ft?.ext)]
+            filename = new Date().getTime() + '.' + ft?.ext
+            files = [new File([buf.data], filename)]
+            filebuffer = buf.data
             downloaded = true
           } catch (e) {
             console.log(e)
@@ -51,6 +57,8 @@ export const parseRequest = async (bridge_index, proposal_tx = '') => {
           // Be sure file was downloaded correctly
           if (downloaded) {
             let uploaded = false
+            let pinned = false
+            let backupped = false
             let web3storage_response
             try {
               console.log("[REQUESTS] --> Uploading on Web3.storage..")
@@ -63,8 +71,40 @@ export const parseRequest = async (bridge_index, proposal_tx = '') => {
               console.log(e)
               console.log("[REQUESTS] --> Can't upload on web3.storage")
             }
-            // Accept onchain bridge request
-            if (uploaded) {
+            // Backup on local node
+            try {
+              console.log('[REQUESTS] Uploading on local node...')
+              const formData = new FormData();
+              formData.append("file", filebuffer, { filename });
+              const backup = await axios({
+                method: "post",
+                url: "http://localhost:5001/api/v0/add?cid-version=1",
+                data: formData,
+                headers: {
+                  "Content-Type": "multipart/form-data;boundary=" + formData.getBoundary(),
+                },
+              })
+              if (backup.data !== undefined) {
+                console.log("[REQUESTS] --> Backup on local node confirmed")
+                backupped = true
+              } else {
+                console.log("[REQUESTS] Backup on local node failed")
+              }
+            } catch (e) {
+              console.log(e)
+              console.log("[REQUESTS] --> Can't pin on local node")
+            }
+            // Pinning on the API
+            try {
+              console.log("[REQUESTS] Remote pinning on web3.storage")
+              ipfs("post", "/pin/remote/add?arg=" + onchain_request.deal_uri.replace("ipfs://", "/ipfs/") + '&service=web3_storage&recursive=true')
+              pinned = true
+            } catch (e) {
+              console.log(e)
+              console.log("[REQUESTS] --> Can't pin on web3.storage")
+            }
+            // Store on database
+            if (uploaded && pinned && backupped) {
               let accepted = false
               let accept_tx
               try {
@@ -76,7 +116,7 @@ export const parseRequest = async (bridge_index, proposal_tx = '') => {
                 accepted = true
               } catch (e) {
                 console.log(e)
-                console.log("[REQUESTS] --> Can't upload on Web3.storage")
+                console.log("[REQUESTS] --> Can't send on-chain transaction")
               }
 
               if (accepted) {
@@ -113,7 +153,7 @@ export const parseRequest = async (bridge_index, proposal_tx = '') => {
                 response(false)
               }
             } else {
-              console.log("[REQUESTS] --> Upload to Web3.storage failed")
+              console.log("[REQUESTS] --> All or one upload failed")
               response(false)
             }
           } else {

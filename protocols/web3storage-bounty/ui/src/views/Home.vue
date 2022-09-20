@@ -23,7 +23,7 @@
         type="is-primary"
         :disabled="!dealUri || isWorking"
         v-on:click="createDealProposal"
-        >CREATE STORAGE REQUEST</b-button
+        >CREATE DEAL PROPOSAL</b-button
       >
     </div>
     <div v-if="confirmed.length > 0">
@@ -163,6 +163,7 @@ export default {
           alert("Storage request created correctly!");
           app.confirmed = app.dealUri.replace("ipfs://", "");
           app.isWorking = false;
+          app.fileToUpload = {};
           app.dealUri = "";
         } catch (e) {
           alert(e.message);
