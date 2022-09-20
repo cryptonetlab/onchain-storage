@@ -32,6 +32,9 @@
         "https://w3s.link/ipfs/" + confirmed
       }}</a
       ><br /><br />
+      <span style="text-decoration: underline"
+        >Please note, it can take up to 10 minutes to show up!</span
+      ><br /><br />
       <b-button type="is-primary" v-on:click="confirmed = ''">RESTART</b-button>
     </div>
     <div v-if="!account">
