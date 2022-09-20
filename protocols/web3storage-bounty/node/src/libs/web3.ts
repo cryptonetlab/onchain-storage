@@ -129,7 +129,7 @@ export const parseRequest = async (bridge_index, proposal_tx = '', accept_tx = '
             response(false)
           }
         } else {
-          console.log("[REQUESTS] --> NFT download failed")
+          console.log("[REQUESTS] --> Download failed")
           response(false)
         }
       } else {
