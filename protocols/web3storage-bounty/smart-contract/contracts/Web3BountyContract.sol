@@ -56,7 +56,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         address[] memory _dealers,
         address[] memory _oracle_addresses,
         uint256 _duration
-    ) external payable {
+    ) external payable returns (uint256 deal_id) {
         // Check if contract is protected
         if (contract_protected) {
             require(
@@ -79,6 +79,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         deals[deals_counter].timestamp_request = block.timestamp;
         // Emitting deal request created event
         emit DealProposalCreated(_data_uri, deals_counter);
+        return deals_counter;
     }
 
     // Function to determine if deal is active or not

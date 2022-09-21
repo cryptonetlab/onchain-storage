@@ -32,7 +32,19 @@
         "https://w3-b.link/ipfs/" + confirmed
       }}</a
       ><br /><br />
-      <b-button type="is-primary" v-on:click="confirmed = ''">RESTART</b-button>
+      <div v-if="!accepted">Waiting for web3.storage confirmation...</div>
+      <div v-if="accepted">
+        Confirmation arrived, your file is now stored on web3.storage!
+      </div>
+      <br />
+      <b-button
+        type="is-primary"
+        v-on:click="
+          confirmed = '';
+          accepted = false;
+        "
+        >RESTART</b-button
+      >
     </div>
     <div v-if="!account">
       Please connect your Metamask wallet first,<br />window should be open
@@ -60,8 +72,125 @@ export default {
       contractAddress: "",
       account: "",
       isWorking: false,
+      accepted: false,
       workingMessage: "",
       confirmed: "",
+      abi: [
+        {
+          inputs: [],
+          name: "deals_counter",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_data_uri",
+              type: "string",
+            },
+            {
+              internalType: "address[]",
+              name: "_dealers",
+              type: "address[]",
+            },
+            {
+              internalType: "address[]",
+              name: "_oracle_addresses",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_duration",
+              type: "uint256",
+            },
+          ],
+          name: "createDealProposal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "deal_id",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "deal_id",
+              type: "uint256",
+            },
+          ],
+          name: "DealAccepted",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "deals",
+          outputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "deal_uri",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "duration",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "canceled",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "claimed",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "timestamp_request",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "timestamp_start",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
     };
   },
   watch: {
@@ -113,36 +242,7 @@ export default {
       if (app.dealUri !== "") {
         console.log("Files URI", app.dealUri);
         const contract = await new this.web3.eth.Contract(
-          [
-            {
-              inputs: [
-                {
-                  internalType: "string",
-                  name: "_data_uri",
-                  type: "string",
-                },
-                {
-                  internalType: "address[]",
-                  name: "_dealers",
-                  type: "address[]",
-                },
-                {
-                  internalType: "address[]",
-                  name: "_oracle_addresses",
-                  type: "address[]",
-                },
-                {
-                  internalType: "uint256",
-                  name: "_duration",
-                  type: "uint256",
-                },
-              ],
-              name: "createDealProposal",
-              outputs: [],
-              stateMutability: "payable",
-              type: "function",
-            },
-          ],
+          app.abi,
           process.env.VUE_APP_CONTRACT_ADDRESS,
           {
             gasLimit: "5000000",
@@ -154,12 +254,38 @@ export default {
           const dealers = [];
           const oracles = [];
           const duration = 60 * 60 * 24 * 365;
+          let last_deal = await contract.methods.deals_counter().call();
+          console.log("Last deal is:", last_deal);
           await contract.methods
             .createDealProposal(app.dealUri, dealers, oracles, duration)
             .send({ from: app.account })
             .on("transactionHash", (tx) => {
               app.workingMessage = "Found pending tx at:<br>" + tx;
             });
+          let polling = setInterval(async function () {
+            let events = await contract.getPastEvents(
+              "DealAccepted",
+              {},
+              { fromBlock: 0, toBlock: "latest" }
+            );
+            events = events.reverse();
+            for (let k in events) {
+              if (
+                parseInt(events[k].returnValues.deal_id) > parseInt(last_deal)
+              ) {
+                const deal = await contract.methods
+                  .deals(events[k].returnValues.deal_id)
+                  .call();
+                if (
+                  deal.owner === app.account &&
+                  parseInt(deal.timestamp_start) > 0
+                ) {
+                  clearTimeout(polling);
+                  app.accepted = true;
+                }
+              }
+            }
+          }, 2000);
           alert("Storage request created correctly!");
           app.confirmed = app.dealUri.replace("ipfs://", "");
           app.isWorking = false;
