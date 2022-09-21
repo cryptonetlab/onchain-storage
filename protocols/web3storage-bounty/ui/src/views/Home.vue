@@ -27,13 +27,10 @@
       >
     </div>
     <div v-if="confirmed.length > 0">
-      Hurray! You're soon able to reach your content at:<br />
-      <a :href="'https://w3s.link/ipfs/' + confirmed" target="_blank">{{
-        "https://w3s.link/ipfs/" + confirmed
+      Hurray! Your content is ready to be shared at:<br />
+      <a :href="'https://w3-b.link/ipfs/' + confirmed" target="_blank">{{
+        "https://w3-b.link/ipfs/" + confirmed
       }}</a
-      ><br /><br />
-      <span style="text-decoration: underline"
-        >Please note, it can take up to 10 minutes to show up!</span
       ><br /><br />
       <b-button type="is-primary" v-on:click="confirmed = ''">RESTART</b-button>
     </div>
