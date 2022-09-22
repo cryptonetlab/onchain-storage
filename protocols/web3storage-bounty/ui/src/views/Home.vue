@@ -2,29 +2,90 @@
   <div>
     <img src="../assets/logo.svg" style="height: 130px" /><br /><br />
     <h1 class="title is-1">Onchain.Storage X Web3.Storage</h1>
-    <br />
     <div v-if="account && confirmed.length === 0">
-      <div v-if="isWorking" v-html="workingMessage"></div>
-      <div v-if="dealUri && !isWorking">
-        Your file is ready here<br />{{ dealUri }}<br />Please create now the
-        storage request.
+      <div v-if="!showDeals">
+        <a @click="showDeals = true">SHOW DEALS</a><br /><br />
+        <div v-if="dealUri && !isWorking">
+          Deal URI is:<br />{{ dealUri }}<br />
+          It will be used to create thePlease create now the storage request.
+        </div>
+        <b-field v-if="!fileToUpload.name" style="padding: 0 20%">
+          <b-upload v-model="fileToUpload" expanded drag-drop>
+            <section class="section">
+              <div class="content has-text-centered">
+                <p>Drop your files here or click to upload</p>
+              </div>
+            </section>
+          </b-upload>
+        </b-field>
+        <br />
+        <b-button
+          type="is-primary"
+          v-if="!isWorking"
+          :disabled="!dealUri"
+          v-on:click="createDealProposal"
+          >CREATE DEAL PROPOSAL</b-button
+        >
       </div>
-      <b-field v-if="!fileToUpload.name" style="padding: 0 20%">
-        <b-upload v-model="fileToUpload" expanded drag-drop>
-          <section class="section">
-            <div class="content has-text-centered">
-              <p>Drop your files here or click to upload</p>
-            </div>
-          </section>
-        </b-upload>
-      </b-field>
+      <div v-if="showDeals" style="padding: 0 15%">
+        <a @click="showDeals = false">NEW DEAL</a><br /><br />
+        <b-table v-if="deals.length > 0" :data="deals">
+          <b-table-column field="index" label="Index" v-slot="props">
+            {{ props.row.index }}
+          </b-table-column>
+          <b-table-column field="deal_uri" label="Deal URI" v-slot="props">
+            <a
+              :href="
+                '' +
+                props.row.deal_uri.replace('ipfs://', 'https://w3-b.link/ipfs/')
+              "
+              target="_blank"
+              >{{ props.row.deal_uri }}</a
+            >
+          </b-table-column>
+          <b-table-column
+            field="timestamp_request"
+            label="Timestamp Request"
+            v-slot="props"
+          >
+            {{ props.row.timestamp_request }}
+          </b-table-column>
+          <b-table-column
+            field="timestamp_start"
+            label="Timestamp Start"
+            v-slot="props"
+          >
+            {{ props.row.timestamp_start }}
+          </b-table-column>
+          <b-table-column field="canceled" label="Canceled" v-slot="props">
+            {{ props.row.canceled }}
+          </b-table-column>
+          <b-table-column field="expired" label="Expired" v-slot="props">
+            {{ props.row.expired }}
+          </b-table-column>
+          <!-- <b-table-column label="Cancel" v-slot="props">
+            <b-button
+              v-if="
+                props.row.timestamp_start === 'NOT STARTED' &&
+                !props.row.canceled
+              "
+              type="is-primary is-small"
+              style="font-size: 14px !important"
+              v-on:click="cancelDealProposal(props.row.index)"
+              >CANCEL</b-button
+            >
+            <span
+              v-if="
+                props.row.timestamp_start !== 'NOT STARTED' ||
+                props.row.canceled
+              "
+              >-</span
+            >
+          </b-table-column> -->
+        </b-table>
+      </div>
       <br />
-      <b-button
-        type="is-primary"
-        :disabled="!dealUri || isWorking"
-        v-on:click="createDealProposal"
-        >CREATE DEAL PROPOSAL</b-button
-      >
+      <div v-if="isWorking" v-html="workingMessage"></div>
     </div>
     <div v-if="confirmed.length > 0">
       Hurray! Your content is ready to be shared at:<br />
@@ -40,6 +101,7 @@
       <b-button
         type="is-primary"
         v-on:click="
+          fetchDeals();
           confirmed = '';
           accepted = false;
         "
@@ -71,11 +133,26 @@ export default {
       axios: axios,
       contractAddress: "",
       account: "",
+      showDeals: false,
       isWorking: false,
       accepted: false,
       workingMessage: "",
       confirmed: "",
+      deals: [],
       abi: [
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_deal_id",
+              type: "uint256",
+            },
+          ],
+          name: "cancelDealProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
         {
           inputs: [],
           name: "deals_counter",
@@ -200,6 +277,9 @@ export default {
       }
     },
   },
+  mounted() {
+    this.connect();
+  },
   methods: {
     async connect() {
       const app = this;
@@ -211,6 +291,7 @@ export default {
         // Search for Goerli testnet
         if (netId == 5) {
           app.account = accounts[0];
+          app.fetchDeals();
         } else {
           alert("Please switch to Goerli testnet!");
         }
@@ -295,6 +376,65 @@ export default {
           alert(e.message);
           app.isWorking = false;
         }
+      }
+    },
+    async fetchDeals() {
+      const app = this;
+      app.deals = [];
+      console.log(
+        "Getting deals from:",
+        "https://w3-b.link/deals/" + app.account
+      );
+      const api_deals = await axios.get(
+        "https://w3-b.link/deals/" + app.account
+      );
+      for (let k in api_deals.data) {
+        let deal = api_deals.data[k];
+        if (deal.expired === undefined) {
+          deal.expired = false;
+        }
+        if (deal.timestamp_request > 0) {
+          deal.timestamp_request = new Date(deal.timestamp_request * 1000)
+            .toUTCString()
+            .split("GMT")[0];
+        } else {
+          deal.timestamp_request = "NOT STARTED";
+        }
+        if (deal.timestamp_start > 0) {
+          deal.timestamp_start = new Date(deal.timestamp_start * 1000)
+            .toUTCString()
+            .split("GMT")[0];
+        } else {
+          deal.timestamp_start = "NOT STARTED";
+        }
+        app.deals.push(deal);
+      }
+    },
+    async cancelDealProposal(index) {
+      const app = this;
+      console.log("Files URI", app.dealUri);
+      const contract = await new this.web3.eth.Contract(
+        app.abi,
+        process.env.VUE_APP_CONTRACT_ADDRESS,
+        {
+          gasLimit: "5000000",
+        }
+      );
+      app.isWorking = true;
+      app.workingMessage = "Please confirm action in Metamask...";
+      try {
+        await contract.methods
+          .cancelDealProposal(index)
+          .send({ from: app.account })
+          .on("transactionHash", (tx) => {
+            app.workingMessage = "Found pending tx at:<br>" + tx;
+          });
+        alert("Deal proposal cenceled correctly!");
+        app.isWorking = false;
+        app.fetchDeals();
+      } catch (e) {
+        alert(e.message);
+        app.isWorking = false;
       }
     },
   },

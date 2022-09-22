@@ -1,9 +1,19 @@
 <template>
   <div id="app">
     <br />
-    <router-view />
-    <div style="position: fixed; bottom: 0; left: 0; width: 100%; font-size:15px; padding-bottom:20px">
-      <hr />
+    <router-view style="padding-bottom: 60px" />
+    <div
+      style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #000;
+        font-size: 15px;
+        padding-bottom: 5px;
+        padding-top: 5px;
+      "
+    >
       Developed with ❤️ by
       <a href="https://protocol.ai" target="_blank">Protocol Labs</a>
     </div>
@@ -11,6 +21,17 @@
 </template>
 
 <style>
+.table thead td,
+.table thead th {
+  color: #fff !important;
+  text-align: center!important;
+}
+.table {
+  background-color: #010101 !important;
+  color: #fff !important;
+  font-size: 16px !important;
+  border: 1px solid #fff !important;
+}
 .select select {
   background: #000 !important;
   color: #fff !important;
