@@ -93,7 +93,7 @@ module Database {
       });
     }
 
-    public createBridgesIndex() {
+    public createRequestsIndex() {
       return new Promise(async (response) => {
         try {
           // let ssl = "?ssl=true";
@@ -106,7 +106,7 @@ module Database {
           );
           await client.connect();
           const db = await client.db(process.env.MONGODB_DBNAME);
-          let createIndex = await db.collection("bridges").createIndex({
+          let createIndex = await db.collection("requests").createIndex({
             owner: "text",
           });
           await client.close();

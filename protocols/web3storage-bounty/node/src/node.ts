@@ -12,7 +12,7 @@ app.use(helmet());
 
 // Init mongo database
 const db = new Database.default.Mongo()
-db.createBridgesIndex()
+db.createRequestsIndex()
 
 // Main function
 async function init() {
@@ -45,6 +45,12 @@ init()
 // Public endpoints
 app.get("/ipfs/:hash", async function (req, res) {
   req.pipe(request("http://localhost:8080/ipfs/" + req.params.hash)).pipe(res);
+})
+
+app.get("/deals/:address", async function (req, res) {
+  const db = new Database.default.Mongo()
+  const deals = await db.find('requests', { owner: req.params.address }, { timestamp_start: 1 })
+  res.send(deals)
 })
 
 app.listen(3000, () => {
