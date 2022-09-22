@@ -152,7 +152,13 @@ export const ABI = [
       }
     ],
     "name": "createDealProposal",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "deal_id",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },

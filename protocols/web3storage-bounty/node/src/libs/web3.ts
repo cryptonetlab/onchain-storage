@@ -24,6 +24,51 @@ export const contract = async () => {
   return { contract, wallet, provider, ethers };
 }
 
+export const updateRequest = async (deal_proposal_index, proposal_tx = '', accept_tx = '', cancel_tx = '') => {
+  return new Promise(async response => {
+    const instance = await contract()
+    console.log('[REQUESTS] Parsing bridge request #' + deal_proposal_index)
+    const db = new Database.default.Mongo();
+    // Checking if request was parsed yet
+    const checkDB = await db.find('requests', { index: deal_proposal_index })
+    const onchain_request = await instance.contract.deals(deal_proposal_index);
+    if (checkDB === null) {
+      console.log("[API] Insering request in database..")
+      let deal_proposal = {
+        owner: onchain_request.owner,
+        index: deal_proposal_index,
+        timestamp_start: onchain_request.timestamp_start.toString(),
+        timestamp_request: onchain_request.timestamp_request.toString(),
+        deal_uri: onchain_request.deal_uri,
+        canceled: onchain_request.canceled,
+        proposal_tx: proposal_tx,
+        accept_tx: accept_tx,
+        cancel_tx: cancel_tx
+      }
+      console.log('[REQUESTS] --> Inserting new deal proposal')
+      let inserted = false
+      while (!inserted) {
+        await db.insert('requests', deal_proposal)
+        const checkDB = await db.find('requests', { index: deal_proposal_index })
+        if (checkDB !== null) {
+          inserted = true
+        }
+      }
+    } else {
+      await db.update('requests', { index: deal_proposal_index }, {
+        $set: {
+          timestamp_start: onchain_request.timestamp_start.toString(),
+          canceled: onchain_request.canceled,
+          proposal_tx: proposal_tx,
+          accept_tx: accept_tx,
+          cancel_tx: cancel_tx
+        }
+      })
+    }
+    response(true)
+  })
+}
+
 export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
   return new Promise(async response => {
     if (process.env.WEB3_STORAGE_KEY !== undefined) {
@@ -34,27 +79,8 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
       const checkDB = await db.find('requests', { index: deal_proposal_index })
       if (checkDB === null || (checkDB !== null && checkDB.accept_tx === undefined && checkDB.missing_policy === undefined)) {
         const onchain_request = await instance.contract.deals(deal_proposal_index);
-        if (checkDB === null) {
-          console.log("Insering request in database..")
-          let deal_proposal = {
-            owner: onchain_request.owner,
-            index: deal_proposal_index,
-            timestamp_start: onchain_request.timestamp_start.toString(),
-            timestamp_request: onchain_request.timestamp_request.toString(),
-            deal_uri: onchain_request.deal_uri,
-            canceled: onchain_request.canceled,
-            proposal_tx: proposal_tx
-          }
-          console.log('[REQUESTS] --> Inserting new deal proposal')
-          let inserted = false
-          while (!inserted) {
-            await db.insert('requests', deal_proposal)
-            const checkDB = await db.find('requests', { index: deal_proposal_index })
-            if (checkDB !== null) {
-              inserted = true
-            }
-          }
-        }
+        // Be sure request is in the database
+        await updateRequest(deal_proposal_index, proposal_tx)
         if (parseInt(onchain_request.timestamp_start.toString()) === 0 && parseInt(onchain_request.timestamp_request.toString()) > 0 && !onchain_request.canceled) {
           let downloaded = false
           let files
@@ -147,8 +173,12 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
 
               if (accepted) {
                 try {
-                  console.log('[REQUESTS] --> Inserting new bridge request')
-                  await db.update('requests', { index: deal_proposal_index }, { $set: { web3storage_response, accept_tx } })
+                  console.log('[REQUESTS] --> Updating bridge request')
+                  await db.update('requests', { index: deal_proposal_index }, {
+                    $set: {
+                      web3storage_response, accept_tx
+                    }
+                  })
                   response(true)
                 } catch (e) {
                   console.log(e)
@@ -224,6 +254,20 @@ export const listenEvents = async () => {
       console.log("[EVENT] Deal proposal created")
       const deal_proposal_index = parseInt(deal_proposal_id.toString())
       parseRequest(deal_proposal_index, event.transactionHash)
+    }
+  })
+  instance.contract.on("DealAccepted", async (deal_proposal_id, event) => {
+    if (!isParsingRequests) {
+      console.log("[EVENT] Deal proposal accepted")
+      const deal_proposal_index = parseInt(deal_proposal_id.toString())
+      updateRequest(deal_proposal_index, '', event.transactionHash)
+    }
+  })
+  instance.contract.on("DealProposalCanceled", async (deal_proposal_id, event) => {
+    if (!isParsingRequests) {
+      console.log("[EVENT] Deal proposal canceled")
+      const deal_proposal_index = parseInt(deal_proposal_id.toString())
+      updateRequest(deal_proposal_index, '', '', event.transactionHash)
     }
   })
 }
