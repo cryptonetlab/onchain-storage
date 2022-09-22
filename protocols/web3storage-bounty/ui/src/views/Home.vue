@@ -63,7 +63,7 @@
           <b-table-column field="expired" label="Expired" v-slot="props">
             {{ props.row.expired }}
           </b-table-column>
-          <!-- <b-table-column label="Cancel" v-slot="props">
+          <b-table-column label="Cancel" v-slot="props">
             <b-button
               v-if="
                 props.row.timestamp_start === 'NOT STARTED' &&
@@ -81,8 +81,9 @@
               "
               >-</span
             >
-          </b-table-column> -->
+          </b-table-column>
         </b-table>
+        <div v-if="deals.length === 0">DON'T HAVE DEALS!</div>
       </div>
       <br />
       <div v-if="isWorking" v-html="workingMessage"></div>
@@ -429,9 +430,11 @@ export default {
           .on("transactionHash", (tx) => {
             app.workingMessage = "Found pending tx at:<br>" + tx;
           });
-        alert("Deal proposal cenceled correctly!");
+        alert("Deal proposal canceled correctly!");
         app.isWorking = false;
-        app.fetchDeals();
+        setTimeout(function () {
+          app.fetchDeals();
+        }, 5000);
       } catch (e) {
         alert(e.message);
         app.isWorking = false;

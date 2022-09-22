@@ -96,6 +96,8 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         // Check if deal expired
         if (
             active &&
+            deals[_deal_id].duration > 0 &&
+            deals[_deal_id].timestamp_start > 0 &&
             block.timestamp >
             (deals[_deal_id].timestamp_start + deals[_deal_id].duration)
         ) {
