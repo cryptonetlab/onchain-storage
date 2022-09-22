@@ -34,6 +34,11 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
     const onchain_request = await instance.contract.deals(deal_proposal_index);
     if (checkDB === null) {
       console.log("[API] Insering request in database..")
+      if (onchain_request.canceled === true) {
+        console.log("[IPFS] Unpinning element from IPFS..")
+        ipfs("post", "/pin/remote/add?arg=" + onchain_request.deal_uri.replace("ipfs://", "/ipfs/") + '&service=web3_storage&recursive=true')
+        ipfs("post", "/pin/remote/rm?arg=" + onchain_request.deal_uri.replace("ipfs://", "/ipfs/") + '&recursive=true')
+      }
       let deal_proposal = {
         owner: onchain_request.owner,
         index: deal_proposal_index,
