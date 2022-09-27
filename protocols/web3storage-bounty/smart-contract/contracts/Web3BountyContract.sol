@@ -6,12 +6,15 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title Web3BountyContract
+ * Implementation of protocol described at:
+ * https://hackmd.io/jBMffp3tRf6DU1f_D09VDQ
  */
+ 
 contract Web3BountyContract is Ownable, ReentrancyGuard {
     // Defining deal object
     struct Deal {
         address owner;
-        string deal_uri;
+        string data_uri;
         uint256 duration;
         uint256 value;
         bool canceled;
@@ -21,6 +24,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     }
     // Timeout for deal deals (default 8h)
     uint256 public request_timeout = 86_400;
+    uint256 public max_duration = 31_536_000;
     // Counter for deals
     uint256 public deals_counter;
     // Allow or disallow payments
@@ -31,7 +35,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     mapping(address => bool) public dealers;
 
     // Events
-    event DealProposalCreated(string deal_uri, uint256 deal_id);
+    event DealProposalCreated(string data_uri, uint256 deal_id);
     event DealAccepted(uint256 deal_id);
     event DealProposalCanceled(uint256 deal_id);
     event BountyClaimed(uint256 deal_id);
@@ -50,6 +54,13 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         contract_protected = _state;
     }
 
+    /*
+        This method will allow owner to fix max duration
+    */
+    function fixContractProtection(uint256 _duration) external onlyOwner {
+        max_duration = _duration;
+    }
+
     // Function to create a storage request
     function createDealProposal(
         string memory _data_uri,
@@ -57,6 +68,8 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         address[] memory _oracle_addresses,
         uint256 _duration
     ) external payable returns (uint256 deal_id) {
+        // Check if duration is lower than max
+        require(_duration <= max_duration, "Duration is too long");
         // Check if contract is protected
         if (contract_protected) {
             require(
@@ -65,14 +78,15 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
             );
         }
 
-        // QUESTION: Check if dealers are valid?
-        // QUESTION: Do we need to store oracle addresses or not?
-        // QUESTION: Is duration in web3.storage bounty hardcoded?
+        // NOTE:
+        // _dealers and _oracle_addresses are maintained for compatibility purposes
+        // contract will not use them so we suggest to send them empty
+        // See full bounty contract here: https://hackmd.io/2W6e_sAGTL-RBLYb1NsNUg
 
         // Setting next counter
         deals_counter++;
         // Create deal object
-        deals[deals_counter].deal_uri = _data_uri;
+        deals[deals_counter].data_uri = _data_uri;
         deals[deals_counter].owner = msg.sender;
         deals[deals_counter].value = msg.value;
         deals[deals_counter].duration = _duration;
@@ -113,12 +127,14 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
             deals[_deal_id].owner == msg.sender,
             "Can't cancel someone else request"
         );
-        // Send back payment
-        bool success;
-        (success, ) = payable(msg.sender).call{value: deals[_deal_id].value}(
-            ""
-        );
-        require(success, "Withdraw to user failed");
+        if (deals[_deal_id].value > 0) {
+            // Send back payment
+            bool success;
+            (success, ) = payable(msg.sender).call{
+                value: deals[_deal_id].value
+            }("");
+            require(success, "Withdraw to user failed");
+        }
         // Invalidating deal request
         deals[_deal_id].canceled = true;
         // Emitting deal invalidated event
@@ -160,11 +176,20 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     }
 
     // Function to create a deal request
-    function claimBounty(uint256 _deal_id) external nonReentrant {
+    function claimBounty(uint256 _deal_id, bytes memory _proof)
+        external
+        nonReentrant
+    {
         require(dealers[msg.sender], "Can't claim bounty, not a dealer");
         require(deals[_deal_id].timestamp_start > 0, "Deal didn't started");
         require(!deals[_deal_id].claimed, "Deal claimed yet");
         require(deals[_deal_id].value > 0, "Deal doesn't have value to claim");
+
+        // NOTE:
+        // _proof is maintained for compatibility purposes
+        // contract will not use it so we suggest to send it empty
+        // See full bounty contract here: https://hackmd.io/2W6e_sAGTL-RBLYb1NsNUg
+
         // Send bounty to dealer
         bool success;
         (success, ) = payable(msg.sender).call{value: deals[_deal_id].value}(

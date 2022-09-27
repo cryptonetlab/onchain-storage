@@ -44,7 +44,7 @@ export const ABI = [
       {
         "indexed": false,
         "internalType": "string",
-        "name": "deal_uri",
+        "name": "data_uri",
         "type": "string"
       },
       {
@@ -108,6 +108,11 @@ export const ABI = [
         "internalType": "uint256",
         "name": "_deal_id",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_proof",
+        "type": "bytes"
       }
     ],
     "name": "claimBounty",
@@ -198,7 +203,7 @@ export const ABI = [
       },
       {
         "internalType": "string",
-        "name": "deal_uri",
+        "name": "data_uri",
         "type": "string"
       },
       {
@@ -251,6 +256,19 @@ export const ABI = [
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "fixContractProtection",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bool",
         "name": "_state",
         "type": "bool"
@@ -294,6 +312,19 @@ export const ABI = [
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "max_duration",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

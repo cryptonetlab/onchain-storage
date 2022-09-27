@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
-import { ABI } from "./abi";
-import * as Database from "./database";
+import { ABI } from "../libs/abi";
+import * as Database from "../libs/database";
 import * as dotenv from "dotenv"
-import { unpin } from "./ipfs"
+import { unpin } from "../libs/ipfs"
 dotenv.config();
 let isParsingBridges = false
 

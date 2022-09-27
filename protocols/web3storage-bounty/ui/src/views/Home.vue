@@ -1,13 +1,14 @@
 <template>
   <div>
     <img src="../assets/logo.svg" style="height: 130px" /><br /><br />
-    <h1 class="title is-1">Onchain.Storage X Web3.Storage</h1>
-    <div v-if="account && confirmed.length === 0">
+    <h1 class="title is-1">Web3.Storage</h1>
+    <h3 class="title is-3" style="margin-top:-20px">on-chain dealer</h3>
+    <div v-if="confirmed.length === 0">
       <div v-if="!showDeals">
-        <a @click="showDeals = true">SHOW DEALS</a><br /><br />
+        <a @click="showDeals = true" v-if="account">SHOW DEALS</a><br /><br />
         <div v-if="dealUri && !isWorking">
-          Deal URI is:<br />{{ dealUri }}<br />
-          It will be used to create thePlease create now the storage request.
+          Data URI is:<br />{{ dealUri }}<br />
+          It will be used to create the storage request.
         </div>
         <b-field v-if="!fileToUpload.name" style="padding: 0 20%">
           <b-upload v-model="fileToUpload" expanded drag-drop>
@@ -19,13 +20,9 @@
           </b-upload>
         </b-field>
         <br />
-        <b-button
-          type="is-primary"
-          v-if="!isWorking"
-          :disabled="!dealUri"
-          v-on:click="createDealProposal"
-          >CREATE DEAL PROPOSAL</b-button
-        >
+        <b-button type="is-primary" v-if="!account && !isWorking" v-on:click="connect">CONNECT METAMASK</b-button>
+        <b-button type="is-primary" v-if="!isWorking && account" :disabled="!dealUri" v-on:click="createDealProposal">
+          CREATE DEAL PROPOSAL</b-button>
       </div>
       <div v-if="showDeals" style="padding: 0 15%">
         <a @click="showDeals = false">NEW DEAL</a><br /><br />
@@ -33,28 +30,16 @@
           <b-table-column field="index" label="Index" v-slot="props">
             {{ props.row.index }}
           </b-table-column>
-          <b-table-column field="deal_uri" label="Deal URI" v-slot="props">
-            <a
-              :href="
-                '' +
-                props.row.deal_uri.replace('ipfs://', 'https://w3-b.link/ipfs/')
-              "
-              target="_blank"
-              >{{ props.row.deal_uri }}</a
-            >
+          <b-table-column field="data_uri" label="Data URI" v-slot="props">
+            <a :href="
+              '' +
+              props.row.data_uri.replace('ipfs://', 'https://w3-b.link/ipfs/')
+            " target="_blank">{{ props.row.data_uri }}</a>
           </b-table-column>
-          <b-table-column
-            field="timestamp_request"
-            label="Timestamp Request"
-            v-slot="props"
-          >
+          <b-table-column field="timestamp_request" label="Timestamp Request" v-slot="props">
             {{ props.row.timestamp_request }}
           </b-table-column>
-          <b-table-column
-            field="timestamp_start"
-            label="Timestamp Start"
-            v-slot="props"
-          >
+          <b-table-column field="timestamp_start" label="Timestamp Start" v-slot="props">
             {{ props.row.timestamp_start }}
           </b-table-column>
           <b-table-column field="canceled" label="Canceled" v-slot="props">
@@ -64,23 +49,15 @@
             {{ props.row.expired }}
           </b-table-column>
           <b-table-column label="Cancel" v-slot="props">
-            <b-button
-              v-if="
-                props.row.timestamp_start === 'NOT STARTED' &&
-                !props.row.canceled
-              "
-              type="is-primary is-small"
-              style="font-size: 14px !important"
-              v-on:click="cancelDealProposal(props.row.index)"
-              >CANCEL</b-button
-            >
-            <span
-              v-if="
-                props.row.timestamp_start !== 'NOT STARTED' ||
-                props.row.canceled
-              "
-              >-</span
-            >
+            <b-button v-if="
+              props.row.timestamp_start === 'NOT STARTED' &&
+              !props.row.canceled
+            " type="is-primary is-small" style="font-size: 14px !important"
+              v-on:click="cancelDealProposal(props.row.index)">CANCEL</b-button>
+            <span v-if="
+              props.row.timestamp_start !== 'NOT STARTED' ||
+              props.row.canceled
+            ">-</span>
           </b-table-column>
         </b-table>
         <div v-if="deals.length === 0">DON'T HAVE DEALS!</div>
@@ -91,30 +68,18 @@
     <div v-if="confirmed.length > 0">
       Hurray! Your content is ready to be shared at:<br />
       <a :href="'https://w3-b.link/ipfs/' + confirmed" target="_blank">{{
-        "https://w3-b.link/ipfs/" + confirmed
-      }}</a
-      ><br /><br />
+      "https://w3-b.link/ipfs/" + confirmed
+      }}</a><br /><br />
       <div v-if="!accepted">Waiting for web3.storage confirmation...</div>
       <div v-if="accepted">
         Confirmation arrived, your file is now stored on web3.storage!
       </div>
       <br />
-      <b-button
-        type="is-primary"
-        v-on:click="
-          fetchDeals();
-          confirmed = '';
-          accepted = false;
-        "
-        >RESTART</b-button
-      >
-    </div>
-    <div v-if="!account">
-      Please connect your Metamask wallet first,<br />window should be open
-      automatically or click below button.<br /><br />
-      <b-button type="is-primary" v-on:click="connect"
-        >CONNECT METAMASK</b-button
-      >
+      <b-button type="is-primary" v-on:click="
+        fetchDeals();
+        confirmed = '';
+        accepted = false;
+      ">RESTART</b-button>
     </div>
   </div>
 </template>
@@ -231,7 +196,7 @@ export default {
             },
             {
               internalType: "string",
-              name: "deal_uri",
+              name: "data_uri",
               type: "string",
             },
             {
@@ -279,7 +244,9 @@ export default {
     },
   },
   mounted() {
-    this.connect();
+    if (localStorage.getItem('connected') !== null) {
+      this.connect();
+    }
   },
   methods: {
     async connect() {
@@ -293,6 +260,7 @@ export default {
         if (netId == 5) {
           app.account = accounts[0];
           app.fetchDeals();
+          localStorage.setItem("connected", true)
         } else {
           alert("Please switch to Goerli testnet!");
         }

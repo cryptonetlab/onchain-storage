@@ -36,15 +36,15 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
       console.log("[API] Insering request in database..")
       if (onchain_request.canceled === true) {
         console.log("[IPFS] Unpinning element from IPFS..")
-        ipfs("post", "/pin/remote/add?arg=" + onchain_request.deal_uri.replace("ipfs://", "/ipfs/") + '&service=web3_storage&recursive=true')
-        ipfs("post", "/pin/remote/rm?arg=" + onchain_request.deal_uri.replace("ipfs://", "/ipfs/") + '&recursive=true')
+        ipfs("post", "/pin/remote/add?arg=" + onchain_request.data_uri.replace("ipfs://", "/ipfs/") + '&service=web3_storage&recursive=true')
+        ipfs("post", "/pin/remote/rm?arg=" + onchain_request.data_uri.replace("ipfs://", "/ipfs/") + '&recursive=true')
       }
       let deal_proposal = {
         owner: onchain_request.owner,
         index: deal_proposal_index,
         timestamp_start: onchain_request.timestamp_start.toString(),
         timestamp_request: onchain_request.timestamp_request.toString(),
-        deal_uri: onchain_request.deal_uri,
+        data_uri: onchain_request.data_uri,
         canceled: onchain_request.canceled,
         proposal_tx: proposal_tx,
         accept_tx: accept_tx,
@@ -92,11 +92,11 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
           let filebuffer
           let filename
           try {
-            const parsed_uri = onchain_request.deal_uri.replace('ipfs://', process.env.IPFS_GATEWAY)
+            const parsed_uri = onchain_request.data_uri.replace('ipfs://', process.env.IPFS_GATEWAY)
             console.log("[REQUESTS] --> Downloading file from:", parsed_uri)
             const buf = await axios.get(parsed_uri, { responseType: "arraybuffer" })
             console.log("[REQUESTS] --> File downloaded successfully with size:", buf.data.length)
-            // TODO: Check max size if needed
+            // Check max size if needed: 20M by default
             if (buf.data.length < 20000000) {
               const ft = await fileTypeFromBuffer(buf.data)
               console.log("[REQUESTS] --> File type is:", ft)
@@ -154,7 +154,7 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
             // Pinning on the API
             try {
               console.log("[REQUESTS] Remote pinning on web3.storage")
-              ipfs("post", "/pin/remote/add?arg=" + onchain_request.deal_uri.replace("ipfs://", "/ipfs/") + '&service=web3_storage&recursive=true')
+              ipfs("post", "/pin/remote/add?arg=" + onchain_request.data_uri.replace("ipfs://", "/ipfs/") + '&service=web3_storage&recursive=true')
               pinned = true
             } catch (e) {
               console.log(e)
@@ -254,7 +254,7 @@ export const parseRequests = async () => {
 export const listenEvents = async () => {
   const instance = await contract()
   console.log('Setting up on-chain event listeners..')
-  instance.contract.on("DealProposalCreated", async (deal_uri, deal_proposal_id, event) => {
+  instance.contract.on("DealProposalCreated", async (data_uri, deal_proposal_id, event) => {
     if (!isParsingRequests) {
       console.log("[EVENT] Deal proposal created")
       const deal_proposal_index = parseInt(deal_proposal_id.toString())
