@@ -1,8 +1,8 @@
 <template>
   <div>
     <img src="../assets/logo.svg" style="height: 130px" /><br /><br />
-    <h1 class="title is-1">Web3.Storage</h1>
-    <h3 class="title is-3" style="margin-top:-20px">on-chain dealer</h3>
+    <h1 class="title is-1">Web3 Bounty</h1>
+    <h3 class="title is-3" style="margin-top: -20px">web3.storage dealer</h3>
     <div v-if="confirmed.length === 0">
       <div v-if="!showDeals">
         <a @click="showDeals = true" v-if="account">SHOW DEALS</a><br /><br />
@@ -20,9 +20,17 @@
           </b-upload>
         </b-field>
         <br />
-        <b-button type="is-primary" v-if="!account && !isWorking" v-on:click="connect">CONNECT METAMASK</b-button>
-        <b-button type="is-primary" v-if="!isWorking && account" :disabled="!dealUri" v-on:click="createDealProposal">
-          CREATE DEAL PROPOSAL</b-button>
+        <b-button type="is-primary" v-if="!account && !isWorking" v-on:click="connect"
+          >CONNECT METAMASK</b-button
+        >
+        <b-button
+          type="is-primary"
+          v-if="!isWorking && account"
+          :disabled="!dealUri"
+          v-on:click="createDealProposal"
+        >
+          CREATE DEAL PROPOSAL</b-button
+        >
       </div>
       <div v-if="showDeals" style="padding: 0 15%">
         <a @click="showDeals = false">NEW DEAL</a><br /><br />
@@ -31,12 +39,19 @@
             {{ props.row.index }}
           </b-table-column>
           <b-table-column field="data_uri" label="Data URI" v-slot="props">
-            <a :href="
-              '' +
-              props.row.data_uri.replace('ipfs://', 'https://w3-b.link/ipfs/')
-            " target="_blank">{{ props.row.data_uri }}</a>
+            <a
+              :href="
+                '' + props.row.data_uri.replace('ipfs://', 'https://w3-b.link/ipfs/')
+              "
+              target="_blank"
+              >{{ props.row.data_uri }}</a
+            >
           </b-table-column>
-          <b-table-column field="timestamp_request" label="Timestamp Request" v-slot="props">
+          <b-table-column
+            field="timestamp_request"
+            label="Timestamp Request"
+            v-slot="props"
+          >
             {{ props.row.timestamp_request }}
           </b-table-column>
           <b-table-column field="timestamp_start" label="Timestamp Start" v-slot="props">
@@ -49,15 +64,16 @@
             {{ props.row.expired }}
           </b-table-column>
           <b-table-column label="Cancel" v-slot="props">
-            <b-button v-if="
-              props.row.timestamp_start === 'NOT STARTED' &&
-              !props.row.canceled
-            " type="is-primary is-small" style="font-size: 14px !important"
-              v-on:click="cancelDealProposal(props.row.index)">CANCEL</b-button>
-            <span v-if="
-              props.row.timestamp_start !== 'NOT STARTED' ||
-              props.row.canceled
-            ">-</span>
+            <b-button
+              v-if="props.row.timestamp_start === 'NOT STARTED' && !props.row.canceled"
+              type="is-primary is-small"
+              style="font-size: 14px !important"
+              v-on:click="cancelDealProposal(props.row.index)"
+              >CANCEL</b-button
+            >
+            <span v-if="props.row.timestamp_start !== 'NOT STARTED' || props.row.canceled"
+              >-</span
+            >
           </b-table-column>
         </b-table>
         <div v-if="deals.length === 0">DON'T HAVE DEALS!</div>
@@ -68,18 +84,23 @@
     <div v-if="confirmed.length > 0">
       Hurray! Your content is ready to be shared at:<br />
       <a :href="'https://w3-b.link/ipfs/' + confirmed" target="_blank">{{
-      "https://w3-b.link/ipfs/" + confirmed
-      }}</a><br /><br />
+        "https://w3-b.link/ipfs/" + confirmed
+      }}</a
+      ><br /><br />
       <div v-if="!accepted">Waiting for web3.storage confirmation...</div>
       <div v-if="accepted">
         Confirmation arrived, your file is now stored on web3.storage!
       </div>
       <br />
-      <b-button type="is-primary" v-on:click="
-        fetchDeals();
-        confirmed = '';
-        accepted = false;
-      ">RESTART</b-button>
+      <b-button
+        type="is-primary"
+        v-on:click="
+          fetchDeals();
+          confirmed = '';
+          accepted = false;
+        "
+        >RESTART</b-button
+      >
     </div>
   </div>
 </template>
@@ -244,7 +265,7 @@ export default {
     },
   },
   mounted() {
-    if (localStorage.getItem('connected') !== null) {
+    if (localStorage.getItem("connected") !== null) {
       this.connect();
     }
   },
@@ -260,7 +281,7 @@ export default {
         if (netId == 5) {
           app.account = accounts[0];
           app.fetchDeals();
-          localStorage.setItem("connected", true)
+          localStorage.setItem("connected", true);
         } else {
           alert("Please switch to Goerli testnet!");
         }
@@ -320,16 +341,11 @@ export default {
             );
             events = events.reverse();
             for (let k in events) {
-              if (
-                parseInt(events[k].returnValues.deal_id) > parseInt(last_deal)
-              ) {
+              if (parseInt(events[k].returnValues.deal_id) > parseInt(last_deal)) {
                 const deal = await contract.methods
                   .deals(events[k].returnValues.deal_id)
                   .call();
-                if (
-                  deal.owner === app.account &&
-                  parseInt(deal.timestamp_start) > 0
-                ) {
+                if (deal.owner === app.account && parseInt(deal.timestamp_start) > 0) {
                   clearTimeout(polling);
                   app.accepted = true;
                 }
@@ -350,13 +366,8 @@ export default {
     async fetchDeals() {
       const app = this;
       app.deals = [];
-      console.log(
-        "Getting deals from:",
-        "https://w3-b.link/deals/" + app.account
-      );
-      const api_deals = await axios.get(
-        "https://w3-b.link/deals/" + app.account
-      );
+      console.log("Getting deals from:", "https://w3-b.link/deals/" + app.account);
+      const api_deals = await axios.get("https://w3-b.link/deals/" + app.account);
       for (let k in api_deals.data) {
         let deal = api_deals.data[k];
         if (deal.expired === undefined) {
