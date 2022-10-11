@@ -22,6 +22,9 @@ let hardhatConfigs = {
     },
     goerli: {
       url: provider
+    },
+    polygon: {
+      url: provider
     }
   },
   solidity: "0.8.6",
@@ -52,10 +55,10 @@ if (process.env.PROVIDER !== undefined) {
 }
 
 if (process.env.POLYGONSCAN !== undefined && process.env.POLYGONSCAN !== '') {
-  hardhatConfigs.etherscan = { apiKey: { polygonMumbai: process.env.POLYGONSCAN } }
+  hardhatConfigs.etherscan = { apiKey: { polygonMumbai: process.env.POLYGONSCAN, polygon: process.env.POLYGONSCAN } }
 }
 
-if (process.env.ETHERSCAN !== undefined && process.env.ETHERSCAN !== '') {
+if (process.env.ETHERSCAN !== undefined && process.env.ETHERSCAN !== '' && process.env.POLYGONSCAN === undefined) {
   hardhatConfigs.etherscan = { apiKey: { mainnet: process.env.ETHERSCAN, rinkeby: process.env.ETHERSCAN, ropsten: process.env.ETHERSCAN, goerli: process.env.ETHERSCAN } }
 }
 

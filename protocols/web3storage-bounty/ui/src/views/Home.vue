@@ -20,7 +20,10 @@
           </b-upload>
         </b-field>
         <br />
-        <b-button type="is-primary" v-if="!account && !isWorking" v-on:click="connect"
+        <b-button
+          type="is-primary"
+          v-if="!account && !isWorking"
+          v-on:click="connect"
           >CONNECT METAMASK</b-button
         >
         <b-button
@@ -41,7 +44,8 @@
           <b-table-column field="data_uri" label="Data URI" v-slot="props">
             <a
               :href="
-                '' + props.row.data_uri.replace('ipfs://', 'https://w3-b.link/ipfs/')
+                '' +
+                props.row.data_uri.replace('ipfs://', 'https://w3-b.link/ipfs/')
               "
               target="_blank"
               >{{ props.row.data_uri }}</a
@@ -54,7 +58,11 @@
           >
             {{ props.row.timestamp_request }}
           </b-table-column>
-          <b-table-column field="timestamp_start" label="Timestamp Start" v-slot="props">
+          <b-table-column
+            field="timestamp_start"
+            label="Timestamp Start"
+            v-slot="props"
+          >
             {{ props.row.timestamp_start }}
           </b-table-column>
           <b-table-column field="canceled" label="Canceled" v-slot="props">
@@ -65,13 +73,20 @@
           </b-table-column>
           <b-table-column label="Cancel" v-slot="props">
             <b-button
-              v-if="props.row.timestamp_start === 'NOT STARTED' && !props.row.canceled"
+              v-if="
+                props.row.timestamp_start === 'NOT STARTED' &&
+                !props.row.canceled
+              "
               type="is-primary is-small"
               style="font-size: 14px !important"
               v-on:click="cancelDealProposal(props.row.index)"
               >CANCEL</b-button
             >
-            <span v-if="props.row.timestamp_start !== 'NOT STARTED' || props.row.canceled"
+            <span
+              v-if="
+                props.row.timestamp_start !== 'NOT STARTED' ||
+                props.row.canceled
+              "
               >-</span
             >
           </b-table-column>
@@ -277,13 +292,35 @@ export default {
         let accounts = await this.web3.eth.getAccounts();
         const netId = await app.web3.eth.net.getId();
         console.log("Network:", netId);
-        // Search for Goerli testnet
-        if (netId == 5) {
+        // Search for Polygon network
+        if (netId == 137) {
           app.account = accounts[0];
           app.fetchDeals();
           localStorage.setItem("connected", true);
         } else {
-          alert("Please switch to Goerli testnet!");
+          try {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: "0x" + Number(137).toString(16),
+                  chainName: "Polygon",
+                  rpcUrls: ["https://polygon-rpc.com"],
+                  nativeCurrency: {
+                    name: "MATIC",
+                    symbol: "MATIC",
+                    decimals: 18,
+                  },
+                  blockExplorerUrls: ["https://polygonscan.com"],
+                },
+              ],
+            });
+            setTimeout(function () {
+              app.connect();
+            }, 100);
+          } catch (e) {
+            alert("Please switch to Polygon network!");
+          }
         }
       } catch (e) {
         alert(e.message);
@@ -312,11 +349,13 @@ export default {
       const app = this;
       if (app.dealUri !== "") {
         console.log("Files URI", app.dealUri);
-        const contract = await new this.web3.eth.Contract(
+        const gasPrice = await app.web3.eth.getGasPrice();
+        const contract = await new app.web3.eth.Contract(
           app.abi,
           process.env.VUE_APP_CONTRACT_ADDRESS,
           {
             gasLimit: "5000000",
+            gasPrice: gasPrice
           }
         );
         app.isWorking = true;
@@ -341,11 +380,16 @@ export default {
             );
             events = events.reverse();
             for (let k in events) {
-              if (parseInt(events[k].returnValues.deal_id) > parseInt(last_deal)) {
+              if (
+                parseInt(events[k].returnValues.deal_id) > parseInt(last_deal)
+              ) {
                 const deal = await contract.methods
                   .deals(events[k].returnValues.deal_id)
                   .call();
-                if (deal.owner === app.account && parseInt(deal.timestamp_start) > 0) {
+                if (
+                  deal.owner === app.account &&
+                  parseInt(deal.timestamp_start) > 0
+                ) {
                   clearTimeout(polling);
                   app.accepted = true;
                 }
@@ -366,8 +410,13 @@ export default {
     async fetchDeals() {
       const app = this;
       app.deals = [];
-      console.log("Getting deals from:", "https://w3-b.link/deals/" + app.account);
-      const api_deals = await axios.get("https://w3-b.link/deals/" + app.account);
+      console.log(
+        "Getting deals from:",
+        "https://w3-b.link/deals/" + app.account
+      );
+      const api_deals = await axios.get(
+        "https://w3-b.link/deals/" + app.account
+      );
       for (let k in api_deals.data) {
         let deal = api_deals.data[k];
         if (deal.expired === undefined) {

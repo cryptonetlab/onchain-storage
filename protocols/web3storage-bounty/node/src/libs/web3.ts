@@ -166,7 +166,8 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
               let accept_tx
               try {
                 console.log("[REQUESTS] --> Accepting bridge #", deal_proposal_index)
-                accept_tx = await instance.contract.acceptDealProposal(deal_proposal_index)
+                const gasPrice = (await instance.provider.getGasPrice()).mul(1.5)
+                accept_tx = await instance.contract.acceptDealProposal(deal_proposal_index, {gasPrice})
                 console.log('[REQUESTS] --> Pending transaction at: ' + accept_tx.hash)
                 await accept_tx.wait()
                 console.log("[REQUESTS] --> Transaction confirmed")
