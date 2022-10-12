@@ -355,7 +355,7 @@ export default {
           process.env.VUE_APP_CONTRACT_ADDRESS,
           {
             gasLimit: "5000000",
-            gasPrice: gasPrice
+            gasPrice: gasPrice,
           }
         );
         app.isWorking = true;
@@ -372,11 +372,12 @@ export default {
             .on("transactionHash", (tx) => {
               app.workingMessage = "Found pending tx at:<br>" + tx;
             });
+          const latest = await app.web3.eth.getBlockNumber();
           let polling = setInterval(async function () {
             let events = await contract.getPastEvents(
               "DealAccepted",
               {},
-              { fromBlock: 0, toBlock: "latest" }
+              { fromBlock: latest, toBlock: "latest" }
             );
             events = events.reverse();
             for (let k in events) {
