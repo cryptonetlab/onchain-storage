@@ -57,7 +57,7 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
     /*
         This method will allow owner to fix max duration
     */
-    function fixContractProtection(uint256 _duration) external onlyOwner {
+    function fixMaxDuration(uint256 _duration) external onlyOwner {
         max_duration = _duration;
     }
 
