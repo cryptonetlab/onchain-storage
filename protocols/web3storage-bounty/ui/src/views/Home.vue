@@ -129,7 +129,7 @@ export default {
   data() {
     return {
       web3: new Web3(window.ethereum),
-      ipfsURL: "https://api.umi.tools/ipfs/upload",
+      ipfsURL: process.env.VUE_APP_CACHE_NODE + "/upload",
       fileToUpload: {},
       dealUri: "",
       axios: axios,
@@ -332,6 +332,7 @@ export default {
       const formData = new FormData();
       formData.append("file", app.fileToUpload);
       formData.append("name", app.fileToUpload.name);
+      formData.append("address", app.account);
       app.workingMessage = "Uploading file to IPFS...";
       axios({
         method: "post",
@@ -341,7 +342,7 @@ export default {
           "Content-Type": "multipart/form-data",
         },
       }).then(function (response) {
-        app.dealUri = "ipfs://" + response.data.ipfs_hash;
+        app.dealUri = "ipfs://" + response.data.cid;
         app.isWorking = false;
       });
     },

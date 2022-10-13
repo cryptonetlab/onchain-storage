@@ -1,6 +1,6 @@
 import * as Database from "./libs/database";
 import { parseRequests, listenEvents } from "./libs/web3";
-import { ipfs, getWeb3Nodes } from "./libs/ipfs"
+import { ipfs, getWeb3Nodes, getCacheNodes } from "./libs/ipfs"
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -18,12 +18,23 @@ db.createRequestsIndex()
 async function init() {
   // Adding web3 nodes to swarm
   console.log("Getting nodes from repo..")
-  const nodes = await getWeb3Nodes()
-  console.log('Found ' + nodes.length + ' nodes.')
-  for (let k in nodes) {
+  const w3nodes = await getWeb3Nodes()
+  console.log('Found ' + w3nodes.length + ' Web3.Storage nodes.')
+  for (let k in w3nodes) {
     try {
-      console.log("Adding " + nodes[k] + " to swarm..")
-      await ipfs("post", "/swarm/connect?arg=" + nodes[k])
+      console.log("Adding " + w3nodes[k] + " to swarm..")
+      await ipfs("post", "/swarm/connect?arg=" + w3nodes[k])
+    } catch (e) {
+      console.log("Can't add node to swarm..")
+    }
+  }
+  // Adding cache nodes
+  const cachnodes = await getCacheNodes()
+  console.log('Found ' + cachnodes.length + ' cache nodes.')
+  for (let k in cachnodes) {
+    try {
+      console.log("Adding " + cachnodes[k] + " to swarm..")
+      await ipfs("post", "/swarm/connect?arg=" + cachnodes[k])
     } catch (e) {
       console.log("Can't add node to swarm..")
     }
