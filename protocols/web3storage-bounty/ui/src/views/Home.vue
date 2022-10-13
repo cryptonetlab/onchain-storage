@@ -65,11 +65,17 @@
           >
             {{ props.row.timestamp_start }}
           </b-table-column>
-          <b-table-column field="canceled" label="Canceled" v-slot="props">
-            {{ props.row.canceled }}
+          <b-table-column field="canceled" label="Pins" v-slot="props">
+            <div v-if="props.row.pins !== undefined">
+              <a href="#" @click="showModal = true; dealDetails = props.row.pins">{{ props.row.pins.length }}</a>
+            </div>
+            <div v-if="props.row.pins === undefined">N/A</div>
           </b-table-column>
-          <b-table-column field="expired" label="Expired" v-slot="props">
-            {{ props.row.expired }}
+          <b-table-column field="expired" label="Deals" v-slot="props">
+            <div v-if="props.row.deals !== undefined">
+              <a href="#" @click="showModal = true; dealDetails = props.row.deals">{{ props.row.deals.length }}</a>
+            </div>
+            <div v-if="props.row.deals === undefined">N/A</div>
           </b-table-column>
           <b-table-column label="Cancel" v-slot="props">
             <b-button
@@ -93,6 +99,29 @@
         </b-table>
         <div v-if="deals.length === 0">DON'T HAVE DEALS!</div>
       </div>
+      <b-modal
+        v-model="showModal"
+        has-modal-card
+        trap-focus
+        :destroy-on-hide="false"
+        aria-role="dialog"
+        aria-label="Example Modal"
+        close-button-aria-label="Close"
+        aria-modal
+      >
+        <template>
+          <div class="modal-card" style="width: 600px">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Web3.Storage details</p>
+              <button type="button" class="delete" @click="showModal = false" />
+            </header>
+            <section class="modal-card-body">
+              <pre v-if="dealDetails.length > 0" style="text-align:left; font-size:13px">{{ dealDetails }}</pre>
+              <div v-if="dealDetails.length === 0" style="color: #000">Nothing to show.</div>
+            </section>
+          </div>
+        </template>
+      </b-modal>
       <br />
       <div v-if="isWorking" v-html="workingMessage"></div>
     </div>
@@ -135,12 +164,14 @@ export default {
       axios: axios,
       contractAddress: "",
       account: "",
+      showModal: false,
       showDeals: false,
       isWorking: false,
       accepted: false,
       workingMessage: "",
       confirmed: "",
       deals: [],
+      dealDetails: [],
       abi: [
         {
           inputs: [
