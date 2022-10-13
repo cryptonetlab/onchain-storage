@@ -120,7 +120,7 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
             try {
               console.log("[REQUESTS] --> Uploading on Web3.storage..")
               const client = new Web3Storage({ token: process.env.WEB3_STORAGE_KEY })
-              web3storage_response = await client.put(files, { wrapWithDirectory: false })
+              web3storage_response = await client.put(files)
               console.log("[REQUESTS] --> web3.storage response is:", web3storage_response)
               // Store processed bridge request
               uploaded = true
