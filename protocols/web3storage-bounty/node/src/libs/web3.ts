@@ -96,11 +96,11 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
             console.log("[REQUESTS] --> Downloading file from:", parsed_uri)
             const buf = await axios.get(parsed_uri, { responseType: "arraybuffer" })
             console.log("[REQUESTS] --> File downloaded successfully with size:", buf.data.length)
-            // Check max size if needed: 20M by default
-            if (buf.data.length < 20000000) {
+            // Check max size if needed: 100M by default
+            if (buf.data.length < 100000000) {
               const ft = await fileTypeFromBuffer(buf.data)
               console.log("[REQUESTS] --> File type is:", ft)
-              filename = new Date().getTime() + '.' + ft?.ext
+              filename = process.env.CONTRACT_ADDRESS + "_DEAL_" + deal_proposal_index + '.' + ft?.ext
               files = [new File([buf.data], filename)]
               filebuffer = buf.data
               downloaded = true

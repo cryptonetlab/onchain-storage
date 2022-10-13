@@ -109,20 +109,43 @@ const parseCache = async () => {
         for (let k in files) {
             try {
                 if (files[k].pins.length > 0) {
-                    console.log("Getting info from CAR: " + files[k].cid)
-                    const content = await axios.get("https://dweb.link/api/v0/ls?arg=" + files[k].cid)
-                    const cid = content.data.Objects[0].Hash
-                    console.log("-> Original content inside CAR is:", cid)
-                    const checkDB = await db.find('cache', { cid: cid, expired: false })
-                    if (checkDB !== null) {
-                        console.log("--> Removing pin from local node..")
-                        await ipfs("post", "/pin/rm?arg=" + cid + '&recursive=true')
-                        await db.update('cache', { cid: cid, expired: false }, { $set: { expired: true, pins: files[k].pins } })
+                    const checkCar = await db.find('cache', { car: files[k].cid })
+                    if (checkCar === null) {
+                        console.log("Getting info from CAR: " + files[k].cid)
+                        const content = await axios.get("https://dweb.link/api/v0/ls?arg=" + files[k].cid)
+                        const cid = content.data.Objects[0].Links[0].Hash
+                        console.log("-> Original content inside CAR is:", cid)
+                        const checkDB = await db.find('cache', { cid: cid, expired: false })
+                        if (checkDB !== null) {
+                            console.log("--> Removing pin from local node..")
+                            await ipfs("post", "/pin/rm?arg=" + cid + '&recursive=true')
+                            await db.update('cache', { cid: cid, expired: false }, { $set: { expired: true, pins: files[k].pins, car: files[k].cid } })
+                        } else {
+                            console.log("--> Can't find CID on local node..")
+                            await db.insert('cache', { pins: files[k].pins, car: files[k].cid })
+                        }
                     } else {
-                        console.log("--> Can't find CID on local node..")
+                        console.log("-> Already processed CAR: " + files[k].cid)
                     }
-                    console.log("--")
                 }
+                if (files[k].deals.length > 0) {
+                    const checkDeals = await db.find('cache', { car: files[k].cid })
+                    if (checkDeals !== null && checkDeals.deals.length === 0) {
+                        console.log("Getting info from CAR: " + files[k].cid)
+                        const content = await axios.get("https://dweb.link/api/v0/ls?arg=" + files[k].cid)
+                        const cid = content.data.Objects[0].Links[0].Hash
+                        const deal_index = parseInt(content.data.Objects[0].Links[0].Name.split("_DEAL_")[1].split(".")[0])
+                        console.log("-> Deal index is:", deal_index)
+                        const checkDB = await db.find('requests', { index: deal_index })
+                        if (checkDB !== null) {
+                            console.log("--> Adding Filecoin's deal informations..")
+                            await db.update('cache', { cid: cid, expired: false }, { $set: { expired: true, deals: files[k].deals } })
+                        } else {
+                            console.log("--> Can't find deal..")
+                        }
+                    }
+                }
+                console.log("--")
             } catch (e) {
                 console.log("Can't get info for: " + files[k].cid)
             }
