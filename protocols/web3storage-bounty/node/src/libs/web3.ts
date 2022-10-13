@@ -183,7 +183,7 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
                   console.log('[REQUESTS] --> Updating bridge request')
                   await db.update('requests', { index: deal_proposal_index }, {
                     $set: {
-                      web3storage_response, accept_tx
+                      accept_tx
                     }
                   })
                   response(true)
