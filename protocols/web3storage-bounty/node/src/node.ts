@@ -1,6 +1,6 @@
 import * as Database from "./libs/database";
 import { parseRequests, listenEvents } from "./libs/web3";
-import { ipfs, getWeb3Nodes, getCacheNodes, add, parseCache } from "./libs/ipfs"
+import { ipfs, getWeb3Nodes, add, parseCache } from "./libs/ipfs"
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -32,17 +32,7 @@ async function init() {
       console.log("Can't add node to swarm..")
     }
   }
-  // Adding cache nodes
-  const cachnodes = await getCacheNodes()
-  console.log('Found ' + cachnodes.length + ' cache nodes.')
-  for (let k in cachnodes) {
-    try {
-      console.log("Adding " + cachnodes[k] + " to swarm..")
-      await ipfs("post", "/swarm/connect?arg=" + cachnodes[k])
-    } catch (e) {
-      console.log("Can't add node to swarm..")
-    }
-  }
+  
   // Add service to local node
   try {
     console.log("Adding Web3.Storage as remote pinning provider...")

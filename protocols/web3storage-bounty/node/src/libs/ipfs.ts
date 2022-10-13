@@ -15,18 +15,6 @@ const getWeb3Nodes = async () => {
     return nodes
 }
 
-const getCacheNodes = async () => {
-    const req = await axios.get("https://api.pldr.dev/ipfs-id")
-    let nodes = <any>[]
-    const parsed = req.data
-    for (let k in parsed) {
-        if (parsed[k].indexOf('127.0.0.1') === -1 && parsed[k].length > 0) {
-            nodes.push(parsed[k])
-        }
-    }
-    return nodes
-}
-
 const ipfs = (method, endpoint, arg?) => {
     return new Promise(async response => {
         try {
@@ -79,6 +67,8 @@ const add = (buffer, filename, onlyHash = false) => {
                 },
             })
             console.log("[IPFS] Local node response")
+            console.log(added.data)
+            console.log("---")
             response(added.data.Hash.toString())
         } catch (e) {
             response(false);
@@ -168,4 +158,4 @@ const parseCache = async () => {
     }
 };
 
-export { ipfs, getWeb3Nodes, getCacheNodes, add, parseCache }
+export { ipfs, getWeb3Nodes, add, parseCache }
