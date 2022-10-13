@@ -21,40 +21,40 @@ db.createRequestsIndex()
 // Main function
 async function init() {
   // Adding web3 nodes to swarm
-  // console.log("Getting nodes from repo..")
-  // const w3nodes = await getWeb3Nodes()
-  // console.log('Found ' + w3nodes.length + ' Web3.Storage nodes.')
-  // for (let k in w3nodes) {
-  //   try {
-  //     console.log("Adding " + w3nodes[k] + " to swarm..")
-  //     await ipfs("post", "/swarm/connect?arg=" + w3nodes[k])
-  //   } catch (e) {
-  //     console.log("Can't add node to swarm..")
-  //   }
-  // }
+  console.log("Getting nodes from repo..")
+  const w3nodes = await getWeb3Nodes()
+  console.log('Found ' + w3nodes.length + ' Web3.Storage nodes.')
+  for (let k in w3nodes) {
+    try {
+      console.log("Adding " + w3nodes[k] + " to swarm..")
+      await ipfs("post", "/swarm/connect?arg=" + w3nodes[k])
+    } catch (e) {
+      console.log("Can't add node to swarm..")
+    }
+  }
   // Adding cache nodes
-  // const cachnodes = await getCacheNodes()
-  // console.log('Found ' + cachnodes.length + ' cache nodes.')
-  // for (let k in cachnodes) {
-  //   try {
-  //     console.log("Adding " + cachnodes[k] + " to swarm..")
-  //     await ipfs("post", "/swarm/connect?arg=" + cachnodes[k])
-  //   } catch (e) {
-  //     console.log("Can't add node to swarm..")
-  //   }
-  // }
+  const cachnodes = await getCacheNodes()
+  console.log('Found ' + cachnodes.length + ' cache nodes.')
+  for (let k in cachnodes) {
+    try {
+      console.log("Adding " + cachnodes[k] + " to swarm..")
+      await ipfs("post", "/swarm/connect?arg=" + cachnodes[k])
+    } catch (e) {
+      console.log("Can't add node to swarm..")
+    }
+  }
   // Add service to local node
-  // try {
-  //   console.log("Adding Web3.Storage as remote pinning provider...")
-  //   await ipfs("post", "/pin/remote/service/add?arg=web3_storage&arg=https://api.web3.storage&arg=" + process.env.WEB3_STORAGE_KEY)
-  // } catch (e) {
-  //   console.log("Remote pinning setted up yet.")
-  // }
+  try {
+    console.log("Adding Web3.Storage as remote pinning provider...")
+    await ipfs("post", "/pin/remote/service/add?arg=web3_storage&arg=https://api.web3.storage&arg=" + process.env.WEB3_STORAGE_KEY)
+  } catch (e) {
+    console.log("Remote pinning setted up yet.")
+  }
   // Adding listeners to on-chain contract
-  // listenEvents()
+  listenEvents()
   // Parse past bridges
-  // parseRequests()
-  // Parse IPFs cache
+  parseRequests()
+  // Parse IPFS cache
   parseCache()
 }
 init()
