@@ -155,6 +155,10 @@ const parseCache = async () => {
                 console.log("Can't get info for: " + files[k].cid)
             }
         }
+        console.log("[CACHE] Process cache ended, will start again in 60s...")
+        setTimeout(function () {
+            parseCache()
+        }, 60000)
     } catch (e) {
         console.log("Parsing cache failed..")
         console.log(e.message)
