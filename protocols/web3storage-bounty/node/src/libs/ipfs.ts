@@ -142,7 +142,7 @@ const parseCache = async () => {
                         const checkDB = await db.find('requests', { index: deal_index })
                         if (checkDB !== null) {
                             console.log("--> Adding Filecoin's deal informations..")
-                            await db.update('requests', { index: deal_index }, { $set: { expired: true, deals: files[k].deals, car: files[k].cid } })
+                            await db.update('requests', { index: deal_index }, { $set: { deals: files[k].deals, car: files[k].cid } })
                         } else {
                             console.log("--> Can't find deal..")
                         }
