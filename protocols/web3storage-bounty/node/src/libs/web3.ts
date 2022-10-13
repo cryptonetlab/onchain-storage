@@ -37,7 +37,7 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
       if (onchain_request.canceled === true) {
         console.log("[IPFS] Unpinning element from IPFS..")
         ipfs("post", "/pin/remote/add?arg=" + onchain_request.data_uri.replace("ipfs://", "/ipfs/") + '&service=web3_storage&recursive=true')
-        ipfs("post", "/pin/remote/rm?arg=" + onchain_request.data_uri.replace("ipfs://", "/ipfs/") + '&recursive=true')
+        ipfs("post", "/pin/rm?arg=" + onchain_request.data_uri.replace("ipfs://", "/ipfs/") + '&recursive=true')
       }
       let deal_proposal = {
         owner: onchain_request.owner,

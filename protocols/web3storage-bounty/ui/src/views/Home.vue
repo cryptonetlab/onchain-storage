@@ -355,7 +355,7 @@ export default {
           app.abi,
           process.env.VUE_APP_CONTRACT_ADDRESS,
           {
-            gasLimit: "5000000",
+            gasLimit: "300000",
             gasPrice: gasPrice,
           }
         );

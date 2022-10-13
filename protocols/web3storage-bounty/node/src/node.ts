@@ -1,10 +1,14 @@
 import * as Database from "./libs/database";
 import { parseRequests, listenEvents } from "./libs/web3";
-import { ipfs, getWeb3Nodes, getCacheNodes } from "./libs/ipfs"
+import { ipfs, getWeb3Nodes, getCacheNodes, add, parseCache } from "./libs/ipfs"
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import request from 'request'
+import multer from 'multer'
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 const app = express();
 app.use(cors());
@@ -50,12 +54,40 @@ async function init() {
   listenEvents()
   // Parse past bridges
   parseRequests()
+  // Parse IPFs cache
+  parseCache()
 }
 init()
 
 // Public endpoints
 app.get("/ipfs/:hash", async function (req, res) {
   req.pipe(request("http://localhost:8080/ipfs/" + req.params.hash)).pipe(res);
+})
+
+// Upload endpoint
+app.post("/upload", upload.single('file'), async function (req, res) {
+  if (req.body.address !== undefined) {
+    const cid = await add(req.file.buffer, req.file.filename, true)
+    if (cid !== false) {
+      const checkDB = await db.find('cache', { cid: cid })
+      if (checkDB === null || (checkDB !== null && checkDB.expired !== undefined && checkDB.expired === true)) {
+        const added = await add(req.file.buffer, req.file.filename)
+        await db.insert('cache', {
+          cid: cid,
+          address: req.body.address,
+          timestamp: new Date().getTime(),
+          expired: false
+        })
+        res.send({ cid: added, error: false })
+      } else {
+        res.send({ message: "CID already pinned.", cid: cid, error: false })
+      }
+    } else {
+      res.send({ message: "Can't add on IPFS, please retry.", error: true })
+    }
+  } else {
+    res.send({ message: "Malformed request", error: true })
+  }
 })
 
 app.get("/deals/:address", async function (req, res) {
