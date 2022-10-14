@@ -86,7 +86,7 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
       const db = new Database.default.Mongo();
       // Checking if request was parsed yet
       const checkDB = await db.find('requests', { index: deal_proposal_index })
-      if (checkDB === null || (checkDB !== null && checkDB.accept_tx === undefined && checkDB.missing_policy === undefined)) {
+      if (checkDB === null || (checkDB !== null && checkDB.accept_tx.length === 0) || (checkDB !== null && checkDB.missing_policy === undefined)) {
         const onchain_request = await instance.contract.deals(deal_proposal_index);
         // Be sure request is in the database
         await updateRequest(deal_proposal_index, proposal_tx)
