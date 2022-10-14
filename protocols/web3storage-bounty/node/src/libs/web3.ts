@@ -27,7 +27,7 @@ export const contract = async () => {
 export const updateRequest = async (deal_proposal_index, proposal_tx = '', accept_tx = '') => {
   return new Promise(async response => {
     const instance = await contract()
-    console.log('[REQUESTS] Parsing bridge request #' + deal_proposal_index)
+    console.log('[REQUESTS] Updating bridge request #' + deal_proposal_index)
     const db = new Database.default.Mongo();
     // Checking if request was parsed yet
     const checkDB = await db.find('requests', { index: deal_proposal_index })
@@ -223,6 +223,7 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
   })
 }
 
+// Just for first sync with blockchain
 export const parseRequests = async () => {
   if (!isParsingRequests) {
     isParsingRequests = true
@@ -267,13 +268,13 @@ export const listenEvents = async () => {
       parseRequest(deal_proposal_index, event.transactionHash)
     }
   })
-  instance.contract.on("DealAccepted", async (deal_proposal_id, event) => {
-    if (!isParsingRequests) {
-      console.log("[EVENT] Deal proposal accepted")
-      const deal_proposal_index = parseInt(deal_proposal_id.toString())
-      updateRequest(deal_proposal_index, '', event.transactionHash)
-    }
-  })
+  // instance.contract.on("DealAccepted", async (deal_proposal_id, event) => {
+  //   if (!isParsingRequests) {
+  //     console.log("[EVENT] Deal proposal accepted")
+  //     const deal_proposal_index = parseInt(deal_proposal_id.toString())
+  //     updateRequest(deal_proposal_index, '', event.transactionHash)
+  //   }
+  // })
   // instance.contract.on("DealProposalCanceled", async (deal_proposal_id, event) => {
   //   if (!isParsingRequests) {
   //     console.log("[EVENT] Deal proposal canceled")
