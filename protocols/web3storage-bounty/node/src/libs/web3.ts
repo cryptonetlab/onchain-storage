@@ -24,7 +24,7 @@ export const contract = async () => {
   return { contract, wallet, provider, ethers };
 }
 
-export const updateRequest = async (deal_proposal_index, proposal_tx = '', accept_tx = '', cancel_tx = '') => {
+export const updateRequest = async (deal_proposal_index, proposal_tx = '', accept_tx = '') => {
   return new Promise(async response => {
     const instance = await contract()
     console.log('[REQUESTS] Parsing bridge request #' + deal_proposal_index)
@@ -47,8 +47,7 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
         data_uri: onchain_request.data_uri,
         canceled: onchain_request.canceled,
         proposal_tx: proposal_tx,
-        accept_tx: accept_tx,
-        cancel_tx: cancel_tx
+        accept_tx: accept_tx
       }
       console.log('[REQUESTS] --> Inserting new deal proposal')
       let inserted = false
@@ -60,13 +59,18 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
         }
       }
     } else {
+      if (proposal_tx === '') {
+        proposal_tx = checkDB.proposal_tx
+      }
+      if (proposal_tx === '') {
+        accept_tx = checkDB.accept_tx
+      }
       await db.update('requests', { index: deal_proposal_index }, {
         $set: {
           timestamp_start: onchain_request.timestamp_start.toString(),
           canceled: onchain_request.canceled,
           proposal_tx: proposal_tx,
-          accept_tx: accept_tx,
-          cancel_tx: cancel_tx
+          accept_tx: accept_tx
         }
       })
     }
@@ -270,11 +274,11 @@ export const listenEvents = async () => {
       updateRequest(deal_proposal_index, '', event.transactionHash)
     }
   })
-  instance.contract.on("DealProposalCanceled", async (deal_proposal_id, event) => {
-    if (!isParsingRequests) {
-      console.log("[EVENT] Deal proposal canceled")
-      const deal_proposal_index = parseInt(deal_proposal_id.toString())
-      updateRequest(deal_proposal_index, '', '', event.transactionHash)
-    }
-  })
+  // instance.contract.on("DealProposalCanceled", async (deal_proposal_id, event) => {
+  //   if (!isParsingRequests) {
+  //     console.log("[EVENT] Deal proposal canceled")
+  //     const deal_proposal_index = parseInt(deal_proposal_id.toString())
+  //     updateRequest(deal_proposal_index, '', '', event.transactionHash)
+  //   }
+  // })
 }
