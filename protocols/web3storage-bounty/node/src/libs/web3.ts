@@ -141,6 +141,8 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
                 method: "post",
                 url: "http://localhost:5001/api/v0/add?cid-version=1",
                 data: formData,
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
                 headers: {
                   "Content-Type": "multipart/form-data;boundary=" + formData.getBoundary(),
                 },
