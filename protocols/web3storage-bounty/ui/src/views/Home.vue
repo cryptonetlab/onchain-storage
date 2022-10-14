@@ -67,13 +67,27 @@
           </b-table-column>
           <b-table-column field="canceled" label="Pins" v-slot="props">
             <div v-if="props.row.pins !== undefined">
-              <a href="#" @click="showModal = true; dealDetails = props.row.pins">{{ props.row.pins.length }}</a>
+              <a
+                href="#"
+                @click="
+                  showModal = true;
+                  dealDetails = props.row.pins;
+                "
+                >{{ props.row.pins.length }}</a
+              >
             </div>
             <div v-if="props.row.pins === undefined">N/A</div>
           </b-table-column>
           <b-table-column field="expired" label="Deals" v-slot="props">
             <div v-if="props.row.deals !== undefined">
-              <a href="#" @click="showModal = true; dealDetails = props.row.deals">{{ props.row.deals.length }}</a>
+              <a
+                href="#"
+                @click="
+                  showModal = true;
+                  dealDetails = props.row.deals;
+                "
+                >{{ props.row.deals.length }}</a
+              >
             </div>
             <div v-if="props.row.deals === undefined">N/A</div>
           </b-table-column>
@@ -116,8 +130,14 @@
               <button type="button" class="delete" @click="showModal = false" />
             </header>
             <section class="modal-card-body">
-              <pre v-if="dealDetails.length > 0" style="text-align:left; font-size:13px">{{ dealDetails }}</pre>
-              <div v-if="dealDetails.length === 0" style="color: #000">Nothing to show.</div>
+              <pre
+                v-if="dealDetails.length > 0"
+                style="text-align: left; font-size: 13px"
+                >{{ dealDetails }}</pre
+              >
+              <div v-if="dealDetails.length === 0" style="color: #000">
+                Nothing to show.
+              </div>
             </section>
           </div>
         </template>
@@ -169,6 +189,7 @@ export default {
       isWorking: false,
       accepted: false,
       workingMessage: "",
+      uploadPercentage: 0,
       confirmed: "",
       deals: [],
       dealDetails: [],
@@ -364,7 +385,7 @@ export default {
       formData.append("file", app.fileToUpload);
       formData.append("name", app.fileToUpload.name);
       formData.append("address", app.account);
-      app.workingMessage = "Uploading file to IPFS...";
+      app.workingMessage = "Uploading file to IPFS...<br>0%";
       axios({
         method: "post",
         url: app.ipfsURL,
@@ -372,9 +393,22 @@ export default {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          app.uploadPercentage = (
+            (progressEvent.loaded / app.fileToUpload.size) *
+            100
+          ).toFixed(2);
+          app.workingMessage =
+            "Uploading file to IPFS...<br>" + app.uploadPercentage + "%";
+        },
       }).then(function (response) {
-        app.dealUri = "ipfs://" + response.data.cid;
         app.isWorking = false;
+        if (response.data.cid !== undefined) {
+          app.dealUri = "ipfs://" + response.data.cid;
+        } else {
+          alert("There was an error while uploading file!");
+          app.fileToUpload = "";
+        }
       });
     },
     async createDealProposal() {

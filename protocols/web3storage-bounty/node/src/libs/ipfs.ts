@@ -62,6 +62,8 @@ const add = (buffer, filename, onlyHash = false) => {
                 method: "post",
                 url: "http://localhost:5001/api/v0/add?cid-version=1&only-hash=" + onlyHash,
                 data: formData,
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
                 headers: {
                     "Content-Type": "multipart/form-data;boundary=" + formData.getBoundary(),
                 },
@@ -71,6 +73,7 @@ const add = (buffer, filename, onlyHash = false) => {
             console.log("---")
             response(added.data.Hash.toString())
         } catch (e) {
+            console.log("[IPFS] Upload error", e.message)
             response(false);
         }
     });
