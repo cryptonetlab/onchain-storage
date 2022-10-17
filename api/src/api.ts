@@ -1,14 +1,14 @@
-import { run, add, hash, parseCache } from "./libs/ipfs"
 import * as Database from "./libs/database";
-import { parseBridges, parseBridge, listenEvents } from "./libs/web3";
 import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import multer from 'multer'
 import helmet from 'helmet'
+import { connectWeb3BountyNode } from "./services/web3bounty"
+import { connectRetrievNode } from "./services/retrievalpinning"
+import { ipfs } from "./libs/ipfs"
+import { index } from "./libs/crawler"
+import { protocols } from "./configs"
 
-const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
 // Init express server
 const app = express();
 app.use(cors());
@@ -16,69 +16,75 @@ app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Init protocols
+async function init() {
+  connectWeb3BountyNode()
+  connectRetrievNode()
+}
+init()
+
 // Init mongo database
 const db = new Database.default.Mongo()
 db.createBridgesIndex()
 
-// Automatic parsers
-async function init() {
-  run()
-  listenEvents()
-  parseBridges()
-  parseCache()
-}
-init()
-
-// Public endpoints
-app.get("/bridges/:address", async function (req, res) {
-  const db = new Database.default.Mongo()
-  const bridges = await db.find('bridges', { owner: req.params.address }, { timestamp_start: 1 })
-  res.send(bridges)
-})
-
-// Force parsing of a specifc deal
-app.get("/parse/:id", async function (req, res) {
-  const deal_id = parseInt(req.params.id)
-  console.log('Manual parsing deal #' + deal_id)
-  await parseBridge(deal_id)
-  const db = new Database.default.Mongo()
-  const deal = await db.find('bridges', { index: deal_id })
-  res.send(deal)
-})
-
-// Add signup endpoint
-app.post("/upload", upload.single('file'), async function (req, res) {
-  if (req.body.address !== undefined) {
-    const cid = await hash(req.file.buffer)
-    if (cid !== false) {
-      const checkDB = await db.find('cache', { cid: cid })
-      if (checkDB === null || (checkDB !== null && checkDB.expired !== undefined && checkDB.expired === true)) {
-        const added = await add(req.file.buffer)
-        await db.insert('cache', {
-          cid: cid,
-          address: req.body.address,
-          timestamp: new Date().getTime(),
-          expired: false
-        })
-        res.send({ cid: added, error: false })
-      } else {
-        res.send({ message: "CID already pinned.", cid: cid, error: false })
-      }
-    } else {
-      res.send({ message: "Can't add on IPFS, please retry.", error: true })
-    }
-  } else {
-    res.send({ message: "Malformed request", error: true })
-  }
-})
-
 // Return IPFS identity
 app.get("/ipfs-id", async function (req, res) {
   try {
-    const multiAddrs = await global['ipfs'].swarm.localAddrs()
-    res.send(multiAddrs)
+    const id = <any>await ipfs("post", "/id")
+    const multiAddrs = <any>await ipfs("post", "/swarm/addrs/local")
+    let addresses = <any>[]
+    for (let k in multiAddrs.Strings) {
+      addresses.push(multiAddrs.Strings[k] + "/p2p/" + id.ID)
+    }
+    res.send(addresses)
   } catch (e) {
     res.send({ message: "Multiaddress not available", error: true })
+  }
+})
+
+// Index a specific deal id
+app.get("/index/:protocol/:deal_id", async function (req, res) {
+  try {
+    if (protocols[req.params.protocol] !== undefined) {
+      const indexed = await index(req.params.deal_id, req.params.protocol)
+      res.send({ status: indexed, error: false })
+    } else {
+      res.send({ message: "Protocol not recognized", error: true })
+    }
+  } catch (e) {
+    res.send({ message: "Can't index CID", error: true })
+  }
+})
+
+// Return CID metadata
+app.get("/metadata/:cid", async function (req, res) {
+  try {
+    const db = new Database.default.Mongo();
+    const metadata = await db.find("metadata", { cid: req.params.cid })
+    if (metadata !== null) {
+      res.send({ message: "CID's metadata found.", metadata, error: false })
+    } else {
+      res.send({ message: "Can't find CID's metadata.", error: true })
+    }
+  } catch (e) {
+    res.send({ message: "Can't return CID's metadata", error: true })
+  }
+})
+
+// Return CID metadata
+app.get("/stats/:protocol", async function (req, res) {
+  try {
+    const db = new Database.default.Mongo();
+    const metadata = await db.find("metadata", { protocol: req.params.protocol }, { cid: 1 })
+    let size = 0
+    let indexed = 0
+    for (let k in metadata) {
+      size += metadata[k].size
+      indexed++
+    }
+    res.send({ indexed, size, sizeMB: size / 1000000 })
+  } catch (e) {
+    res.send({ message: "Can't return CID's metadata", error: true })
   }
 })
 
@@ -90,5 +96,5 @@ app.use((req, res, next) => {
 });
 
 app.listen(3000, () => {
-  console.log(`NftStorageBridge API running.`);
+  console.log(`Onchain.Storage API running.`);
 });

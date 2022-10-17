@@ -17,8 +17,9 @@ const getWeb3Nodes = async () => {
 
 const ipfs = (method, endpoint, arg?) => {
     return new Promise(async response => {
+        let timeout
         try {
-            setTimeout(function () {
+            timeout = setTimeout(function () {
                 console.log('IPFS timed out..')
                 if (arg !== undefined) {
                     console.log(method, endpoint, arg)
@@ -45,8 +46,10 @@ const ipfs = (method, endpoint, arg?) => {
             }
             console.log(res.data)
             console.log('--')
+            clearTimeout(timeout)
             response(res.data)
         } catch (e) {
+            clearTimeout(timeout)
             response(false)
         }
     })
