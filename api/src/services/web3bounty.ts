@@ -40,11 +40,32 @@ export const connectWeb3BountyNode = async () => {
 
 export const returnCid = (protocol, deal_index) => {
   return new Promise(async response => {
-    const instance = <any>await contract(protocol)
-    const deal = await instance.contract.deals(deal_index)
-    if (deal.data_uri !== undefined) {
-      response(deal.data_uri.replace("ipfs://", ""))
-    } else {
+    try {
+      const instance = <any>await contract(protocol)
+      const deal = await instance.contract.deals(deal_index)
+      if (deal.data_uri !== undefined) {
+        response(deal.data_uri.replace("ipfs://", ""))
+      } else {
+        response(undefined)
+      }
+    } catch (e) {
+      response(undefined)
+    }
+  })
+}
+
+export const returnOwner = (protocol, deal_index) => {
+  return new Promise(async response => {
+    try {
+      const instance = <any>await contract(protocol)
+      const deal = await instance.contract.deals(deal_index)
+      if (deal.owner !== undefined) {
+        console.log("[RETRIEV] Owner of deal is:", deal.owner)
+        response(deal.owner)
+      } else {
+        response(undefined)
+      }
+    } catch (e) {
       response(undefined)
     }
   })

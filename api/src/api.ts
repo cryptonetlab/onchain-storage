@@ -46,6 +46,7 @@ app.get("/ipfs-id", async function (req, res) {
 app.get("/index/:protocol/:deal_id", async function (req, res) {
   try {
     if (protocols[req.params.protocol] !== undefined) {
+      console.log("[INDEXER] Starting index process..")
       const indexed = await index(req.params.deal_id, req.params.protocol)
       res.send({ status: indexed, error: false })
     } else {
