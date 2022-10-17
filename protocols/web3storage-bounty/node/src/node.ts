@@ -32,7 +32,7 @@ async function init() {
       console.log("Can't add node to swarm..")
     }
   }
-  
+
   // Add service to local node
   try {
     console.log("Adding Web3.Storage as remote pinning provider...")
@@ -88,8 +88,13 @@ app.get("/deals/:address", async function (req, res) {
 
 app.get("/ipfs-id", async function (req, res) {
   try {
+    const id = <any>await ipfs("post", "/id")
     const multiAddrs = <any>await ipfs("post", "/swarm/addrs/local")
-    res.send(multiAddrs.Strings)
+    let addresses = <any>[]
+    for (let k in multiAddrs.Strings) {
+      addresses.push(multiAddrs.Strings[k] + "/p2p/" + id.ID)
+    }
+    res.send(addresses)
   } catch (e) {
     res.send({ message: "Multiaddress not available", error: true })
   }
