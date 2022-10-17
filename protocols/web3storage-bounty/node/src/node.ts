@@ -86,6 +86,15 @@ app.get("/deals/:address", async function (req, res) {
   res.send(deals)
 })
 
+app.get("/ipfs-id", async function (req, res) {
+  try {
+    const multiAddrs = <any>await ipfs("post", "/swarm/addrs/local")
+    res.send(multiAddrs.Strings)
+  } catch (e) {
+    res.send({ message: "Multiaddress not available", error: true })
+  }
+})
+
 app.listen(3000, () => {
   console.log(`Web3Bounty API running.`);
 });
