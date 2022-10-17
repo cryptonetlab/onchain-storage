@@ -93,7 +93,7 @@ module Database {
       });
     }
 
-    public createBridgesIndex() {
+    public createMetadataIndex() {
       return new Promise(async (response) => {
         try {
           // let ssl = "?ssl=true";
@@ -106,14 +106,15 @@ module Database {
           );
           await client.connect();
           const db = await client.db(process.env.MONGODB_DBNAME);
-          let createIndex = await db.collection("bridges").createIndex({
-            owner: "text",
+          let createIndex = await db.collection("metadata").createIndex({
+            cid: "text",
+            protocol: "text"
           });
           await client.close();
           response(createIndex);
         } catch (e) {
           console.log(e);
-          console.log("DB ERROR WHILE SEARCHING.");
+          console.log("DB ERROR WHILE ADDING INDEX.");
           response(false);
         }
       });

@@ -25,7 +25,7 @@ init()
 
 // Init mongo database
 const db = new Database.default.Mongo()
-db.createBridgesIndex()
+db.createMetadataIndex()
 
 // Return IPFS identity
 app.get("/ipfs-id", async function (req, res) {
