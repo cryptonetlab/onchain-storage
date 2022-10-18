@@ -7,6 +7,12 @@ sudo apt-get install -y nodejs
 npm install pm2 -g
 npm install yarn -g
 
+#INSTALL IPFS
+wget https://dist.ipfs.tech/kubo/v0.16.0/kubo_v0.16.0_linux-amd64.tar.gz
+bash kubo/install.sh
+rm -rf kubo
+rm kubo_v0.16.0_linux-amd64.tar.gz
+
 #SETTING UP NGINX
 sudo apt update
 sudo apt install nginx -y
