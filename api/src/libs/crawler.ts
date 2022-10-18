@@ -31,8 +31,8 @@ export const index = (deal_index, protocol) => {
               const buf = await axios.get("http://localhost:8080/ipfs/" + cid, { responseType: "arraybuffer" })
               const ft = <any>await fileTypeFromBuffer(buf.data)
               console.log("[INDEXER] File type is:", ft)
-              file_stats.Ext = ft.ext
-              file_stats.Mime = ft.mime
+              file_stats.Ext = ft?.ext
+              file_stats.Mime = ft?.mime
             }
             console.log("[INDEXER] Asking of owner..")
             if (owner !== undefined) {
@@ -48,9 +48,9 @@ export const index = (deal_index, protocol) => {
                 owners: [owner]
               }
               await db.insert("metadata", stats)
-              response("INDEXED_CORRECTLY")
+              response({ status: "INDEXED_CORRECTLY", error: false })
             } else {
-              response("CONTRACT_ERROR")
+              response({ status: "CONTRACT_ERROR", error: true })
             }
           } else if (checkDB.deals.indexOf(deal_index) === -1 || checkDB.owners.indexOf(owner) === -1) {
             if (checkDB.deals.indexOf(deal_index) === -1) {
@@ -63,19 +63,19 @@ export const index = (deal_index, protocol) => {
               checkDB.owners.push(owner)
               await db.update("metadata", { cid, protocol }, { $set: { owners: checkDB.owners } })
             }
-            response("UPDATED_CORRECTLY")
+            response({ status: "UPDATED_CORRECTLY", error: false })
           } else {
-            response("INDEXED_YET")
+            response({ status: "INDEXED_YET", error: false })
           }
         } else {
-          response("FILE_UNRETRIEVABLE")
+          response({ status: "FILE_UNRETRIEVABLE", error: true })
         }
       } catch (e) {
-        console.log(e)
-        response("INDEXER_ERROR")
+        console.log("[INDEXER] Indexer errored:", e.message)
+        response({ status: "INDEXER_ERROR", error: true })
       }
     } else {
-      response("DEAL_NOT_EXISTS")
+      response({ status: "DEAL_NOT_EXISTS", error: true })
     }
   })
 }

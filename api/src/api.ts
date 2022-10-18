@@ -48,7 +48,7 @@ app.get("/index/:protocol/:deal_id", async function (req, res) {
     if (protocols[req.params.protocol] !== undefined) {
       console.log("[INDEXER] Starting index process..")
       const indexed = await index(req.params.deal_id, req.params.protocol)
-      res.send({ status: indexed, error: false })
+      res.send(indexed)
     } else {
       res.send({ message: "Protocol not recognized", error: true })
     }
