@@ -164,4 +164,35 @@ const parseCache = async () => {
     }
 };
 
-export { ipfs, getWeb3Nodes, add, parseCache }
+const indexFiles = async () => {
+    try {
+        console.log('[INDEX] Starting index process...')
+        const db = new Database.default.Mongo()
+        const requests = await db.find("requests", { indexed: { $ne: true } }, { timestamp_request: 1 })
+        console.log("Found " + requests.length + " to index..")
+        for (let k in requests) {
+            try {
+                console.log("[INDEX] Asking to index deal #", requests[k].index)
+                const indexed = await axios.get(process.env.ONCHAIN_API + "/index/" + process.env.PROTOCOL_ID + "/" + requests[k].index)
+                console.log("[INDEX] Onchain response is:", indexed.data)
+                if (indexed.data.error !== undefined && indexed.data.error === false) {
+                    await db.update("requests", { _id: requests[k]._id }, { $set: { indexed: true } })
+                }
+            } catch (e) {
+                console.log("[INDEX] Onchain API errored..")
+            }
+        }
+        console.log("[INDEX] Process index ended, will start again in 60s...")
+        setTimeout(function () {
+            indexFiles()
+        }, 60000)
+    } catch (e) {
+        console.log("Process index failed..")
+        console.log(e.message)
+        setTimeout(function () {
+            indexFiles()
+        }, 60000)
+    }
+};
+
+export { ipfs, getWeb3Nodes, add, parseCache, indexFiles }

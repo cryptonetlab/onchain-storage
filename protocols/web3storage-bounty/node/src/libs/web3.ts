@@ -47,7 +47,8 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
         data_uri: onchain_request.data_uri,
         canceled: onchain_request.canceled,
         proposal_tx: proposal_tx,
-        accept_tx: accept_tx
+        accept_tx: accept_tx,
+        indexed: false
       }
       console.log('[REQUESTS] --> Inserting new deal proposal')
       let inserted = false

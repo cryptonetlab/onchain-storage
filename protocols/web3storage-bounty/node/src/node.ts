@@ -1,6 +1,6 @@
 import * as Database from "./libs/database";
 import { parseRequests, listenEvents } from "./libs/web3";
-import { ipfs, getWeb3Nodes, add, parseCache } from "./libs/ipfs"
+import { ipfs, getWeb3Nodes, add, parseCache, indexFiles } from "./libs/ipfs"
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -46,6 +46,8 @@ async function init() {
   parseRequests()
   // Parse IPFS cache
   parseCache()
+  // Index files
+  indexFiles()
 }
 init()
 
