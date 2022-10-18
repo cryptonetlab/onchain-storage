@@ -72,7 +72,6 @@ app.get("/metadata/:cid", async function (req, res) {
   }
 })
 
-
 // Return address stats
 app.get("/stats/:protocol/:address", async function (req, res) {
   try {
@@ -101,7 +100,7 @@ app.get("/stats/:protocol", async function (req, res) {
       size += metadata[k].size
       indexed++
     }
-    res.send({ indexed, size, sizeMB: size / 1000000 })
+    res.send({ indexed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
     res.send({ message: "Can't return CID's metadata", error: true })
   }
