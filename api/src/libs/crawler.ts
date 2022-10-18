@@ -44,18 +44,25 @@ export const index = (deal_index, protocol) => {
                 ext: file_stats.Ext,
                 mime: file_stats.Mime,
                 protocol: protocol,
-                owner: owner,
-                deals: [deal_index]
+                deals: [deal_index],
+                owners: [owner]
               }
               await db.insert("metadata", stats)
               response("INDEXED_CORRECTLY")
             } else {
               response("CONTRACT_ERROR")
             }
-          } else if (checkDB.deals.indexOf(deal_index) === -1) {
-            checkDB.deals.push(deal_index)
-            await db.update("metadata", { cid, protocol }, { $set: { deals: checkDB.deals } })
-            console.log("[INDEXER] Adding deal in list")
+          } else if (checkDB.deals.indexOf(deal_index) === -1 || checkDB.owners.indexOf(owner) === -1) {
+            if (checkDB.deals.indexOf(deal_index) === -1) {
+              console.log("[INDEXER] Adding deal in list")
+              checkDB.deals.push(deal_index)
+              await db.update("metadata", { cid, protocol }, { $set: { deals: checkDB.deals } })
+            }
+            if (checkDB.owners.indexOf(owner) === -1) {
+              console.log("[INDEXER] Adding owner in list")
+              checkDB.owners.push(owner)
+              await db.update("metadata", { cid, protocol }, { $set: { owners: checkDB.owners } })
+            }
             response("UPDATED_CORRECTLY")
           } else {
             response("INDEXED_YET")
