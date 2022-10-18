@@ -14,11 +14,11 @@ export const index = (deal_index, protocol) => {
     let owner
     if (protocol === "retriev-polygon" || protocol === "retriev-goerli") {
       cid = await Retriev.returnCid(protocol, deal_index)
-      console.log("[INDEXER] Asking owner of deal #", deal_index)
+      console.log("[INDEXER] Asking owner of deal #", deal_index, "in protocol", protocol)
       owner = await Retriev.returnOwner(protocol, deal_index)
     } else if (protocol === "web3bounty-polygon" || protocol === "web3bounty-goerli") {
       cid = await Web3Bounty.returnCid(protocol, deal_index)
-      console.log("[INDEXER] Asking owner of deal #", deal_index)
+      console.log("[INDEXER] Asking owner of deal #", deal_index, "in protocol", protocol)
       owner = await Web3Bounty.returnOwner(protocol, deal_index)
     }
     if (cid !== undefined && owner !== undefined && owner !== "0x0000000000000000000000000000000000000000") {
