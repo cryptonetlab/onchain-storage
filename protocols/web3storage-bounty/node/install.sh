@@ -9,9 +9,11 @@ npm install yarn -g
 
 #INSTALL IPFS
 wget https://dist.ipfs.tech/kubo/v0.16.0/kubo_v0.16.0_linux-amd64.tar.gz
+tar -xvzf kubo_v0.16.0_linux-amd64.tar.gz
 bash kubo/install.sh
 rm -rf kubo
 rm kubo_v0.16.0_linux-amd64.tar.gz
+ipfs init
 
 #SETTING UP NGINX
 sudo apt update
@@ -32,4 +34,7 @@ ufw --force enable
 yarn
 cp .env.goerli .env
 
-pm2 start npm -- start
+pm2 start yarn -- dev
+pm2 start "ipfs daemon"
+pm2 startup
+pm2 save

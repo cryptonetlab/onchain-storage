@@ -143,7 +143,7 @@ const parseCache = async () => {
                             console.log("--> Can't find deal..")
                         }
                     } else {
-                        console.log("-> Already processed ")
+                        console.log("-> Deal already processed.")
                     }
                 }
                 console.log("--")

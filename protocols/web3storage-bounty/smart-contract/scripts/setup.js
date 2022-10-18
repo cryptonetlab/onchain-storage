@@ -12,9 +12,8 @@ async function main() {
     for (let k in configs.dealers) {
         const dealer = configs.dealers[k]
         try {
-            const gasPrice = await provider.getGasPrice()
             console.log("Adding dealer to contract:", dealer.address)
-            const tx = await contract.setDealerStatus(dealer.address, true, { gasPrice })
+            const tx = await contract.setDealerStatus(dealer.address, true)
             console.log('Pending transaction at: ' + tx.hash)
             await tx.wait()
             console.log("Request created successfully at", tx.hash)
