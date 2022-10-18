@@ -72,7 +72,25 @@ app.get("/metadata/:cid", async function (req, res) {
   }
 })
 
-// Return CID metadata
+
+// Return address stats
+app.get("/stats/:protocol/:address", async function (req, res) {
+  try {
+    const db = new Database.default.Mongo();
+    const metadata = await db.find("metadata", { protocol: req.params.protocol, owners: { $in: [req.params.address] } }, { cid: 1 })
+    let size = 0
+    let indexed = 0
+    for (let k in metadata) {
+      size += metadata[k].size
+      indexed++
+    }
+    res.send({ indexed, size, sizeMB: size / 1000000 })
+  } catch (e) {
+    res.send({ message: "Can't return CID's metadata", error: true })
+  }
+})
+
+// Return protocol stats
 app.get("/stats/:protocol", async function (req, res) {
   try {
     const db = new Database.default.Mongo();
@@ -96,6 +114,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(3000, () => {
+app.listen(5000, () => {
   console.log(`Onchain.Storage API running.`);
 });
