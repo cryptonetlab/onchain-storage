@@ -1,5 +1,5 @@
 import * as Database from "./libs/database";
-import { parseRequests, listenEvents } from "./libs/web3";
+import { parseRequests, listenEvents, updateRequest } from "./libs/web3";
 import { ipfs, getWeb3Nodes, add, parseCache, indexFiles } from "./libs/ipfs"
 import express from 'express'
 import cors from 'cors'
@@ -85,6 +85,13 @@ app.post("/upload", upload.single('file'), async function (req, res) {
 app.get("/deals/:address", async function (req, res) {
   const db = new Database.default.Mongo()
   const deals = await db.find('requests', { owner: req.params.address }, { timestamp_start: 1 })
+  res.send(deals)
+})
+
+app.get("/parse/:deal_index", async function (req, res) {
+  const db = new Database.default.Mongo()
+  await updateRequest(req.params.deal_index)
+  const deals = await db.find('requests', { index: req.params.deal_index })
   res.send(deals)
 })
 
