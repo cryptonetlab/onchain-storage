@@ -79,8 +79,10 @@ app.get("/stats/:protocol/:address", async function (req, res) {
     const metadata = await db.find("metadata", { protocol: req.params.protocol, owners: { $in: [req.params.address] } }, { cid: 1 })
     let size = 0
     let indexed = 0
+    let value = 0
     for (let k in metadata) {
       size += metadata[k].size
+      value += metadata[k].value
       indexed++
     }
     res.send({ indexed, size, sizeMB: size / 1000000 })

@@ -54,14 +54,14 @@ export const returnCid = (protocol, deal_index) => {
   })
 }
 
-export const returnOwner = (protocol, deal_index) => {
+export const returnDetails = (protocol, deal_index) => {
   return new Promise(async response => {
     try {
       const instance = <any>await contract(protocol)
       const deal = await instance.contract.deals(deal_index)
       if (deal.owner !== undefined) {
         console.log("[RETRIEV] Owner of deal is:", deal.owner)
-        response(deal.owner)
+        response({ owner: deal.owner, value: deal.value })
       } else {
         response(undefined)
       }
