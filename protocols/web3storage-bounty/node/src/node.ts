@@ -90,8 +90,9 @@ app.get("/deals/:address", async function (req, res) {
 
 app.get("/parse/:deal_index", async function (req, res) {
   const db = new Database.default.Mongo()
-  await updateRequest(req.params.deal_index)
-  const deals = await db.find('requests', { index: req.params.deal_index })
+  const deal_index = parseInt(req.params.deal_index)
+  await updateRequest(deal_index)
+  const deals = await db.find('requests', { index: deal_index })
   res.send(deals)
 })
 
