@@ -27,6 +27,7 @@ export const contract = async () => {
 export const updateRequest = async (deal_proposal_index, proposal_tx = '', accept_tx = '') => {
   return new Promise(async response => {
     const instance = await contract()
+    deal_proposal_index = parseInt(deal_proposal_index)
     console.log('[REQUESTS] Updating bridge request #' + deal_proposal_index)
     const db = new Database.default.Mongo();
     // Checking if request was parsed yet
@@ -81,6 +82,7 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
 
 export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
   return new Promise(async response => {
+    deal_proposal_index = parseInt(deal_proposal_index)
     if (process.env.WEB3_STORAGE_KEY !== undefined) {
       const instance = await contract()
       console.log('[REQUESTS] Parsing bridge request #' + deal_proposal_index)
