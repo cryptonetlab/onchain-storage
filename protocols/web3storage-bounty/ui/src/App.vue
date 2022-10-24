@@ -14,8 +14,14 @@
         padding-top: 5px;
       "
     >
-      Developed with ❤️ by
-      <a href="https://protocol.ai" target="_blank">Protocol Labs</a>
+      <div class="is-flex is-justify-content-center">
+        <p>Developed with ❤️ by</p>
+        <a class="ml-3" href="https://protocol.ai" target="_blank"
+          >Protocol Labs</a
+        >
+        <p class="ml-3">|</p>
+        <a class="ml-3" href="/#/terms-of-service">Terms of service</a>
+      </div>
     </div>
   </div>
 </template>
@@ -24,7 +30,7 @@
 .table thead td,
 .table thead th {
   color: #fff !important;
-  text-align: center!important;
+  text-align: center !important;
 }
 .table {
   background-color: #010101 !important;
