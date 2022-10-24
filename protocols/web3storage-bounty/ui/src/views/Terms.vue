@@ -18,13 +18,11 @@
           <div class="mt-5 mb-5" style="text-align: justify">
             <p>
               The following terms and conditions govern all use of the
-              <span class="red">onchain.storage</span> website (the “Website”)
-              and all content, services and products available at or through the
-              Website, including the
-              <span class="red">retrieval-pinning API</span> available on
-              <span class="red"
-                >https://github.com/protocol/retriev (the “Services”)</span
-              >.
+              web3bounty.app website (the “Website”) and all content, services
+              and products available at or through the Website (the “Services”).
+              As web3bounty.app utilizes the web3.storage platform, by using the
+              Services you will also be subject to the Terms of Service of
+              web3.storage.
             </p>
 
             <p class="mt-4">
