@@ -277,14 +277,14 @@ export default {
     //   this.fetchingContract();
     // }
     const app = this;
-    app.connect();
+    // app.connect();
     if (localStorage.getItem("contract") === null) {
       localStorage.setItem("contract", "polygon");
     }
     if (window.ethereum !== undefined) {
       window.ethereum.on("chainChanged", function (accounts) {
         if (app.$route.name === "Home") {
-          app.connect();
+          // app.connect();
         }
       });
     }
