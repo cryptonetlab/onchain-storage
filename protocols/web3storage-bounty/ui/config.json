@@ -1,0 +1,16 @@
+[
+  {
+    "protocol": "web3bounty",
+    "contract": "0x3425534e95f6B5F06c70FBC5f563dd227b7B8CcA",
+    "blockchain": "polygon",
+    "network": "137",
+    "api": "https://w3-b.link"
+  },
+  {
+    "protocol": "web3bounty",
+    "contract": "0x6F0292c2547f7bC3Acc4090Add01A00f5EC26380",
+    "blockchain": "goerli",
+    "network": "5",
+    "api": "https://goerli.w3-b.link"
+  }
+]

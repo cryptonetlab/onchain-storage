@@ -91,4 +91,19 @@ textarea {
   border-bottom: 0 !important;
   text-align: left !important;
 }
+
+.network-container {
+  position: absolute;
+  width: 150px;
+  height: auto;
+  right: 20px;
+  top: 20px;
+}
+
+.secondary-color {
+  color: #8fffab;
+}
+.error-color {
+  color: #cc3d3d;
+}
 </style>
