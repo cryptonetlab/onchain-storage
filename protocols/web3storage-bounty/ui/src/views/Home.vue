@@ -483,8 +483,13 @@ export default {
             (progressEvent.loaded / app.fileToUpload.size) *
             100
           ).toFixed(2);
-          app.workingMessage =
-            "Uploading file to IPFS...<br>" + app.uploadPercentage + "%";
+          if (parseFloat(app.uploadPercentage) < 100) {
+            app.workingMessage =
+              "Uploading file to IPFS...<br>" + app.uploadPercentage + "%";
+          } else {
+            app.workingMessage =
+              "Upload complete!";
+          }
         },
       }).then(function (response) {
         app.isWorking = false;
