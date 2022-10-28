@@ -273,11 +273,11 @@ export default {
     },
   },
   mounted() {
-    // if (localStorage.getItem("connected") !== null) {
-    //   this.fetchingContract();
-    // }
+    if (localStorage.getItem("connected") !== null) {
+      this.fetchingContract();
+    }
     const app = this;
-    // app.connect();
+    app.connect();
     if (localStorage.getItem("contract") === null) {
       localStorage.setItem("contract", "polygon");
     }
