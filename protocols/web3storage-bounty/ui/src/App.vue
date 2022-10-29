@@ -21,6 +21,8 @@
         >
         <p class="ml-3">|</p>
         <a class="ml-3" href="/#/terms-of-service">Terms of service</a>
+        <p class="ml-3">|</p>
+        <a class="ml-3" href="/#/privacy-policy">Privacy Policy</a>
       </div>
     </div>
   </div>
