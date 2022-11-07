@@ -4,7 +4,7 @@ Web3.storage offers the possibility of storing a file on Filecoin and IPFS by si
 
 Nevertheless, we want to consider here the scenario where a client of another Blockchain Network (the host chain) want to use Web3.Storage as a channel to store a generic file on Filecoin/IPFS directly from the host chain.
 
-Note that here we are considering any kind of files. If you are interested in a specific contract that handles the storage of NFTs only see … (LINK to be added).
+Note that here we are considering any kind of files.
 
 Read the complete protocol description here: https://hackmd.io/jBMffp3tRf6DU1f_D09VDQ
 
