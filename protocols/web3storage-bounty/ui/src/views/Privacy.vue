@@ -18,15 +18,15 @@
           <div class="mt-5 mb-5" style="text-align: justify">
             <p>
               <b>Privacy</b> <br />This Privacy Policy governs all use of the
-              retriev.org website (the “Website”) and all content, services and
-              products available at or through the Website (collectively, the
-              “Services”). The Services are offered subject to your acceptance
-              without modification of all the terms and conditions herein, and
-              all other other operating rules, policies (including, without
-              limitation, our "Terms of Service") and procedures that may be
-              updated from time to time. By accessing or using any part of our
-              Services you agree to be bound by the terms and conditions of the
-              Privacy Policy. If you do not agree to all of the terms and
+              web3bounty.app website (the “Website”) and all content, services
+              and products available at or through the Website (collectively,
+              the “Services”). The Services are offered subject to your
+              acceptance without modification of all the terms and conditions
+              herein, and all other other operating rules, policies (including,
+              without limitation, our "Terms of Service") and procedures that
+              may be updated from time to time. By accessing or using any part
+              of our Services you agree to be bound by the terms and conditions
+              of the Privacy Policy. If you do not agree to all of the terms and
               conditions of this Privacy Policy, then you may not access our
               Services.
             </p>

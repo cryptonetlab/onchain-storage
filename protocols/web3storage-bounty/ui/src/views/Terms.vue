@@ -38,24 +38,24 @@
             </p>
 
             <p class="mt-4">
-              Data on IPFS and Filecoin Network All data uploaded using the
-              Services will be available on IPFS and the Filecoin network. Data
-              on IPFS and/or the Filecoin network is available to anyone who
-              requests it using the correct CID. You should not load any
-              private, personal or sensitive information in an unencrypted form
-              using the Services. Please note that nodes on the IPFS network may
-              retain copies of the data indefinitely. You should not use the
-              Services to pin data that may need to be permanently deleted in
-              the future.
+              <b>Data on IPFS and Filecoin Network</b><br />
+              All data uploaded using the Services will be available on IPFS and
+              the Filecoin network. Data on IPFS and/or the Filecoin network is
+              available to anyone who requests it using the correct CID. You
+              should not load any private, personal or sensitive information in
+              an unencrypted form using the Services. Please note that nodes on
+              the IPFS network may retain copies of the data indefinitely. You
+              should not use the Services to pin data that may need to be
+              permanently deleted in the future.
             </p>
 
             <p class="mt-4">
-              Disclaimer of Warranties The Services are provided “as is” without
-              any express or implied warranties such as the warranties of
-              merchantability, fitness for a particular purpose and
-              non-infringement. We don’t make any warranty that the Services
-              will be error-free or reliable, or that you’ll have continuous,
-              uninterrupted access to the Services.
+              <b>Disclaimer of Warranties</b><br />
+              The Services are provided “as is” without any express or implied
+              warranties such as the warranties of merchantability, fitness for
+              a particular purpose and non-infringement. We don’t make any
+              warranty that the Services will be error-free or reliable, or that
+              you’ll have continuous, uninterrupted access to the Services.
             </p>
 
             <p class="mt-4">
@@ -66,11 +66,11 @@
             </p>
 
             <p class="mt-4">
-              Acceptable Use You are entirely responsible for all data you send
-              or cause to be sent through the Services (“Content”) - and you’re
-              also responsible for any harm resulting from that Content. For
-              your own protection and the protection of the network & community,
-              you may not use the Services for activities such as:
+              <b>Acceptable Use</b> You are entirely responsible for all data
+              you send or cause to be sent through the Services (“Content”) -
+              and you’re also responsible for any harm resulting from that
+              Content. For your own protection and the protection of the network
+              & community, you may not use the Services for activities such as:
             </p>
 
             <p class="mt-4">
@@ -201,46 +201,6 @@
             </p>
             <p class="mt-4">
               This document is CC-BY-SA. It was last updated October 21, 2022.
-            </p>
-
-            <p class="mt-4">
-              <b>Privacy</b> <br />This Privacy Policy governs all use of the
-              retriev.org website (the “Website”) and all content, services and
-              products available at or through the Website (collectively, the
-              “Services”). The Services are offered subject to your acceptance
-              without modification of all the terms and conditions herein, and
-              all other other operating rules, policies (including, without
-              limitation, our "Terms of Service") and procedures that may be
-              updated from time to time. By accessing or using any part of our
-              Services you agree to be bound by the terms and conditions of the
-              Privacy Policy. If you do not agree to all of the terms and
-              conditions of this Privacy Policy, then you may not access our
-              Services.
-            </p>
-
-            <p class="mt-4">
-              <b>What information do we collect?</b><br />
-              We currently do not collect personal information from the users of
-              our Services or our Website. We are a conduit for information
-              controlled by others. It is our users who are responsible for the
-              user-uploaded and/or community-hosted content transmitted across
-              our network (e.g., images, written content, graphics, etc.).
-            </p>
-
-            <p class="mt-4">
-              <b>Third party links</b><br />
-              Occasionally, at our discretion, we may include or offer third
-              party products or services on our site. These third party sites
-              have separate and independent privacy policies and may collect or
-              use your data in a way we are not aware of. We therefore have no
-              responsibility or liability for the content and activities of
-              these linked sites.
-            </p>
-
-            <p class="mt-4">
-              <b>Changes to our Privacy Policy</b> <br />If we decide to change
-              our Privacy Policy, we will post those changes on this page. This
-              document is CC-BY-SA. It was last updated October 21, 2022.
             </p>
           </div>
         </div>
