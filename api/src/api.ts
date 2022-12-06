@@ -121,22 +121,25 @@ app.get("/list/:blockchain/:address", async function (req, res) {
     let indexed = 0
     let value = 0
     let protocols = <any>[]
+    let parsed = <any>[]
     for (let k in list) {
       size += list[k].size
       let filtered = {}
-      if(protocols.indexOf(<any>list[k].protocol) === -1){
+      if (protocols.indexOf(<any>list[k].protocol) === -1) {
         protocols.push(list[k].protocol)
       }
       for (let j in list.details) {
         value += list.details[j].value
-        if(list.details[j].owner.toLowerCase() === req.params.address.toLowerCase()){
+        if (list.details[j].owner.toLowerCase() === req.params.address.toLowerCase()) {
           filtered[j] = list.details[j]
         }
       }
-      list[k].details = filtered
-      indexed++
+      if (Object.keys(filtered).length > 0) {
+        parsed.push({ metadata: { ext: list[k].ext, mime: list[k].mime, size: list[k].size, type: list[k].type }, deals: filtered })
+        indexed++
+      }
     }
-    res.send({ value, indexed, protocols, size, list, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
+    res.send({ value, indexed, protocols, list, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
     console.log(e)
     res.send({ message: "Can't return CID's metadata", error: true })
