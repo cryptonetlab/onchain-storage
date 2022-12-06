@@ -125,24 +125,27 @@ app.get("/list/:blockchain/:address", async function (req, res) {
     for (let k in list) {
       size += list[k].size
       let filtered = {}
-      if (protocols.indexOf(<any>list[k].protocol) === -1) {
-        protocols.push(list[k].protocol)
-      }
-      for (let j in list.details) {
-        value += list.details[j].value
-        if (list.details[j].owner.toLowerCase() === req.params.address.toLowerCase()) {
-          filtered[j] = list.details[j]
+      if (Object.keys(list[k].details).length > 0) {
+        for (let j in list[k].details) {
+          value += parseInt(list[k].details[j].value)
+          if (list[k].details[j].owner.toLowerCase() === req.params.address.toLowerCase()) {
+            filtered[j] = list[k].details[j]
+            filtered[j].protocol = list[k].protocol
+          }
         }
-      }
-      if (Object.keys(filtered).length > 0) {
-        parsed.push({ metadata: { ext: list[k].ext, mime: list[k].mime, size: list[k].size, type: list[k].type }, deals: filtered })
-        indexed++
+        if (Object.keys(filtered).length > 0) {
+          if (protocols.indexOf(<any>list[k].protocol) === -1) {
+            protocols.push(list[k].protocol)
+          }
+          parsed.push({ cid: list[k].cid, metadata: { ext: list[k].ext, mime: list[k].mime, size: list[k].size, type: list[k].type }, deals: filtered })
+          indexed++
+        }
       }
     }
     res.send({ value, indexed, protocols, list: parsed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
     console.log(e)
-    res.send({ message: "Can't return CID's metadata", error: true })
+    res.send({ message: "Can't return CID list", error: true })
   }
 })
 
@@ -153,6 +156,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(5000, () => {
+app.listen(9000, () => {
   console.log(`Onchain.Storage API running.`);
 });
