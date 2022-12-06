@@ -134,9 +134,13 @@ app.get("/list/:blockchain/:address", async function (req, res) {
             filtered[j] = list[k].details[j]
             filtered[j].protocol = list[k].protocol
             total++
-            let expiration = (filtered[j].timestamp_start + filtered[j].duration) * 1000
+            let expiration = (parseInt(filtered[j].timestamp_start) + parseInt(filtered[j].duration)) * 1000
+            filtered[j].expiration = expiration.toString()
             if (now < expiration) {
+              filtered[j].left = (filtered[j].expiration - now).toString()
               active++
+            } else {
+              filtered[j].left = '0'
             }
           }
         }
