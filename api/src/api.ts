@@ -5,12 +5,9 @@ import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import { connectWeb3BountyNode } from "./services/web3bounty"
 import { connectRetrievNode } from "./services/retrievalpinning"
-import * as Retriev from "./services/retrievalpinning"
-import * as Web3Bounty from "./services/web3bounty"
 import { ipfs } from "./libs/ipfs"
 import { index } from "./libs/crawler"
 import { protocols } from "./configs"
-import { ethers } from "ethers"
 
 // Init express server
 const app = express();
@@ -61,16 +58,49 @@ app.get("/index/:protocol/:deal_id", async function (req, res) {
 })
 
 // Return CID metadata
-app.get("/metadata/:cid", async function (req, res) {
+app.get("/metadata/:blockchain/:cid", async function (req, res) {
   try {
     const db = new Database.default.Mongo();
-    const metadata = await db.find("onchain_storage", "metadata", { cid: req.params.cid })
-    if (metadata !== null) {
-      res.send({ message: "CID's metadata found.", metadata, error: false })
+    const cids = await db.find("onchain_storage", "metadata", { protocol: new RegExp('.*' + req.params.blockchain + '.*'), cid: req.params.cid }, { cid: 1 })
+    if (cids !== null) {
+      const now = new Date().getTime()
+      let parsed = {
+        metadata: {},
+        value: 0,
+        active: 0,
+        total: 0,
+        deals: {},
+        protocols: <any>[]
+      }
+      for (let k in cids) {
+        if (Object.keys(parsed.metadata).length === 0) {
+          parsed.metadata = { ext: cids[k].ext, mime: cids[k].mime, size: cids[k].size, type: cids[k].type }
+        }
+        parsed.value += parseInt(cids[k].totalValue)
+        for (let j in cids[k].details) {
+          let deal = cids[k].details[j]
+          deal.deal_index = j
+          parsed.total++
+          let expiration = (parseInt(deal.timestamp_start) + parseInt(deal.duration)) * 1000
+          deal.expiration = expiration.toString()
+          if (now < expiration) {
+            parsed.active++
+          }
+          if (parsed.deals[deal.owner] === undefined) {
+            parsed.deals[deal.owner] = []
+          }
+          if (parsed.protocols.indexOf(cids[k].protocol) === -1) {
+            parsed.protocols.push(cids[k].protocol)
+          }
+          parsed.deals[deal.owner].push(deal)
+        }
+      }
+      res.send(parsed)
     } else {
       res.send({ message: "Can't find CID's metadata.", error: true })
     }
   } catch (e) {
+    console.log(e)
     res.send({ message: "Can't return CID's metadata", error: true })
   }
 })
@@ -172,6 +202,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(5000, () => {
+app.listen(9000, () => {
   console.log(`Onchain.Storage API running.`);
 });
