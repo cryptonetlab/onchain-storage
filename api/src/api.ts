@@ -80,10 +80,12 @@ app.get("/metadata/:blockchain/:cid", async function (req, res) {
         for (let j in cids[k].details) {
           let deal = cids[k].details[j]
           deal.deal_index = j
+          deal.protocol = cids[k].protocol
           parsed.total++
           let expiration = (parseInt(deal.timestamp_start) + parseInt(deal.duration)) * 1000
           deal.expiration = expiration.toString()
           if (now < expiration) {
+            deal.left = (expiration - now).toString()
             parsed.active++
           }
           if (parsed.deals[deal.owner] === undefined) {
@@ -168,7 +170,7 @@ app.get("/list/:blockchain/:address", async function (req, res) {
             let expiration = (parseInt(filtered[j].timestamp_start) + parseInt(filtered[j].duration)) * 1000
             filtered[j].expiration = expiration.toString()
             if (now < expiration) {
-              filtered[j].left = (filtered[j].expiration - now).toString()
+              filtered[j].left = (expiration - now).toString()
               active++
             } else {
               filtered[j].left = '0'
