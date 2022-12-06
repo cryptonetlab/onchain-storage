@@ -122,7 +122,7 @@ app.get("/list/:blockchain/:address", async function (req, res) {
     let total = 0
     let value = 0
     let protocols = <any>[]
-    let parsed = <any>[]
+    let parsed = {}
     const now = new Date().getTime()
     for (let k in list) {
       size += list[k].size
@@ -148,7 +148,12 @@ app.get("/list/:blockchain/:address", async function (req, res) {
           if (protocols.indexOf(<any>list[k].protocol) === -1) {
             protocols.push(list[k].protocol)
           }
-          parsed.push({ cid: list[k].cid, metadata: { ext: list[k].ext, mime: list[k].mime, size: list[k].size, type: list[k].type }, deals: filtered })
+          if (parsed[list[k].cid] === undefined) {
+            parsed[list[k].cid] = { metadata: { ext: list[k].ext, mime: list[k].mime, size: list[k].size, type: list[k].type }, deals: [] }
+          }
+          for (let f in filtered) {
+            parsed[list[k].cid].deals.push(filtered[f])
+          }
         }
       }
     }
@@ -166,6 +171,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(5000, () => {
+app.listen(9000, () => {
   console.log(`Onchain.Storage API running.`);
 });
