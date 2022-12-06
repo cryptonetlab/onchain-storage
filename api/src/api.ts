@@ -118,10 +118,12 @@ app.get("/list/:blockchain/:address", async function (req, res) {
     const db = new Database.default.Mongo();
     const list = await db.find("onchain_storage", "metadata", { protocol: new RegExp('.*' + req.params.blockchain + '.*'), owners: { $in: [req.params.address] } }, { cid: 1 })
     let size = 0
-    let indexed = 0
+    let active = 0
+    let total = 0
     let value = 0
     let protocols = <any>[]
     let parsed = <any>[]
+    const now = new Date().getTime()
     for (let k in list) {
       size += list[k].size
       let filtered = {}
@@ -131,6 +133,11 @@ app.get("/list/:blockchain/:address", async function (req, res) {
           if (list[k].details[j].owner.toLowerCase() === req.params.address.toLowerCase()) {
             filtered[j] = list[k].details[j]
             filtered[j].protocol = list[k].protocol
+            total++
+            let expiration = (filtered[j].timestamp_start + filtered[j].duration) * 1000
+            if (now < expiration) {
+              active++
+            }
           }
         }
         if (Object.keys(filtered).length > 0) {
@@ -138,11 +145,10 @@ app.get("/list/:blockchain/:address", async function (req, res) {
             protocols.push(list[k].protocol)
           }
           parsed.push({ cid: list[k].cid, metadata: { ext: list[k].ext, mime: list[k].mime, size: list[k].size, type: list[k].type }, deals: filtered })
-          indexed++
         }
       }
     }
-    res.send({ value, indexed, protocols, list: parsed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
+    res.send({ value, active, total, protocols, list: parsed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
     console.log(e)
     res.send({ message: "Can't return CID list", error: true })
