@@ -139,7 +139,7 @@ app.get("/list/:blockchain/:address", async function (req, res) {
         indexed++
       }
     }
-    res.send({ value, indexed, protocols, list, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
+    res.send({ value, indexed, protocols, list: parsed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
     console.log(e)
     res.send({ message: "Can't return CID's metadata", error: true })
