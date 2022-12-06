@@ -61,7 +61,14 @@ export const returnDetails = (protocol, deal_index) => {
       const deal = await instance.contract.deals(deal_index)
       if (deal.owner !== undefined) {
         console.log("[RETRIEV] Owner of deal is:", deal.owner)
-        response({ owner: deal.owner, value: deal.value })
+        let provider = ""
+        try {
+          provider = await instance.contract.ownerOf(deal_index)
+          console.log("[RETRIEV] Provider is:", provider)
+        } catch (e) {
+          console.log("[RETRIEV] Deal not accepted yet")
+        }
+        response({ owner: deal.owner, value: deal.value, timestamp_start: deal.timestamp_start, timestamp_request: deal.timestamp_request, duration: deal.duration, provider })
       } else {
         response(undefined)
       }

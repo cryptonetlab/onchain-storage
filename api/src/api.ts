@@ -5,9 +5,12 @@ import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import { connectWeb3BountyNode } from "./services/web3bounty"
 import { connectRetrievNode } from "./services/retrievalpinning"
+import * as Retriev from "./services/retrievalpinning"
+import * as Web3Bounty from "./services/web3bounty"
 import { ipfs } from "./libs/ipfs"
 import { index } from "./libs/crawler"
 import { protocols } from "./configs"
+import { ethers } from "ethers"
 
 // Init express server
 const app = express();
@@ -61,7 +64,7 @@ app.get("/index/:protocol/:deal_id", async function (req, res) {
 app.get("/metadata/:cid", async function (req, res) {
   try {
     const db = new Database.default.Mongo();
-    const metadata = await db.find("metadata", { cid: req.params.cid })
+    const metadata = await db.find("onchain_storage", "metadata", { cid: req.params.cid })
     if (metadata !== null) {
       res.send({ message: "CID's metadata found.", metadata, error: false })
     } else {
@@ -76,16 +79,16 @@ app.get("/metadata/:cid", async function (req, res) {
 app.get("/stats/:protocol/:address", async function (req, res) {
   try {
     const db = new Database.default.Mongo();
-    const metadata = await db.find("metadata", { protocol: req.params.protocol, owners: { $in: [req.params.address] } }, { cid: 1 })
+    const metadata = await db.find("onchain_storage", "metadata", { protocol: req.params.protocol, owners: { $in: [req.params.address] } }, { cid: 1 })
     let size = 0
     let indexed = 0
     let value = 0
     for (let k in metadata) {
       size += metadata[k].size
-      value += metadata[k].value
+      value += metadata[k].totalValue
       indexed++
     }
-    res.send({ indexed, size, sizeMB: size / 1000000 })
+    res.send({ indexed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
     res.send({ message: "Can't return CID's metadata", error: true })
   }
@@ -95,7 +98,7 @@ app.get("/stats/:protocol/:address", async function (req, res) {
 app.get("/stats/:protocol", async function (req, res) {
   try {
     const db = new Database.default.Mongo();
-    const metadata = await db.find("metadata", { protocol: req.params.protocol }, { cid: 1 })
+    const metadata = await db.find("onchain_storage", "metadata", { protocol: req.params.protocol }, { cid: 1 })
     let size = 0
     let indexed = 0
     for (let k in metadata) {
@@ -104,6 +107,38 @@ app.get("/stats/:protocol", async function (req, res) {
     }
     res.send({ indexed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
+    console.log(e)
+    res.send({ message: "Can't return stats", error: true })
+  }
+})
+
+// Return cid list by owner
+app.get("/list/:blockchain/:address", async function (req, res) {
+  try {
+    const db = new Database.default.Mongo();
+    const list = await db.find("onchain_storage", "metadata", { protocol: new RegExp('.*' + req.params.blockchain + '.*'), owners: { $in: [req.params.address] } }, { cid: 1 })
+    let size = 0
+    let indexed = 0
+    let value = 0
+    let protocols = <any>[]
+    for (let k in list) {
+      size += list[k].size
+      let filtered = {}
+      if(protocols.indexOf(<any>list[k].protocol) === -1){
+        protocols.push(list[k].protocol)
+      }
+      for (let j in list.details) {
+        value += list.details[j].value
+        if(list.details[j].owner.toLowerCase() === req.params.address.toLowerCase()){
+          filtered[j] = list.details[j]
+        }
+      }
+      list[k].details = filtered
+      indexed++
+    }
+    res.send({ value, indexed, protocols, size, list, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
+  } catch (e) {
+    console.log(e)
     res.send({ message: "Can't return CID's metadata", error: true })
   }
 })
@@ -115,6 +150,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(5000, () => {
+app.listen(9000, () => {
   console.log(`Onchain.Storage API running.`);
 });

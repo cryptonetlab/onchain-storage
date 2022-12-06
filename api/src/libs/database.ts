@@ -11,32 +11,33 @@ module Database {
       //   sslCA: "./" + process.env.ENVIRONMENT + "-ca.crt"
     };
 
-    public find(collection, query = {}, sort?): any {
+    public find(database, collection, query = {}, sort?): any {
       return new Promise(async (response) => {
         try {
-          // let ssl = "&ssl=true";
-          // if (process.env.MONGODB_CONNECTION?.indexOf("localhost") !== -1) {
-          //   ssl = "";
-          // }
-          // const cert = await fs.readFileSync("./ca-certificate.crt");
-          let client = new MongoClient(
-            process.env.MONGODB_CONNECTION || "",
-            this.dbOptions
-          );
-          await client.connect();
-          const db = await client.db(process.env.MONGODB_DBNAME);
-          let result;
-          if (sort !== undefined) {
-            result = await db
-              .collection(collection)
-              .find(query)
-              .sort(sort)
-              .toArray();
+          let dbname = process.env[database.toUpperCase()]
+          let connection = process.env[database.toUpperCase() + "_CONNECTION"]
+          if (connection !== undefined && dbname !== undefined) {
+            let client = new MongoClient(
+              connection,
+              this.dbOptions
+            );
+            await client.connect();
+            const db = await client.db(dbname);
+            let result;
+            if (sort !== undefined) {
+              result = await db
+                .collection(collection)
+                .find(query)
+                .sort(sort)
+                .toArray();
+            } else {
+              result = await db.collection(collection).findOne(query);
+            }
+            await client.close();
+            response(result);
           } else {
-            result = await db.collection(collection).findOne(query);
+            response(false);
           }
-          await client.close();
-          response(result);
         } catch (e) {
           console.log(e);
           console.log("DB ERROR WHILE FINDING.");
@@ -44,22 +45,24 @@ module Database {
       });
     }
 
-    public insert(collection, document): any {
+    public insert(database, collection, document): any {
       return new Promise(async (response) => {
         try {
-          // let ssl = "?ssl=true";
-          // if (process.env.MONGODB_CONNECTION?.indexOf("localhost") !== -1) {
-          //   ssl = "";
-          // }
-          let client = new MongoClient(
-            process.env.MONGODB_CONNECTION || "",
-            this.dbOptions
-          );
-          await client.connect();
-          const db = await client.db(process.env.MONGODB_DBNAME);
-          let result = await db.collection(collection).insertOne(document);
-          await client.close();
-          response(result);
+          let dbname = process.env[database.toUpperCase()]
+          let connection = process.env[database.toUpperCase() + "_CONNECTION"]
+          if (connection !== undefined && dbname !== undefined) {
+            let client = new MongoClient(
+              connection,
+              this.dbOptions
+            );
+            await client.connect();
+            const db = await client.db(dbname);
+            let result = await db.collection(collection).insertOne(document);
+            await client.close();
+            response(result);
+          } else {
+            response(false)
+          }
         } catch (e) {
           console.log(e);
           console.log("DB ERROR WHILE INSERTING.");
@@ -68,23 +71,25 @@ module Database {
       });
     }
 
-    public update(collection, query, document): any {
+    public update(database, collection, query, document): any {
       return new Promise(async (response) => {
         try {
-          // let ssl = "?ssl=true";
-          // if (process.env.MONGODB_CONNECTION?.indexOf("localhost") !== -1) {
-          //   ssl = "";
-          // }
-          let client = new MongoClient(
-            process.env.MONGODB_CONNECTION || "",
-            this.dbOptions
-          );
-          await client.connect();
-          const db = await client.db(process.env.MONGODB_DBNAME);
-          await db.collection(collection).updateOne(query, document);
-          let result = await db.collection(collection).findOne(query, document);
-          await client.close();
-          response(result);
+          let dbname = process.env[database.toUpperCase()]
+          let connection = process.env[database.toUpperCase() + "_CONNECTION"]
+          if (connection !== undefined && dbname !== undefined) {
+            let client = new MongoClient(
+              connection,
+              this.dbOptions
+            );
+            await client.connect();
+            const db = await client.db(dbname);
+            await db.collection(collection).updateOne(query, document);
+            let result = await db.collection(collection).findOne(query, document);
+            await client.close();
+            response(result);
+          } else {
+            response(false)
+          }
         } catch (e) {
           console.log(e);
           console.log("DB ERROR WHILE UPDATING.");
@@ -101,11 +106,11 @@ module Database {
           //   ssl = "";
           // }
           let client = new MongoClient(
-            process.env.MONGODB_CONNECTION || "",
+            process.env.ONCHAIN_STORAGE_CONNECTION || "",
             this.dbOptions
           );
           await client.connect();
-          const db = await client.db(process.env.MONGODB_DBNAME);
+          const db = await client.db(process.env.ONCHAIN_STORAGE);
           let createIndex = await db.collection("metadata").createIndex({
             cid: "text",
             protocol: "text"

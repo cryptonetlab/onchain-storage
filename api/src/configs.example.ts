@@ -7,6 +7,10 @@ export const protocols = {
         "contract_address": "0x7Aa765411207De8614C5044D25c58148F017DD80",
         "provider": "https://goerli.infura.io/v3/<INFURA_ID>"
     },
+    "web3bounty-goerli": {
+        "contract_address": "0x915ddbb305f48D9e5546eC4DBe2470dA5676E0Fe",
+        "provider": "https://goerli.infura.io/v3/<INFURA_ID>"
+    },
     "web3bounty-polygon": {
         "contract_address": "0x3425534e95f6B5F06c70FBC5f563dd227b7B8CcA",
         "provider": "https://polygon-mainnet.infura.io/v3/<INFURA_ID>"

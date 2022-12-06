@@ -13,17 +13,18 @@ export const index = (deal_index, protocol) => {
     let cid
     let owner
     let value
+    let details
     // Reading on-chain informations
     if (protocol === "retriev-polygon" || protocol === "retriev-goerli") {
       cid = await Retriev.returnCid(protocol, deal_index)
       console.log("[INDEXER] Asking owner of deal #", deal_index, "in protocol", protocol)
-      const details = <any>await Retriev.returnDetails(protocol, deal_index)
+      details = <any>await Retriev.returnDetails(protocol, deal_index)
       owner = details.owner
       value = details.value
     } else if (protocol === "web3bounty-polygon" || protocol === "web3bounty-goerli") {
       cid = await Web3Bounty.returnCid(protocol, deal_index)
       console.log("[INDEXER] Asking owner of deal #", deal_index, "in protocol", protocol)
-      const details = <any>await Web3Bounty.returnDetails(protocol, deal_index)
+      details = <any>await Web3Bounty.returnDetails(protocol, deal_index)
       owner = details.owner
       value = details.value
     }
@@ -33,36 +34,51 @@ export const index = (deal_index, protocol) => {
       // Writing on-chain informations in database
       const checkDB = await db.find("metadata", { cid, protocol })
       if (checkDB === null) {
+        let values = {}
+        values[deal_index] = parseInt(value.toString())
+        let details_db = {}
+        details_db[deal_index] = details
         let stats = {
           cid: cid,
           protocol: protocol,
           deals: [deal_index],
           owners: [owner],
-          values: { deal_index: value },
-          totalValue: value
+          details: details_db,
+          values: values,
+          totalValue: parseInt(value.toString())
         }
-        await db.insert("metadata", stats)
+        await db.insert("onchain_storage", "metadata", stats)
         response({ status: "INDEXED_CORRECTLY", error: false })
       } else if (checkDB.deals.indexOf(deal_index) === -1 || checkDB.owners.indexOf(owner) === -1 || checkDB.values === undefined || (checkDB.values !== undefined && checkDB.values[deal_index] === undefined)) {
         console.log("[INDEXER] Need to update stats")
         if (checkDB.deals.indexOf(deal_index) === -1) {
           console.log("[INDEXER] Adding deal in list")
           checkDB.deals.push(deal_index)
-          await db.update("metadata", { cid, protocol }, { $set: { deals: checkDB.deals } })
+          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { deals: checkDB.deals } })
         }
         if (checkDB.owners.indexOf(owner) === -1) {
           console.log("[INDEXER] Adding owner in list")
           checkDB.owners.push(owner)
-          await db.update("metadata", { cid, protocol }, { $set: { owners: checkDB.owners } })
+          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { owners: checkDB.owners } })
         }
         if (checkDB.values === undefined || checkDB.values[deal_index] === undefined) {
           console.log("[INDEXER] Adding value")
           if (checkDB.values === undefined) {
             checkDB.values = {}
           }
-          checkDB.values[deal_index] = value
-          checkDB.totalValue += value
-          await db.update("metadata", { cid, protocol }, { $set: { values: checkDB.values, totalValue: checkDB.totalValue } })
+          checkDB.values[deal_index] = parseInt(value.toString())
+          checkDB.totalValue += parseInt(value.toString())
+          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { values: checkDB.values, totalValue: checkDB.totalValue } })
+        }
+        if (checkDB.details === undefined || checkDB.details[deal_index] === undefined) {
+          console.log("[INDEXER] Adding details")
+          // Parse deal
+          checkDB.details[deal_index] = details
+          checkDB.details[deal_index].value = checkDB.details[deal_index].value.toString()
+          checkDB.details[deal_index].timestamp_request = checkDB.details[deal_index].timestamp_request.toString()
+          checkDB.details[deal_index].timestamp_start = checkDB.details[deal_index].timestamp_start.toString()
+          checkDB.details[deal_index].duration = checkDB.details[deal_index].duration.toString()
+          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { details: checkDB.details } })
         }
       }
       // Check if configuration tracks sizes
@@ -79,7 +95,7 @@ export const index = (deal_index, protocol) => {
                 file_stats.Ext = ft?.ext
                 file_stats.Mime = ft?.mime
               }
-              await db.update("metadata", { cid, protocol }, {
+              await db.update("onchain_storage", "metadata", { cid, protocol }, {
                 $set: {
                   cid: cid,
                   size: file_stats.Size,
