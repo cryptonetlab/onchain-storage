@@ -133,6 +133,7 @@ app.get("/list/:blockchain/:address", async function (req, res) {
           if (list[k].details[j].owner.toLowerCase() === req.params.address.toLowerCase()) {
             filtered[j] = list[k].details[j]
             filtered[j].protocol = list[k].protocol
+            filtered[j].deal_index = j
             total++
             let expiration = (parseInt(filtered[j].timestamp_start) + parseInt(filtered[j].duration)) * 1000
             filtered[j].expiration = expiration.toString()
