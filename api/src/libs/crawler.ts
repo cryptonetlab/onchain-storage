@@ -63,23 +63,30 @@ export const index = (deal_index, protocol) => {
         }
         if (checkDB.values === undefined || checkDB.values[deal_index] === undefined) {
           console.log("[INDEXER] Adding value")
-          if (checkDB.values === undefined || checkDB.values === false) {
-            checkDB.values = {}
+          let updatedValues = {}
+          if (checkDB.values !== undefined && checkDB.values !== false) {
+            updatedValues = checkDB.values
           }
-          checkDB.values[deal_index] = parseInt(value.toString())
-          checkDB.totalValue += parseInt(value.toString())
-          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { values: checkDB.values, totalValue: checkDB.totalValue } })
+          updatedValues[deal_index] = parseInt(value.toString())
+          let updatedTotalValue = 0
+          if (checkDB.totalValue !== undefined && checkDB.totalValue !== false) {
+            updatedTotalValue = checkDB.totalValue
+          }
+          updatedTotalValue += parseInt(value.toString())
+          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { values: updatedValues, totalValue: updatedTotalValue } })
         }
-        if (checkDB.details === undefined || checkDB.details[deal_index] === undefined) {
-          console.log("[INDEXER] Adding details")
-          // Parse deal
-          checkDB.details[deal_index] = details
-          checkDB.details[deal_index].value = checkDB.details[deal_index].value.toString()
-          checkDB.details[deal_index].timestamp_request = checkDB.details[deal_index].timestamp_request.toString()
-          checkDB.details[deal_index].timestamp_start = checkDB.details[deal_index].timestamp_start.toString()
-          checkDB.details[deal_index].duration = checkDB.details[deal_index].duration.toString()
-          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { details: checkDB.details } })
+        let updatedDetails = {}
+        if (checkDB.details !== undefined && checkDB.details !== false) {
+          updatedDetails = checkDB.details
         }
+        console.log("[INDEXER] Adding details")
+        // Parse deal
+        updatedDetails[deal_index] = details
+        updatedDetails[deal_index].value = details.value.toString()
+        updatedDetails[deal_index].timestamp_request = details.timestamp_request.toString()
+        updatedDetails[deal_index].timestamp_start = details.timestamp_start.toString()
+        updatedDetails[deal_index].duration = details.duration.toString()
+        await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { details: updatedDetails } })
       }
       // Check if configuration tracks sizes
       if (process.env.TRACK_SIZES !== undefined && process.env.TRACK_SIZES === "true") {
