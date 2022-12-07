@@ -63,7 +63,7 @@ export const index = (deal_index, protocol) => {
         }
         if (checkDB.values === undefined || checkDB.values[deal_index] === undefined) {
           console.log("[INDEXER] Adding value")
-          if (checkDB.values === undefined) {
+          if (checkDB.values === undefined || checkDB.values === false) {
             checkDB.values = {}
           }
           checkDB.values[deal_index] = parseInt(value.toString())
