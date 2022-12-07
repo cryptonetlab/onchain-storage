@@ -49,14 +49,14 @@ export const index = (deal_index, protocol) => {
         }
         await db.insert("onchain_storage", "metadata", stats)
         response({ status: "INDEXED_CORRECTLY", error: false })
-      } else if (checkDB.deals.indexOf(deal_index) === -1 || checkDB.owners.indexOf(owner) === -1 || checkDB.values === undefined || (checkDB.values !== undefined && checkDB.values[deal_index] === undefined)) {
+      } else if ((checkDB.deals !== undefined && checkDB.deals.indexOf(deal_index) === -1) || (checkDB.owners !== undefined && checkDB.owners.indexOf(owner) === -1) || checkDB.values === undefined || (checkDB.values !== undefined && checkDB.values[deal_index] === undefined)) {
         console.log("[INDEXER] Need to update stats")
-        if (checkDB.deals.indexOf(deal_index) === -1) {
+        if (checkDB.deals !== undefined && checkDB.deals.indexOf(deal_index) === -1) {
           console.log("[INDEXER] Adding deal in list")
           checkDB.deals.push(deal_index)
           await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { deals: checkDB.deals } })
         }
-        if (checkDB.owners.indexOf(owner) === -1) {
+        if (checkDB.owners !== undefined && checkDB.owners.indexOf(owner) === -1) {
           console.log("[INDEXER] Adding owner in list")
           checkDB.owners.push(owner)
           await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { owners: checkDB.owners } })
