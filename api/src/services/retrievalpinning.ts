@@ -26,7 +26,7 @@ export const contract = async (protocol) => {
 
 export const connectRetrievNode = async () => {
   try {
-    const retrievnodes = await axios.get("https://api.pldr.dev/ipfs-id")
+    const retrievnodes = await axios.get(process.env.RETRIEV_NODE + "/ipfs-id")
     for (let k in retrievnodes.data) {
       if (retrievnodes.data[k].indexOf("127.0.0.1") === -1) {
         console.log("[RETRIEV] Adding node:", retrievnodes.data[k])
