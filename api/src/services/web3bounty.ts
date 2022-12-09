@@ -26,7 +26,7 @@ export const contract = async (protocol) => {
 
 export const connectWeb3BountyNode = async () => {
   try {
-    const w3nodes = await axios.get("https://w3-b.link/ipfs-id")
+    const w3nodes = await axios.get(process.env.WEB3BOUNTY_NODE + "/ipfs-id")
     for (let k in w3nodes.data) {
       if (w3nodes.data[k].indexOf("127.0.0.1") === -1) {
         console.log("[W3B] Adding node:", w3nodes.data[k])
