@@ -183,6 +183,7 @@ export const useWeb3Store = defineStore("web3", {
           alert("Can't switch network, please do it manually.");
         }
       }
+      window.location.reload();
     },
     switchContract(net) {
       const app = this;
