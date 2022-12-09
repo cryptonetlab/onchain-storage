@@ -1,0 +1,95 @@
+@import "~bulma/sass/utilities/_all";
+
+:root {
+  --primary-color: black;
+  --primary-color-contrast: white;
+  --primary-color-light: #6d6d6d;
+  --primary-color-low-contrast: #F7F7F7;
+  --primary-color-lighter: #e3ebff;
+  --secondary-color: #8fffab;
+  --theme-color: #0042ec;
+  --theme-color-dark: #0039c9;
+  --theme-color-light: #99b8ff;
+  --theme-color-light-two: #E3EBFF;
+  --tertiary-color: #fffa94;
+  --tertiary-color-light: #fef3ec;
+  --fourth-color: #0042ec;
+  --error-color: #cc3d3d;
+  --disabled-color: #ceccc0;
+  --color-grey: #d7d7d7;
+  --input-color: #f5f5f5;
+  --dark-grey: #6d6d6d;
+  --gradient-bg-1: #f2f6ff;
+  --gradient-bg-2: rgba(242, 246, 255, 0);
+}
+
+:root.dark-theme {
+  --primary-color: white;
+  --primary-color-contrast: black;
+  --primary-color-light: #d7d7d7;
+  --primary-color-lighter: #292929;
+  --theme-color: #ffffff;
+  --theme-color-light: #ceccc0;
+  --secondary-color: #8fffab;
+  --tertiary-color: #fffa94;
+  --tertiary-color-light: #fef3ec;
+  --fourth-color: #0042ec;
+  --theme-color-dark: #b1b1b1;
+  --error-color: #cc3d3d;
+  --disabled-color: #ceccc0;
+  --color-grey: #d7d7d7;
+  --input-color: #373737;
+  --dark-grey: #999999;
+  --gradient-bg-1: #000000;
+  --gradient-bg-2: rgba(0, 0, 0, 0.437);
+}
+
+@import "~bulma/sass/utilities/_all";
+$primary: #8fffab;
+$info: #0042ec;
+$primary-invert: findColorInvert($primary);
+$colors: (
+  "white": (
+    $white,
+    $black,
+  ),
+  "black": (
+    $black,
+    $white,
+  ),
+  "light": (
+    $light,
+    $light-invert,
+  ),
+  "dark": (
+    $dark,
+    $dark-invert,
+  ),
+  "primary": (
+    $primary,
+    $primary-invert,
+  ),
+  "info": (
+    $info,
+    $info-invert,
+  ),
+  "success": (
+    $success,
+    $success-invert,
+  ),
+  "warning": (
+    $warning,
+    $warning-invert,
+  ),
+  "danger": (
+    $danger,
+    $danger-invert,
+  ),
+);
+$link: $primary;
+$link-invert: $primary-invert;
+$link-focus-border: $primary;
+
+// Import Bulma and Buefy styles
+@import "~bulma";
+@import "~buefy/src/scss/buefy";

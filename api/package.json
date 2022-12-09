@@ -1,4 +1,10 @@
 {
+  "name": "onchain-storage-api",
+  "version": "0.1.0",
+  "author": {
+    "name": "Sebastiano Cataudo",
+    "email": "Sebastiano@yomi.digital"
+  },
   "scripts": {
     "dev": "nodemon --watch \"src/*\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node-esm --experimental-specifier-resolution=node src/api.ts\"",
     "start": "ts-node-esm --experimental-specifier-resolution=node src/api.ts"

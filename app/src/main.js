@@ -14,6 +14,9 @@ import "vue-toastification/dist/index.css";
 
 // App Stylesheet
 import "animate.css";
+import "./themes/colors.scss";
+import "./themes/style.scss";
+import "./themes/responsive.scss";
 
 // landing Stylesheet
 import "./themes/landing/colors.scss";

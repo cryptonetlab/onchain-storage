@@ -11,10 +11,6 @@ body {
 }
 
 .landing {
-  .disabled {
-    opacity: 0.5 !important;
-    pointer-events: none !important;
-  }
   .bg-theme-colored {
     background-color: var(--landing-primary-color);
     background-position: center;

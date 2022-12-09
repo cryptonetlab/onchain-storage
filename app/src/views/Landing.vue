@@ -31,7 +31,7 @@
               <div
                 @click="goToApp()"
                 v-if="!isMobile"
-                class="btn-transparent disabled mt-5"
+                class="btn-transparent mt-5"
               >
                 Start to store
               </div>
