@@ -32,12 +32,13 @@ export const index = (deal_index, protocol) => {
       console.log("[INDEXER] Indexing CID:", cid)
       const db = new Database.default.Mongo();
       // Writing on-chain informations in database
-      const checkDB = await db.find("metadata", { cid, protocol })
-      console.log("Entry in database is:", checkDB)
+      const checkDB = await db.find("onchain_storage", "metadata", { cid, protocol })
+      // console.log("Entry in database is:", checkDB)
       if (checkDB === null || checkDB === false || checkDB === undefined) {
         let values = {}
         values[deal_index] = parseInt(value.toString())
         let details_db = {}
+        details.value = parseInt(value.toString())
         details_db[deal_index] = details
         let stats = {
           cid: cid,
@@ -92,7 +93,7 @@ export const index = (deal_index, protocol) => {
       // Check if configuration tracks sizes
       if (process.env.TRACK_SIZES !== undefined && process.env.TRACK_SIZES === "true") {
         try {
-          const checkDB = await db.find("metadata", { cid, protocol })
+          const checkDB = await db.find("onchain_storage", "metadata", { cid, protocol })
           if (checkDB.size === undefined) {
             const file_stats = <any>await ipfs("post", "/files/stat?arg=/ipfs/" + cid.replace("ipfs://", ""))
             if (file_stats !== false) {
@@ -118,7 +119,7 @@ export const index = (deal_index, protocol) => {
               response({ status: "FILE_UNRETRIEVABLE", error: true })
             }
           } else {
-            response({ status: "INDEXED_YET", error: false })
+            response({ status: "UPDATED_CORRECTLY", error: false })
           }
         } catch (e) {
           console.log("[INDEXER] Indexer errored:", e.message)
