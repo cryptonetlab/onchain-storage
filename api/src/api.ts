@@ -70,14 +70,21 @@ app.get("/metadata/:blockchain/:cid", async function (req, res) {
         active: 0,
         total: 0,
         deals: {},
-        protocols: <any>[]
+        protocols: <any>[],
+        details: {}
       }
       for (let k in cids) {
         if (Object.keys(parsed.metadata).length === 0) {
           parsed.metadata = { ext: cids[k].ext, mime: cids[k].mime, size: cids[k].size, type: cids[k].type }
         }
-        parsed.value += parseInt(cids[k].totalValue)
         for (let j in cids[k].details) {
+          if (parsed.details[cids[k].protocol] === undefined) {
+            parsed.details[cids[k].protocol] = {
+              active: 0,
+              total: 0,
+              value: 0
+            }
+          }
           let deal = cids[k].details[j]
           deal.deal_index = j
           deal.protocol = cids[k].protocol
@@ -85,8 +92,12 @@ app.get("/metadata/:blockchain/:cid", async function (req, res) {
           let expiration = (parseInt(deal.timestamp_start) + parseInt(deal.duration)) * 1000
           deal.expiration = expiration.toString()
           if (now < expiration) {
+            parsed.value += parseInt(cids[k].totalValue)
             deal.left = (expiration - now).toString()
             parsed.active++
+            // Add in protocol's details
+            parsed.details[cids[k].protocol].active++
+            parsed.details[cids[k].protocol].value += parseInt(cids[k].totalValue)
           }
           if (parsed.deals[deal.owner] === undefined) {
             parsed.deals[deal.owner] = []
@@ -155,23 +166,40 @@ app.get("/list/:blockchain/:address", async function (req, res) {
     let value = 0
     let protocols = <any>[]
     let parsed = {}
+    let details = {}
     const now = new Date().getTime()
     for (let k in list) {
-      size += list[k].size
       let filtered = {}
       if (Object.keys(list[k].details).length > 0) {
         for (let j in list[k].details) {
-          value += parseInt(list[k].details[j].value)
+          // Protcol details
+          if (details[list[k].protocol] === undefined) {
+            details[list[k].protocol] = {
+              active: 0,
+              total: 0,
+              value: 0,
+              size: 0
+            }
+          }
           if (list[k].details[j].owner.toLowerCase() === req.params.address.toLowerCase()) {
             filtered[j] = list[k].details[j]
             filtered[j].protocol = list[k].protocol
             filtered[j].deal_index = j
             total++
+            details[list[k].protocol].total++
             let expiration = (parseInt(filtered[j].timestamp_start) + parseInt(filtered[j].duration)) * 1000
             filtered[j].expiration = expiration.toString()
+            // Add active deals stats
             if (now < expiration) {
               filtered[j].left = (expiration - now).toString()
+              // Add in total details
+              size += parseInt(list[k].size)
+              value += parseInt(list[k].details[j].value)
               active++
+              // Add in protocol's details
+              details[list[k].protocol].active++
+              details[list[k].protocol].value += parseInt(list[k].details[j].value)
+              details[list[k].protocol].size += parseInt(list[k].size)
             } else {
               filtered[j].left = '0'
             }
@@ -190,7 +218,7 @@ app.get("/list/:blockchain/:address", async function (req, res) {
         }
       }
     }
-    res.send({ value, active, total, protocols, list: parsed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
+    res.send({ value, active, total, protocols, details, list: parsed, size, conversions: { mb: size / 1000000, gb: size / 1000000000, tb: size / 1000000000000 } })
   } catch (e) {
     console.log(e)
     res.send({ message: "Can't return CID list", error: true })
