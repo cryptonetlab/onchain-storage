@@ -52,6 +52,11 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
         indexed: false
       }
       console.log('[REQUESTS] --> Inserting new deal proposal')
+
+      // Updating onchain.storage
+      const indexed = await axios.get(process.env.ONCHAIN_API + "/index/" + process.env.PROTOCOL_ID + "/" + deal_proposal_index)
+      console.log("[INDEX] Onchain response is:", indexed.data)
+      
       let inserted = false
       while (!inserted) {
         await db.insert('requests', deal_proposal)
@@ -67,6 +72,11 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
       if (proposal_tx === '') {
         accept_tx = checkDB.accept_tx
       }
+      
+      // Updating onchain.storage
+      const indexed = await axios.get(process.env.ONCHAIN_API + "/index/" + process.env.PROTOCOL_ID + "/" + deal_proposal_index)
+      console.log("[INDEX] Onchain response is:", indexed.data)
+
       await db.update('requests', { index: deal_proposal_index }, {
         $set: {
           timestamp_start: onchain_request.timestamp_start.toString(),
