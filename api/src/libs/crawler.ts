@@ -103,7 +103,7 @@ export const index = (deal_index, protocol) => {
           try {
             if (checkDB.size === undefined) {
               const file_stats = <any>await ipfs("post", "/files/stat?arg=/ipfs/" + cid.replace("ipfs://", ""))
-              if (file_stats !== false) {
+              if (file_stats !== false && file_stats !== null) {
                 if (file_stats.Type === 'file') {
                   const buf = await axios.get("http://localhost:8080/ipfs/" + cid, { responseType: "arraybuffer" })
                   const ft = <any>await fileTypeFromBuffer(buf.data)
