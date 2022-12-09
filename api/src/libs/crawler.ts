@@ -39,6 +39,9 @@ export const index = (deal_index, protocol) => {
         values[deal_index] = parseInt(value.toString())
         let details_db = {}
         details.value = parseInt(value.toString())
+        details.timestamp_request = details.timestamp_request.toString()
+        details.timestamp_start = details.timestamp_start.toString()
+        details.duration = details.duration.toString()
         details_db[deal_index] = details
         let stats = {
           cid: cid,
