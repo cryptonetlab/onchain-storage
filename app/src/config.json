@@ -1,0 +1,36 @@
+[
+  {
+    "protocol": "retriev",
+    "contract": "0xc8834A8b64ad66668B11240Dc12B3EE32bA02c5B",
+    "blockchain": "polygon",
+    "network": "137",
+    "api": "https://api-polygon.retriev.org",
+    "opensea": "https://opensea.io/assets/matic",
+    "protocolLink": "https://retriev.org"
+  },
+  {
+    "protocol": "retriev",
+    "contract": "0x7Aa765411207De8614C5044D25c58148F017DD80",
+    "blockchain": "goerli",
+    "network": "5",
+    "api": "https://api-goerli.retriev.org",
+    "opensea": "https://testnets.opensea.io/assets/goerli",
+    "protocolLink": "https://retriev.org"
+  },
+  {
+    "protocol": "web3bounty",
+    "contract": "0x3425534e95f6B5F06c70FBC5f563dd227b7B8CcA",
+    "blockchain": "polygon",
+    "network": "137",
+    "api": "https://w3-b.link",
+    "protocolLink": "https://web3bounty.app/#/"
+  },
+  {
+    "protocol": "web3bounty",
+    "contract": "0x6F0292c2547f7bC3Acc4090Add01A00f5EC26380",
+    "blockchain": "goerli",
+    "network": "5",
+    "api": "https://goerli.w3-b.link",
+    "protocolLink": "https://web3bounty.app/#/"
+  }
+]

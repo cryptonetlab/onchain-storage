@@ -1,0 +1,13 @@
+:root {
+  --landing-theme-primary-color: white;
+  --landing-primary-color: #0042ec;
+  --landing-secondary-color: #f5f5f5;
+  --landing-warning-color: #ff0505;
+}
+
+:root.dark-theme {
+  --landing-theme-primary-color: black;
+  --landing-primary-color: #0042ec;
+  --landing-secondary-color: #f5f5f5;
+  --landing-warning-color: #ff0505;
+}

@@ -1,0 +1,268 @@
+@media only screen and (max-width: 320px) {
+  html,
+  body {
+    font-size: 10px !important;
+  }
+
+  .landing {
+    h1 {
+      font-size: 2.8rem;
+    }
+    h4 {
+      font-size: 3rem;
+    }
+    .card-box {
+      padding: 4rem 4rem 10rem 4rem;
+    }
+    .cta-big {
+      font-size: 4rem;
+    }
+
+    .icon-el {
+      width: 80px;
+      height: 80px;
+    }
+
+    .footer {
+      h4 {
+        font-size: 3rem !important;
+      }
+    }
+
+    .logo {
+      width: 30px;
+      height: 30px;
+    }
+    a.main-link {
+      font-size: 1.5rem;
+      line-height: unset;
+    }
+
+    .top-right-el {
+      top: 19%;
+    }
+
+    .top-left-el {
+      top: 9%;
+    }
+
+    .top-center-el {
+      position: absolute;
+      top: 2%;
+      left: 45%;
+    }
+
+    .top-more-right-el {
+      position: absolute;
+      top: 22%;
+      right: 30%;
+    }
+
+    .top-more-left-el {
+      position: absolute;
+      top: 30%;
+      left: 25%;
+    }
+
+    .bottom-left-el {
+      bottom: 18%;
+      left: 5%;
+    }
+
+    .bottom-more-right-el {
+      position: absolute;
+      bottom: 30%;
+      right: 25%;
+    }
+
+    .bottom-more-left-el {
+      position: absolute;
+      bottom: 25%;
+      left: 40%;
+    }
+
+    .bottom-center-el {
+      position: absolute;
+      bottom: 5%;
+      right: 45%;
+    }
+  }
+}
+
+@media screen and (min-width: 321px) and (max-width: 767px) {
+  html,
+  body {
+    font-size: 11px;
+    overflow-x: hidden;
+  }
+  .landing {
+    h1 {
+      font-size: 4rem;
+    }
+    .card-box {
+      padding: 4rem 4rem 10rem 4rem;
+    }
+    .cta-big {
+      font-size: 4rem;
+    }
+
+    .icon-el {
+      width: 80px;
+      height: 80px;
+    }
+    .footer {
+      h4 {
+        font-size: 3rem !important;
+      }
+    }
+
+    .logo {
+      width: 30px;
+      height: 30px;
+    }
+    a.main-link {
+      font-size: 1.5rem;
+      line-height: unset;
+    }
+
+    .top-right-el {
+      top: 19%;
+    }
+
+    .top-left-el {
+      top: 9%;
+    }
+
+    .top-center-el {
+      position: absolute;
+      top: 2%;
+      left: 45%;
+    }
+
+    .top-more-right-el {
+      position: absolute;
+      top: 22%;
+      right: 30%;
+    }
+
+    .top-more-left-el {
+      position: absolute;
+      top: 30%;
+      left: 25%;
+    }
+
+    .bottom-left-el {
+      bottom: 18%;
+      left: 5%;
+    }
+
+    .bottom-more-right-el {
+      position: absolute;
+      bottom: 30%;
+      right: 25%;
+    }
+
+    .bottom-more-left-el {
+      position: absolute;
+      bottom: 25%;
+      left: 40%;
+    }
+
+    .bottom-center-el {
+      position: absolute;
+      bottom: 5%;
+      right: 45%;
+    }
+  }
+}
+// TABLET
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  html,
+  body {
+    font-size: 14px;
+  }
+
+  .landing {
+    .card-img {
+      width: 50%;
+      margin: auto;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+    .card-img-h {
+      width: 70%;
+      margin: auto;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+    .card-box {
+      padding: 4rem 4rem 15rem 4rem;
+    }
+
+    .cta-big {
+      font-size: 5rem;
+    }
+    .mobile-nav {
+      top: 100px;
+    }
+
+    .sticky-bg {
+      top: 100px;
+    }
+    h4 {
+      line-height: 1;
+    }
+    h5 {
+      font-size: 3rem;
+    }
+  }
+}
+
+@media only screen and (min-width: 993px) and (max-width: 1180px) {
+  .landing {
+    .card-img {
+      width: 70%;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+    .card-img-h {
+      width: 80%;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+    h4 {
+      font-size: 3.5rem;
+    }
+  }
+}
+
+@media only screen and (min-width: 1024px) and (max-width: 1180px) {
+  html,
+  body .landing {
+    font-size: 13px !important;
+  }
+  .landing {
+    .cta-big {
+      font-size: 5rem;
+    }
+  }
+}
+
+@media only screen and (min-width: 1181px) and (max-width: 1440px) {
+  html,
+  body .landing {
+    font-size: 13px !important;
+  }
+}
