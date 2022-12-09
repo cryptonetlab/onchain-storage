@@ -17,9 +17,9 @@
           <a class="main-link ms-3" href="/">onchain.storage</a>
         </div>
         <div>
-          <div @click="goToApp()" v-if="!isMobile" class="btn-transparent">
+          <a v-if="!isMobile" class="btn-transparent disabled">
             Start to store
-          </div>
+          </a>
         </div>
       </div>
     </div>
