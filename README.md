@@ -12,7 +12,7 @@ This repository contains three main folders:
 
 - `api`: which is a general api that tracks and stores informations for all protocols
 - `protocols`: which is the folder containing all protocols developed
-- `ui`: which contains the UI live at https://onchain.storage
+- `app`: which contains the UI live at https://onchain.storage
 # Support
 
 If you need support please feel free to jump into our [Slack](https://filecoinproject.slack.com/archives/C03CJKWP2DR) channel and ask for it or send us a line at onchain.storage@protocol.ai
