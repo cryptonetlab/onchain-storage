@@ -768,22 +768,6 @@ export default {
       console.log("Min duration is: " + app.minDuration);
       console.log("Max duration is: " + app.maxDuration);
 
-      // Connecting to p2p network
-      app.$toast.warning("Loading Providers, please wait...", {
-        position: "top-right",
-        timeout: 5000,
-        closeOnClick: true,
-        pauseOnFocusLoss: true,
-        pauseOnHover: true,
-        draggable: true,
-        draggablePercent: 0.6,
-        showCloseButtonOnHover: true,
-        hideProgressBar: true,
-        closeButton: "button",
-        icon: "mdi mdi-timer-sand-complete",
-        rtl: false,
-      });
-
       // Check Providers
       app.providers = [];
       const providersApi = await axios.get(
