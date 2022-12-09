@@ -56,7 +56,7 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
       // Updating onchain.storage
       const indexed = await axios.get(process.env.ONCHAIN_API + "/index/" + process.env.PROTOCOL_ID + "/" + deal_proposal_index)
       console.log("[INDEX] Onchain response is:", indexed.data)
-      
+
       let inserted = false
       while (!inserted) {
         await db.insert('requests', deal_proposal)
@@ -72,7 +72,7 @@ export const updateRequest = async (deal_proposal_index, proposal_tx = '', accep
       if (proposal_tx === '') {
         accept_tx = checkDB.accept_tx
       }
-      
+
       // Updating onchain.storage
       const indexed = await axios.get(process.env.ONCHAIN_API + "/index/" + process.env.PROTOCOL_ID + "/" + deal_proposal_index)
       console.log("[INDEX] Onchain response is:", indexed.data)
@@ -253,12 +253,14 @@ export const parseRequests = async () => {
       if (checkDB === null) {
         await parseRequest(deal_proposal_index)
       } else if (checkDB.canceled === false) {
-        const now = new Date().getTime() / 1000
-        const expires_in = parseInt(checkDB.timestamp_start) + parseInt(request_timeout.toString())
-        if (now > expires_in) {
+        const now = new Date().getTime()
+        const expires_at = (parseInt(checkDB.timestamp_request) + parseInt(request_timeout.toString())) * 1000
+        console.log("[REQUESTS] --> Expires at:", new Date(expires_at))
+        if (now < expires_at) {
+          console.log("[REQUESTS] --> Updating request values")
           await parseRequest(deal_proposal_index)
-        } else {
-          console.log('[REQUESTS] --> Deal proposal expired')
+        } else if (checkDB.timestamp_start.toString().length === 0) {
+          console.log('[REQUESTS] --> Deal proposal ' + deal_proposal_index + ' expired')
           await db.update('requests', { index: deal_proposal_index }, { $set: { expired: true } })
         }
       } else if (checkDB.canceled === true) {
