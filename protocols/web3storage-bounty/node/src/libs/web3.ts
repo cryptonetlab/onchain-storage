@@ -199,12 +199,18 @@ export const parseRequest = async (deal_proposal_index, proposal_tx = '') => {
 
               if (accepted) {
                 try {
+
+                  // Updating onchain.storage
+                  console.log("[ONCHAIN] --> Ask for a new index")
+                  axios.get(process.env.ONCHAIN_API + "/index/" + process.env.PROTOCOL_ID + "/" + deal_proposal_index)
+                  
                   console.log('[REQUESTS] --> Updating bridge request')
                   await db.update('requests', { index: deal_proposal_index }, {
                     $set: {
                       accept_tx
                     }
                   })
+
                   response(true)
                 } catch (e) {
                   console.log(e)
