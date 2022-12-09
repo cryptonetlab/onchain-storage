@@ -34,7 +34,7 @@ export const index = (deal_index, protocol) => {
       // Writing on-chain informations in database
       const checkDB = await db.find("metadata", { cid, protocol })
       console.log("Entry in database is:", checkDB)
-      if (checkDB === null) {
+      if (checkDB === null || checkDB === false || checkDB === undefined) {
         let values = {}
         values[deal_index] = parseInt(value.toString())
         let details_db = {}
