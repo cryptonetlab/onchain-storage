@@ -33,6 +33,7 @@ export const index = (deal_index, protocol) => {
       const db = new Database.default.Mongo();
       // Writing on-chain informations in database
       const checkDB = await db.find("metadata", { cid, protocol })
+      console.log("Entry in database is:", checkDB)
       if (checkDB === null) {
         let values = {}
         values[deal_index] = parseInt(value.toString())
