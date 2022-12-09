@@ -82,20 +82,21 @@ export const index = (deal_index, protocol) => {
             await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { values: updatedValues, totalValue: updatedTotalValue } })
           }
         }
-        // Updating with last details
 
+        // Updating with last details
         console.log("[INDEXER] Updating details..")
-        // Parse deal
-        let updatedDetails = {}
-        if (checkDB.details !== undefined && checkDB.details !== false) {
-          updatedDetails = checkDB.details
+        if (checkDB !== null && checkDB.details !== undefined) {
+          let updatedDetails = {}
+          if (checkDB.details !== undefined) {
+            updatedDetails = checkDB.details
+          }
+          updatedDetails[deal_index] = details
+          updatedDetails[deal_index].value = details.value.toString()
+          updatedDetails[deal_index].timestamp_request = details.timestamp_request.toString()
+          updatedDetails[deal_index].timestamp_start = details.timestamp_start.toString()
+          updatedDetails[deal_index].duration = details.duration.toString()
+          await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { details: updatedDetails } })
         }
-        updatedDetails[deal_index] = details
-        updatedDetails[deal_index].value = details.value.toString()
-        updatedDetails[deal_index].timestamp_request = details.timestamp_request.toString()
-        updatedDetails[deal_index].timestamp_start = details.timestamp_start.toString()
-        updatedDetails[deal_index].duration = details.duration.toString()
-        await db.update("onchain_storage", "metadata", { cid, protocol }, { $set: { details: updatedDetails } })
 
         // Check if configuration tracks sizes
         if (process.env.TRACK_SIZES !== undefined && process.env.TRACK_SIZES === "true") {
