@@ -2,10 +2,7 @@
   <div>
     <div>
       <div class="custom-card" :class="{ pointer: !isOpen }">
-        <div
-          @click="isOpen = !isOpen"
-          class="card-header p-0 is-justify-content-space-between"
-        >
+        <div class="card-header p-0 is-justify-content-space-between">
           <div class="is-flex is-align-items-center">
             <div>
               <h4
@@ -19,7 +16,12 @@
                 <span>{{ user.substr(0, 4) + "..." + user.substr(-4) }}</span>
               </h4>
             </div>
-            <div v-if="isDesktop" class="ml-6"><p>Time Left: {{ secondsToD(longestDeal / 1000) }}</p></div>
+            <div @click="copyToClipboard()" class="ml-3">
+              <IcoCopy />
+            </div>
+            <div v-if="isDesktop" class="ml-6">
+              <p>Time Left: {{ secondsToD(longestDeal / 1000) }}</p>
+            </div>
           </div>
 
           <!-- Deal action bar -->
@@ -38,7 +40,7 @@
             <!-- END BADGES -->
 
             <div class="ml-3 mr-3"></div>
-            <div class="mr-3 p-3">
+            <div class="mr-3 p-3 pointer" @click="isOpen = !isOpen">
               <IcoChevronRight v-if="!isOpen" />
               <IcoChevronDown v-if="isOpen" />
             </div>
@@ -169,7 +171,7 @@ export default {
   data() {
     return {
       isOpen: false,
-      longestDeal: 0
+      longestDeal: 0,
     };
   },
   computed: {
@@ -179,7 +181,7 @@ export default {
     const app = this;
     for (let k in app.deals) {
       if (parseInt(app.deals[k].left) > parseInt(app.longestDeal)) {
-        app.longestDeal = parseInt(app.deals[k].left)
+        app.longestDeal = parseInt(app.deals[k].left);
       }
     }
   },
@@ -203,6 +205,20 @@ export default {
       var hDisplay = h > 0 ? ", " + h + (h == 1 ? " hour" : " hours") : "";
 
       return dDisplay + hDisplay;
+    },
+
+    copyToClipboard() {
+      const app = this;
+      if (app.$route.params.id) {
+        let copyText = app.user;
+        navigator.clipboard.writeText(copyText).then(() => {
+          // Alert the user that the action took place.
+          // Nobody likes hidden stuff being done under the hood!
+          console.log("Copied to Clipboard");
+        });
+      } else {
+        console.log("Nothing to copy, make sure that you're connected!");
+      }
     },
   },
 };

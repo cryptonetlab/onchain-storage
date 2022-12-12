@@ -602,7 +602,7 @@
         $route.name === 'create-deal'
       "
     >
-      <h2 class="has-text-centered my-4">Deal Summary</h2>
+      <h2 class="has-text-centered my-5">Deal Summary</h2>
       <div class="px-3">
         <RecapDeal
           :providers="providers"

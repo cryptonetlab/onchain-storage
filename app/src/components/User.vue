@@ -6,7 +6,7 @@
         class="custom-user-card border-primary-lighter"
         style="width: 100%; min-height: 142px"
       >
-        <div class="p-4">
+        <div class="p-5">
           <div
             class="is-flex is-flex-grow-2 is-align-items-start is-justify-content-space-between"
           >
@@ -21,9 +21,17 @@
 
           <div class="is-flex is-flex-grow-0 is-align-items-center">
             <v-gravatar
+              v-if="isDesktop"
               class="gravatar mr-4"
               :email="web3Store.account"
               :size="95"
+            />
+
+            <v-gravatar
+              v-if="!isDesktop"
+              class="gravatar mr-4"
+              :email="web3Store.account"
+              :size="50"
             />
 
             <div>
@@ -33,25 +41,27 @@
                 }}</span>
                 <span v-if="!web3Store.ensAccount">My account</span>
               </h3>
-              <div class="is-flex is-align-items-center">
-                <p>
-                  {{
-                    web3Store.account.substr(0, 6) +
-                    "..." +
-                    web3Store.account.substr(-6)
-                  }}
-                </p>
-                <div class="pointer ml-4" @click="copyToClipboard()">
-                  <IcoCopy />
+              <Transition enter-active-class="fade-in">
+                <div v-if="!isCopying" class="is-flex is-align-items-center">
+                  <p>
+                    {{ web3Store.account }}
+                  </p>
+
+                  <div class="pointer ml-4" @click="copyToClipboard()">
+                    <IcoCopy />
+                  </div>
                 </div>
-              </div>
+              </Transition>
+              <Transition enter-active-class="slide-in-left">
+                <p class="mt-4" v-if="isCopying">Copied to clipboard!</p>
+              </Transition>
             </div>
           </div>
         </div>
         <div class="divider"></div>
         <div class="columns p-0 m-0">
           <div class="column is-half p-0 m-0">
-            <div class="p-4">
+            <div class="p-5">
               <h5>Total Value</h5>
               <!-- userStore.totalValue !== undefined && userStore.totalValue > 0 -->
               <h2 v-if="userStore.totalValue !== undefined" class="mt-2">
@@ -66,7 +76,7 @@
             </div>
           </div>
           <div class="column is-half b-left-light p-0 m-0">
-            <div class="p-4">
+            <div class="p-5">
               <h5>Active Deals</h5>
               <h2 class="mt-2" v-if="userStore.countDeals === 'error-api'">
                 N/A
@@ -83,7 +93,8 @@
                 </h2>
                 <p class="ml-2">
                   / on
-                  {{ userStore.countActiveProtocols }} protocols
+                  {{ userStore.countActiveProtocols }} <span>protocol</span>
+                  <span v-if="userStore.countActiveProtocols > 1">s</span>
                 </p>
               </div>
               <div v-if="userStore.loadingUserInfo">
@@ -211,6 +222,7 @@ export default {
       isWithdraw: false,
       canWithdraw: "",
       openSelect: false,
+      isCopying: false,
     };
   },
   computed: {
@@ -234,18 +246,18 @@ export default {
     copyToClipboard() {
       const app = this;
       if (app.web3Store.account) {
+        app.isCopying = true;
         let copyText = app.web3Store.account;
         navigator.clipboard.writeText(copyText).then(() => {
-          // Alert the user that the action took place.
-          // Nobody likes hidden stuff being done under the hood!
-          app.$emit("notify", "Copied to Clipboard");
+          console.log("Copied to Clipboard");
         });
       } else {
-        app.$emit(
-          "notify",
-          "Nothing to copy, make sure that you're connected!"
-        );
+        console.log("Nothing to copy, make sure that you're connected!");
+        app.isCopying = false;
       }
+      setTimeout(function () {
+        app.isCopying = false;
+      }, 1000);
     },
     toggleWithdraw() {
       const app = this;

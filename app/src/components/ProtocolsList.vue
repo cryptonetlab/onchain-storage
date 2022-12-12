@@ -8,8 +8,9 @@
       >
         <div class="custom-card border-primary-lighter">
           <div
-            class="is-flex is-align-items-center is-justify-content-space-between px-3 py-4"
+            class="is-flex is-align-items-center is-justify-content-space-between px-4 py-5"
           >
+            <!-- Protocols logo -->
             <div class="is-flex is-align-items-center">
               <img
                 v-if="protocol === 'retriev-goerli'"
@@ -29,10 +30,44 @@
                 {{ protocol.split("-")[0] }}
               </h4>
             </div>
+            <!-- END Protocols logo -->
+
+            <!-- Link to app (external) -->
+            <div>
+              <a
+                style="text-decoration: none"
+                :style="[!isDesktop ? { padding: '8px !important' } : {}]"
+                v-if="protocol === 'retriev-goerli'"
+                href="https://retriev.org"
+                target="_blank"
+                class="btn-lighter"
+                ><span v-if="isDesktop">Manage App</span>
+                <i
+                  v-if="!isDesktop"
+                  class="mdi mdi-export"
+                  style="font-size: 1rem"
+                ></i
+              ></a>
+              <a
+                v-if="protocol === 'web3bounty-goerli'"
+                style="text-decoration: none"
+                :style="[!isDesktop ? { padding: '8px !important' } : {}]"
+                href="https://web3bounty.app/"
+                target="_blank"
+                class="btn-lighter"
+                ><span v-if="isDesktop">Manage App</span>
+                <i
+                  v-if="!isDesktop"
+                  class="mdi mdi-export"
+                  style="font-size: 1rem"
+                ></i
+              ></a>
+            </div>
+            <!-- END Link to app (external) -->
           </div>
           <div class="divider"></div>
           <div
-            class="is-flex is-align-items-center is-justify-content-space-between p-3"
+            class="is-flex is-align-items-center is-justify-content-space-between p-4"
           >
             <p>Total Value:</p>
             <p>
@@ -41,7 +76,7 @@
           </div>
           <div class="divider"></div>
           <div
-            class="is-flex is-align-items-center is-justify-content-space-between p-3"
+            class="is-flex is-align-items-center is-justify-content-space-between p-4"
           >
             <p>Active deals:</p>
             <p>
@@ -54,7 +89,7 @@
           ></div>
           <div
             v-if="deals.details[protocol].size !== undefined"
-            class="is-flex is-align-items-center is-justify-content-space-between p-3"
+            class="is-flex is-align-items-center is-justify-content-space-between p-4"
           >
             <p>Pinning volume:</p>
             <p>
@@ -68,10 +103,11 @@
 </template>
 
 <script>
+import checkViewport from "../mixins/checkViewport";
 export default {
   name: "protocols-list",
   props: ["deals"],
-
+  mixins: [checkViewport],
   mounted() {},
   methods: {
     parseSize(size) {

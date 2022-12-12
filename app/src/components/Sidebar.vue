@@ -5,9 +5,9 @@
         class="is-flex-column"
         :class="{ 'has-text-centered': !utilsStore.showSidebar }"
       >
-        <div
+        <!-- <div
           v-if="!isTablet"
-          class="px-4 pt-4 pointer"
+          class="px-5 pt-5 pointer"
           :class="{
             'has-text-centered': !utilsStore.showSidebar,
             'has-text-right': utilsStore.showSidebar,
@@ -22,11 +22,11 @@
             v-if="!utilsStore.showSidebar"
             class="mdi mdi-chevron-double-right"
           ></i>
-        </div>
+        </div> -->
         <!-- PAGE LINK -->
         <a
           href="/#/app/"
-          class="is-flex is-align-items-center sidebar-link px-4 py-3"
+          class="is-flex is-align-items-center sidebar-link px-5 pt-6 pb-4"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
           }"
@@ -41,22 +41,9 @@
             >
           </div>
         </a>
-        <div
-          class="is-flex is-align-items-center disabled sidebar-link px-4 py-3"
-          :class="{
-            'is-justify-content-center': !utilsStore.showSidebar,
-            'is-justify-content-space-between': utilsStore.showSidebar,
-          }"
-        >
-          <div class="is-flex is-align-items-center">
-            <IcoProtocols />
-            <span v-if="utilsStore.showSidebar" class="ml-3">Protocols</span>
-          </div>
-          <i v-if="utilsStore.showSidebar" class="mdi mdi-chevron-right"></i>
-        </div>
         <a
           href="/#/app/deal-maker-tool"
-          class="is-flex is-align-items-center sidebar-link px-4 py-3"
+          class="is-flex is-align-items-center sidebar-link px-5 py-4"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
           }"
@@ -71,6 +58,26 @@
             >
           </div>
         </a>
+        <div
+          class="is-flex is-align-items-center disabled sidebar-link px-5 py-4"
+          :class="{
+            'is-justify-content-center': !utilsStore.showSidebar,
+            'is-justify-content-space-between': utilsStore.showSidebar,
+          }"
+        >
+          <div class="is-flex is-align-items-center">
+            <IcoProtocols />
+            <span v-if="utilsStore.showSidebar" class="ml-3">Protocols</span>
+          </div>
+          <!-- <i v-if="utilsStore.showSidebar" class="mdi mdi-chevron-right"></i> -->
+          <div
+            v-if="utilsStore.showSidebar && isDesktop"
+            class="badge badge-soon"
+          >
+            Soon
+          </div>
+        </div>
+
         <!-- <div
           class="mt-4 is-flex is-align-items-center"
           :class="{
@@ -88,7 +95,7 @@
           >
         </div> -->
         <a
-          class="disabled is-flex is-align-items-center sidebar-link px-4 py-3"
+          class="disabled is-flex is-align-items-center sidebar-link px-5 py-4"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
             'is-justify-content-space-between': utilsStore.showSidebar,
@@ -111,7 +118,7 @@
           </div>
         </a>
         <a
-          class="disabled is-flex is-align-items-center sidebar-link px-4 py-3"
+          class="disabled is-flex is-align-items-center sidebar-link px-5 py-4"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
             'is-justify-content-space-between': utilsStore.showSidebar,

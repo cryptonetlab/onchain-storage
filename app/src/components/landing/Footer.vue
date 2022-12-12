@@ -2,13 +2,13 @@
   <div class="landing" :class="{ 'b-top-dashed': utilsStore.isTerms }">
     <div
       class="footer container"
-      :class="{ 'p-0': !isMobile, 'px-5': isMobile }"
+      :class="{ 'p-0': !isMobile, 'px-3': isMobile }"
       style="position: relative; z-index: 2; background-color: white"
     >
       <div style="height: auto; min-height: 60vh">
-        <div class="row" style="height: 60vh">
+        <div class="columns is-mobile is-multiline p-0 m-0" style="height: 60vh">
           <div
-            class="col-12 col-md-8 col-lg-9 d-flex flex-column justify-content-between"
+            class="column p-0 is-12-mobile is-8-tablet is-9-desktop is-flex is-flex-direction-column is-justify-content-space-between"
             :class="{ 'b-dashed-right py-5': !isMobile, 'p-5': isMobile }"
           >
             <img width="64" src="../../assets/img/logo.svg" alt="" />
@@ -20,10 +20,10 @@
             </div>
           </div>
           <div
-            class="col-12 col-md-4 col-lg-3 d-flex flex-column text-start p-5"
+            class="column is-12-mobile is-4-tablet is-3-desktop p-5"
             :class="{
-              'justify-content-end': !isMobile,
-              'justify-content-start': isMobile,
+              'is-align-self-flex-end': !isMobile,
+              'is-justify-content-flex-start': isMobile,
             }"
           >
             <div>

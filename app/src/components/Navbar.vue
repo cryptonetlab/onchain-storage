@@ -5,7 +5,7 @@
     class="custom-navbar bg-primary-color-contrast b-bottom-colored-grey"
   >
     <!-- ============================== HEADER ============================== -->
-    <div class="px-4">
+    <div class="px-5">
       <div
         class="is-flex is-align-items-center is-justify-content-space-between"
       >

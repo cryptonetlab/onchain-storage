@@ -23,7 +23,7 @@
       <!--END SIDEBAR SECTION -->
 
       <div
-        class="column m-0 py-0"
+        class="column m-0 py-6"
         :class="{
           'is-8-desktop is-8-widescreen': utilsStore.showSidebar,
           'is-8-tablet is-9-desktop is-9-widescreen': !utilsStore.showSidebar,
@@ -70,95 +70,91 @@
             !web3Store.isLoadingState &&
             !userStore.loadingUserInfo
           "
-          class="container py-5 mt-2"
+          class="container py-5"
           :class="{ 'px-5': isDesktop }"
         >
           <User />
-          <div>
-            <h2 class="mt-5 mb-3">Active protocols</h2>
-            <ProtocolsList :deals="userStore.deals" />
-          </div>
-
           <Transition enter-active-class="fade-in-top">
-            <div v-if="!web3Store.isLoadingState">
-              <!-- CIDs List and Filters -->
-              <div
-                v-if="
-                  userStore.deals !== undefined &&
-                  userStore.deals !== 'error-api'
-                "
-              >
-                <h2 class="mt-5 mb-3">CIDs list</h2>
-                <CIDFilters />
-                <div
-                  class="is-flex is-align-items-center is-justify-content-space-between mt-3 mb-3 px-4"
-                >
-                  <div class="is-flex is-align-items-center">
-                    <p style="width: 10.5rem">CID</p>
-                    <div
-                      v-if="isDesktop"
-                      class="is-flex is-align-items-center"
-                      @click="orderAsc = !orderAsc"
-                    >
-                      <p class="mr-3"><b>Expire Date</b></p>
-                      <IcoChevronRight
-                        :style="[
-                          orderAsc ? { rotate: '90deg' } : { rotate: '272deg' },
-                        ]"
-                      />
-                    </div>
-                  </div>
+            <!-- CIDs List and Filters -->
 
-                  <p style="margin-right: 3.3rem !important">Protocol(s)</p>
-                </div>
-                <div
-                  v-if="userStore.deals !== undefined"
-                  class="custom-card border-primary-lighter"
-                >
+            <div
+              v-if="
+                userStore.deals !== undefined && userStore.deals !== 'error-api'
+              "
+            >
+              <div>
+                <h2 class="mt-6 mb-3">Active protocols</h2>
+                <ProtocolsList :deals="userStore.deals" />
+              </div>
+              <h2 class="mt-6 mb-3">CIDs list</h2>
+              <CIDFilters />
+              <div
+                class="is-flex is-align-items-center is-justify-content-space-between mt-3 mb-3 px-5"
+              >
+                <div class="is-flex is-align-items-center">
+                  <p style="width: 13rem">CID</p>
                   <div
-                    v-for="(details, index) in userStore.deals.list"
-                    :key="index"
+                    v-if="isDesktop"
+                    class="is-flex is-align-items-center"
+                    @click="orderAsc = !orderAsc"
                   >
-                    <SingleCID :details="details" :cid="index" />
+                    <p class="mr-3"><b>Expire Date</b></p>
+                    <IcoChevronRight
+                      :style="[
+                        orderAsc ? { rotate: '90deg' } : { rotate: '272deg' },
+                      ]"
+                    />
                   </div>
                 </div>
-              </div>
-              <!-- END CIDs list and filters -->
 
-              <!-- API Error -->
+                <p style="margin-right: 3.3rem !important">Protocol(s)</p>
+              </div>
               <div
-                v-if="
-                  userStore.deals !== undefined &&
-                  userStore.deals === 'error-api'
-                "
+                v-if="userStore.deals !== undefined"
+                class="custom-card border-primary-lighter"
               >
                 <div
-                  class="custom-card border-primary-lighter has-text-centered mt-5 py-4"
+                  v-for="(details, index) in userStore.deals.list"
+                  :key="index"
                 >
-                  <img
-                    width="68"
-                    class="mt-3"
-                    src="../assets/img/icon2.svg"
-                    alt=""
-                  />
-                  <h4 class="mt-4">Ops.. There was an error</h4>
-                  <div class="mt-2">
-                    <p>
-                      Impossible to fetch informations, please come back later!
-                    </p>
-                  </div>
-                  <a
-                    style="text-decoration: none"
-                    href="/"
-                    class="btn-light mt-4 mb-3"
-                    @click="web3Store.connect()"
-                  >
-                    Go to Website
-                  </a>
+                  <SingleCID :details="details" :cid="index" />
                 </div>
               </div>
-              <!-- END API Error -->
             </div>
+            <!-- END CIDs list and filters -->
+
+            <!-- API Error -->
+            <div
+              v-if="
+                userStore.deals !== undefined && userStore.deals === 'error-api'
+              "
+            >
+              <div
+                class="custom-card border-primary-lighter has-text-centered mt-5 py-4"
+              >
+                <img
+                  width="68"
+                  class="mt-3"
+                  src="../assets/img/icon2.svg"
+                  alt=""
+                />
+                <h4 class="mt-4">Ops.. There was an error</h4>
+                <div class="mt-2">
+                  <p>
+                    Impossible to fetch informations, please come back later!
+                  </p>
+                </div>
+                <a
+                  style="text-decoration: none"
+                  href="/"
+                  class="btn-light mt-4 mb-3"
+                  @click="web3Store.connect()"
+                >
+                  Go to Website
+                </a>
+              </div>
+            </div>
+            <!-- END API Error -->
           </Transition>
         </div>
         <Connect />
@@ -226,7 +222,6 @@ export default {
   mounted() {
     const app = this;
     if (app.web3Store.account) {
-      console.log("I TRY TO FETCH DEAL WITHOUT STORE");
       app.userStore.fetchDeals(
         app.web3Store.selectedContract,
         app.web3Store.account,
@@ -236,7 +231,6 @@ export default {
       const unsubscribe = app.web3Store.$onAction(({ name, store, after }) => {
         after(async () => {
           if (name === "connect" || name === "switchNetwork") {
-            console.log("I TRY TO FETCH DEAL WITH PINIA-STORE");
             if (store.web3) {
               console.log("init loadState");
               app.userStore.fetchDeals(
@@ -263,6 +257,8 @@ export default {
       const app = this;
       if (app.isTablet) {
         app.utilsStore.showSidebar = false;
+      } else {
+        app.utilsStore.showSidebar = true;
       }
     },
   },

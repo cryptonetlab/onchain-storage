@@ -15,7 +15,7 @@
               class="section"
               :class="{
                 'p-6': $route.name === 'create-deal',
-                'py-4 px-3': $route.name !== 'create-deal',
+                'py-5 px-3': $route.name !== 'create-deal',
               }"
             >
               <div class="content has-text-centered">
@@ -28,10 +28,11 @@
           </b-upload>
         </b-field>
         <div
-          class="bordered-dashed is-align-items-start is-justify-content-space-between "
+          class="bordered-dashed is-align-items-start is-justify-content-space-between"
           :class="{
             'is-flex-column p-3': $route.name !== 'create-deal',
-            'is-flex is-flex-wrap-wrap py-6 px-4': $route.name === 'create-deal',
+            'is-flex is-flex-wrap-wrap py-6 px-4':
+              $route.name === 'create-deal',
           }"
           v-if="fileToUp.name"
           style="position: relative"
@@ -57,30 +58,27 @@
                   <b>{{ fileToUp.name }}</b>
                 </h5>
               </div>
-              <div>
+              <div :class="{ 'mb-3': $route.name !== 'create-deal' }">
                 <h5 class="m-0">File size:</h5>
                 <h5 class="break-word">
                   <b>{{ parseInt(fileToUp.size) / 1000 }}KB</b>
                 </h5>
               </div>
+              <div :class="{ 'mb-3': $route.name !== 'create-deal' }">
+                <h5 class="m-0">Deal URI:</h5>
+                <h5 class="break-word" v-if="fileUri">
+                  <b v-if="$route.name !== 'create-deal'">{{
+                    fileUri.substr(0, 12) + "..." + fileUri.substr(-8)
+                  }}</b>
+                  <b v-if="$route.name === 'create-deal'">{{ fileUri }}</b>
+                </h5>
+                <h5 v-if="!fileUri">Calculating...</h5>
+              </div>
             </div>
-
-            <h5 class="m-0">Deal URI:</h5>
-            <h5
-              class="break-word"
-              :class="{ 'mb-3': $route.name !== 'create-deal' }"
-              v-if="fileUri"
-            >
-              <b v-if="$route.name !== 'create-deal'">{{
-                fileUri.substr(0, 12) + "..." + fileUri.substr(-8)
-              }}</b>
-              <b v-if="$route.name === 'create-deal'">{{ fileUri }}</b>
-            </h5>
-            <h5 v-if="!fileUri">Calculating...</h5>
           </div>
           <b-button
             v-if="$route.name === 'create-deal'"
-            class="btn-light mt-3"
+            class="btn-light mt-4"
             style="float: right"
             :disabled="!fileUri"
             @click="removeFileToUp()"

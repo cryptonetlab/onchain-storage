@@ -4,14 +4,22 @@
       <div class="custom-card">
         <div class="card-header p-0 is-justify-content-space-between">
           <div class="is-flex is-align-items-center">
-            <a v-if="cid !== undefined" :href="'/#/app/cid/' + cid">
-              <h4 class="pl-4" style="cursor: pointer; min-width: 110px">
-                {{ cid.substr(0, 4) + "..." + cid.substr(-4) }}
-              </h4>
-            </a>
-            <div @click="copyToClipboard()" class="ml-3">
-              <IcoCopy />
+            <div class="is-flex is-align-items-center" v-if="!isCopying">
+              <a v-if="cid !== undefined" :href="'/#/app/cid/' + cid">
+                <h4 class="pl-5" style="cursor: pointer; min-width: 160px">
+                  {{ cid.substr(0, 6) + "..." + cid.substr(-6) }}
+                </h4>
+              </a>
+              <div @click="copyToClipboard()" class="ml-3">
+                <IcoCopy />
+              </div>
             </div>
+
+            <Transition enter-active-class="slide-in-left">
+              <p class="pl-5" style="min-width: 191px" v-if="isCopying">
+                Copied to clipboard!
+              </p>
+            </Transition>
 
             <div v-if="isDesktop" class="ml-6">
               <p>Time Left: {{ secondsToD(longestDeal / 1000) }}</p>
@@ -22,15 +30,20 @@
           <div class="is-flex is-align-items-center is-flex-wrap-wrap">
             <!-- BADGES -->
 
-            <div v-for="protocol in protocols" :key="protocol" class="badge-protocol ml-3">
+            <div
+              v-for="protocol in protocols"
+              :key="protocol"
+              class="badge-protocol ml-3"
+            >
               <span>
-                <b>{{ protocol }}</b></span>
+                <b>{{ protocol }}</b></span
+              >
             </div>
 
             <!-- END BADGES -->
 
             <div class="ml-3 mr-3"></div>
-            <div @click="isOpen = !isOpen" class="mr-3 p-3">
+            <div @click="isOpen = !isOpen" class="mr-3 p-3 pointer">
               <IcoChevronRight v-if="!isOpen" />
               <IcoChevronDown v-if="isOpen" />
             </div>
@@ -40,38 +53,63 @@
 
         <!-- DEAL SPECIFICATIONS -->
         <Transition name="slide">
-          <div class="px-3 pb-3" v-show="isOpen">
+          <div class="px-5 pb-3" v-show="isOpen">
             <div class="columns is-multiline is-mobile">
               <!-- Single Deal -->
-              <div v-for="(deal, index) in details.deals" :key="index" class="column is-full-tablet is-half-desktop">
+              <div
+                v-for="(deal, index) in details.deals"
+                :key="index"
+                class="column is-full-tablet is-half-desktop"
+              >
                 <div class="custom-card bg-low-contrast border-primary-lighter">
-                  <div class="is-flex is-align-items-center is-justify-content-space-between px-3 py-3">
-                    <h4 v-if="deal.protocol !== undefined" style="text-transform: capitalize">
+                  <div
+                    class="is-flex is-align-items-center is-justify-content-space-between px-4 py-4"
+                  >
+                    <h4
+                      v-if="deal.protocol !== undefined"
+                      style="text-transform: capitalize"
+                    >
                       {{
-                          deal.protocol.split("-", 1) +
-                          " " +
-                          "(" +
-                          "deal" +
-                          " #" +
-                          deal.deal_index +
-                          ")"
+                        deal.protocol.split("-", 1) +
+                        " " +
+                        "(" +
+                        "deal" +
+                        " #" +
+                        deal.deal_index +
+                        ")"
                       }}
                     </h4>
-                    <a style="text-decoration: none" v-if="deal.protocol.split('-')[0] === 'retriev'"
-                      href="https://retriev.org" target="_blank" class="btn-lighter">Manage App</a>
-                    <a v-if="deal.protocol.split('-')[0] === 'web3bounty'" style="text-decoration: none"
-                      href="https://web3bounty.app/" target="_blank" class="btn-lighter">Manage App</a>
+                    <a
+                      style="text-decoration: none"
+                      v-if="deal.protocol.split('-')[0] === 'retriev'"
+                      href="https://retriev.org"
+                      target="_blank"
+                      class="btn-lighter"
+                      >Manage App</a
+                    >
+                    <a
+                      v-if="deal.protocol.split('-')[0] === 'web3bounty'"
+                      style="text-decoration: none"
+                      href="https://web3bounty.app/"
+                      target="_blank"
+                      class="btn-lighter"
+                      >Manage App</a
+                    >
                   </div>
                   <div class="divider"></div>
-                  <div class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2">
+                  <div
+                    class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2"
+                  >
                     <p>Deal Value:</p>
                     <p>
                       <b>{{ deal.value }} wei</b>
                     </p>
                   </div>
                   <div class="divider"></div>
-                  <div v-if="deal.provider.length > 0"
-                    class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2">
+                  <div
+                    v-if="deal.provider.length > 0"
+                    class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2"
+                  >
                     <p>Time Left:</p>
                     <p v-if="parseInt(deal.left) > 0">
                       <b>{{ secondsToD(parseInt(deal.left) / 1000) }}</b>
@@ -80,21 +118,27 @@
                       <b>Expired</b>
                     </p>
                   </div>
-                  <div v-if="deal.provider.length === 0"
-                    class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2">
+                  <div
+                    v-if="deal.provider.length === 0"
+                    class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2"
+                  >
                     <p>Time Left:</p>
                     <p><b>N/A</b></p>
                   </div>
                   <div class="divider"></div>
-                  <div class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2">
+                  <div
+                    class="is-flex is-align-items-center is-justify-content-space-between px-3 py-2"
+                  >
                     <p>Provider</p>
-                    <p v-if="
-                      web3Store.providerEndpoints[
-                      deal.provider.toLowerCase()
-                      ] && deal.provider.length > 0
-                    ">
+                    <p
+                      v-if="
+                        web3Store.providerEndpoints[
+                          deal.provider.toLowerCase()
+                        ] && deal.provider.length > 0
+                      "
+                    >
                       <b>{{
-                          web3Store.providerEndpoints[deal.provider.toLowerCase()]
+                        web3Store.providerEndpoints[deal.provider.toLowerCase()]
                       }}</b>
                     </p>
                     <p v-else><b>N/A</b></p>
@@ -135,8 +179,9 @@ export default {
   data() {
     return {
       isOpen: false,
+      isCopying: false,
       protocols: [],
-      longestDeal: 0
+      longestDeal: 0,
     };
   },
   computed: {
@@ -147,7 +192,7 @@ export default {
     const app = this;
     for (let k in app.details.deals) {
       if (parseInt(app.details.deals[k].left) > parseInt(app.longestDeal)) {
-        app.longestDeal = parseInt(app.details.deals[k].left)
+        app.longestDeal = parseInt(app.details.deals[k].left);
       }
     }
     app.fetchProtocols();
@@ -187,6 +232,7 @@ export default {
     copyToClipboard() {
       const app = this;
       if (app.cid !== undefined) {
+        app.isCopying = true;
         let copyText = app.cid;
         navigator.clipboard.writeText(copyText).then(() => {
           // Alert the user that the action took place.
@@ -196,6 +242,9 @@ export default {
       } else {
         console.log("Nothing to copy, make sure that you're connected!");
       }
+      setTimeout(function () {
+        app.isCopying = false;
+      }, 1000);
     },
   },
 };

@@ -6,10 +6,10 @@
       <div v-if="isDesktop" class="main-img bg-desktop"></div>
       <div v-if="isTablet" class="main-img bg-tablet"></div>
       <div v-if="isMobile" class="main-img bg-mobile"></div>
-      <div class="row justify-content-center">
-        <div class="col-12 col-md-12 col-lg-12">
+      <div class="columns">
+        <div class="column is-full">
           <div
-            class="text-center"
+            class="has-text-centered"
             style="position: relative; z-index: 3"
             :class="{ 'px-4': isMobile }"
           >
@@ -41,15 +41,18 @@
       </div>
     </div>
 
-    <div class="container-fluid p-0 mt-5">
+    <div class="p-0 mt-5">
       <Navbar />
       <div class="gap-1"></div>
-      <div class="container" :class="{ 'px-5': isMobile }">
+      <div class="container" :class="{ 'px-5': isMobile, 'px-4': isDesktop, 'px-3': isTablet }">
         <!-- First Section -->
-        <div class="row" :class="{ 'row align-items-end': isTablet }">
-          <div class="col-12 col-md-12 col-lg-4">
-            <div :class="{ 'row justify-content-center': isTablet }">
-              <div :class="{ 'col-8': isTablet }">
+        <div
+          class="columns is-desktop"
+          :class="{ 'is-align-items-flex-end px-2': isTablet }"
+        >
+          <div class="column is-4-desktop">
+            <div :class="{ 'columns is-centered': isTablet }">
+              <div :class="{ 'column is-8': isTablet }">
                 <h6 style="text-transform: uppercase">
                   what is onchain.storage
                 </h6>
@@ -63,8 +66,8 @@
               </div>
             </div>
           </div>
-          <div class="col-12 col-md-12 col-lg-8" :class="{ 'mt-5': isMobile }">
-            <div :class="{ 'card-img-h mx-auto mt-5': isTablet }">
+          <div class="column is-8-desktop">
+            <div :class="{ 'card-img-h mx-auto': isTablet }">
               <img src="../assets/img/landing/img1.png" alt="" />
             </div>
           </div>
@@ -72,14 +75,23 @@
         <!-- Second Section -->
         <div v-if="isDesktop" class="gap-2"></div>
         <div v-if="!isDesktop" class="gap-1"></div>
-        <div class="row b-dashed">
+        <div class="columns mb-0 is-desktop b-dashed" :class="{'py-2': isTablet}">
           <div
-            class="col-12 col-md-12 col-lg-7 order-1 order-md-1 order-lg-2 p-5"
+            v-if="isDesktop"
+            class="column is-5-desktop px-5 pb-5 is-flex is-justify-content-center is-aling-items-center"
+            :class="{ 'b-dashed-right pt-5': isDesktop }"
           >
-            <div class="row justify-content-center align-items-center">
+            <div class="card-img" :class="{ 'pb-5': isTablet }">
+              <img src="../assets/img/landing/img2.png" alt="" />
+            </div>
+          </div>
+          <div class="column is-7-desktop p-5">
+            <div
+              class="columns is-mobile is-justify-content-center is-align-items-center"
+            >
               <div
-                class="col-12 col-md-9 col-lg-9"
-                :class="{ 'py-5': isDesktop, 'pt-5': isTablet }"
+                class="column is-12-mobile is-9-tablet is-9-desktop"
+                :class="{ 'py-5 my-4': isDesktop, 'pt-5': isTablet }"
               >
                 <h6 style="text-transform: uppercase">storage goes web3</h6>
                 <h4 class="mt-4">How do you store via the chain?</h4>
@@ -92,8 +104,8 @@
             </div>
           </div>
           <div
-            class="col-12 col-md-12 col-lg-5 order-2 order-md-2 order-lg-1 px-5 pb-5 d-flex justify-content-center aling-items-center"
-            :class="{ 'b-dashed-right pt-5': isDesktop }"
+            v-if="!isDesktop"
+            class="column is-5-desktop px-5 pt-0 pb-5 is-flex is-justify-content-center is-aling-items-center"
           >
             <div class="card-img" :class="{ 'pb-5': isTablet }">
               <img src="../assets/img/landing/img2.png" alt="" />
@@ -103,8 +115,10 @@
         <div v-if="isDesktop" class="gap-2"></div>
         <div v-if="!isDesktop" class="gap-1"></div>
         <!-- Third Section -->
-        <div class="row justify-content-center">
-          <div class="col-12 col-md-10 col-lg-6 text-center">
+        <div class="columns is-mobiler is-justify-content-center">
+          <div
+            class="column is-12-mobiler is-10-tablet is-6-desktop has-text-centered"
+          >
             <h6 style="text-transform: uppercase">all in one</h6>
             <h4 class="mt-4">One deal, many protocols</h4>
             <p class="mt-5 mb-5 pb-4">
@@ -124,9 +138,9 @@
         class="card-rect bg-theme-colored on-background p-5"
         :class="{ 'bg-light-desktop': isDesktop }"
       >
-        <div class="container-fluid text-center p-0">
-          <div class="row justify-content-center">
-            <div class="col-12 col-md-12 col-lg-8">
+        <div class="container has-text-centered p-0">
+          <div class="columns is-mobile is-justify-content-center">
+            <div class="column is-12-mobile is-12-tablet is-8-desktop">
               <h4 class="color-light">
                 Stay up to date on future <br v-if="!isMobile" />
                 developments

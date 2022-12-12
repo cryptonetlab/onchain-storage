@@ -21,7 +21,7 @@
       <!--END SIDEBAR SECTION -->
 
       <div
-        class="column m-0 px-6 pt-4"
+        class="column m-0 px-6 py-6"
         :class="{
           'is-8-desktop is-8-widescreen': utilsStore.showSidebar,
           'is-8-tablet is-9-desktop is-9-widescreen': !utilsStore.showSidebar,
@@ -72,10 +72,10 @@
               style="border-radius: 12px"
             /> -->
             <div
-              class="custom-user-card border-excludeAutoConnectprimary-lighter is-flex is-flex-direction-column is-justify-content-space-between"
+              class="custom-user-card border-primary-lighter is-flex is-flex-direction-column is-justify-content-space-between"
               style="width: 100%; height: 220px"
             >
-              <div class="p-4">
+              <div class="p-5">
                 <div
                   class="is-flex is-align-items-start is-justify-content-space-between"
                 >
@@ -83,8 +83,8 @@
                   <a
                     :href="'https://ipfs.io/ipfs/' + $route.params.id"
                     target="_blank"
-                    class="btn-lighter p-1"
-                    style="text-decoration: none"
+                    class="btn-lighter"
+                    style="text-decoration: none; padding: 5px !important"
                     ><i class="mdi mdi-eye" style="font-size: 1.5rem"></i
                   ></a>
                 </div>
@@ -106,9 +106,9 @@
               <div class="columns p-0 m-0 b-top-light">
                 <div class="column is-half p-0 m-0">
                   <!-- TODO: Make it Dynamic -->
-                  <div class="p-3">
+                  <div class="p-4">
                     <h5>Total Value</h5>
-                    <h2 class="mt-3">
+                    <h2 class="mt-4">
                       {{ totalValue }}
                       <span v-if="parseInt(web3Store.network) === 137"
                         >MATIC</span
@@ -118,9 +118,9 @@
                   </div>
                 </div>
                 <div class="column is-half b-left-light p-0 m-0">
-                  <div class="p-3">
+                  <div class="p-4">
                     <h5>Active Deals</h5>
-                    <div class="is-flex is-align-items-flex-end mt-3">
+                    <div class="is-flex is-align-items-flex-end mt-4">
                       <h2 class="m-0">{{ cid.active }}</h2>
                       <p v-if="cid.protocols" class="ml-2">
                         / on
@@ -135,7 +135,7 @@
           </div>
 
           <div>
-            <h2 class="mt-5 mb-3">Active protocols</h2>
+            <h2 class="mt-6 mb-3">Active protocols</h2>
             <ProtocolsList :deals="cid" />
           </div>
           <!-- END CID SPECS -->
@@ -148,14 +148,15 @@
 
           <!-- DEAL LIST -->
           <div>
-            <h2 class="mt-5 mb-4">Deal list</h2>
+            <h2 class="mt-6 mb-4">Deal list</h2>
             <DealFilters />
             <div
-              class="is-flex is-align-items-center is-justify-content-space-between mt-3 mb-3 px-4"
+              class="is-flex is-align-items-center is-justify-content-space-between my-4 px-5"
             >
               <div class="is-flex is-align-items-center">
                 <p style="width: 10.3rem">User</p>
-                <div v-if="isDesktop"
+                <div
+                  v-if="isDesktop"
                   class="is-flex is-align-items-center"
                   @click="orderAsc = !orderAsc"
                 >
@@ -318,6 +319,8 @@ export default {
       const app = this;
       if (app.isTablet) {
         app.utilsStore.showSidebar = false;
+      } else {
+        app.utilsStore.showSidebar = true;
       }
     },
     copyToClipboard() {

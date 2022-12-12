@@ -1,11 +1,11 @@
 <template>
   <div>
-    <p class="small mt-4 mb-2" style="font-weight: 500 !important">
+    <p class="small mt-5 mb-2" style="font-weight: 500 !important">
       Deal Summary
     </p>
     <div class="custom-card border-primary-lighter">
       <div
-        class="is-flex is-align-items-center is-justify-content-space-between dashboard p-3"
+        class="is-flex is-align-items-center is-justify-content-space-between py-4 px-3"
       >
         <p class="small">Deal duration</p>
         <p class="small">
@@ -14,7 +14,7 @@
       </div>
       <div class="divider"></div>
       <div
-        class="is-flex is-align-items-center is-justify-content-space-between dashboard p-3"
+        class="is-flex is-align-items-center is-justify-content-space-between py-4 px-3"
       >
         <p class="small">You are paying</p>
         <p>
@@ -23,7 +23,7 @@
       </div>
       <div class="divider"></div>
       <div
-        class="is-flex is-align-items-center is-justify-content-space-between p-3"
+        class="is-flex is-align-items-center is-justify-content-space-between py-4 px-3"
       >
         <p class="small">Network</p>
         <p class="break-word">

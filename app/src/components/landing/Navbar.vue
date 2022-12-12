@@ -4,17 +4,17 @@
     :class="{ sticky: !isMobile, 'fixed-pos slide-top': isFixed }"
     id="navbar-el"
   >
-    <div class="container p-0" :class="{ 'px-5': isMobile }">
+    <div class="container" :class="{ 'px-5': isMobile, 'p-0': isDesktop, }">
       <div
-        class="d-flex align-items-center"
+        class="is-flex is-align-items-center"
         :class="{
-          'justify-content-between': !isMobile,
-          'justify-content-center': isMobile,
+          'is-justify-content-space-between': !isMobile,
+          'is-justify-content-center': isMobile,
         }"
       >
-        <div class="d-flex align-items-center">
+        <div class="is-flex is-align-items-center">
           <img class="logo" src="../../assets/img/logo.svg" alt="" />
-          <a class="main-link ms-3" href="/">onchain.storage</a>
+          <a class="main-link ml-3" href="/">onchain.storage</a>
         </div>
         <div>
           <div @click="goToApp()" v-if="!isMobile" class="btn-transparent">
