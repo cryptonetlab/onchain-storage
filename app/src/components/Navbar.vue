@@ -180,12 +180,14 @@
                     v-for="net in web3Store.networks"
                     :value="net"
                     :key="net"
+                    class="is-flex is-align-items-center"
                   >
-                    <span>
-                      <IcoEth class="mr-1" v-if="net === 'goerli'" /><IcoPolygon
-                        class="mr-1"
+                    <div class="mr-2">
+                      <IcoEth v-if="net === 'goerli'" /><IcoPolygon
                         v-if="net === 'polygon'"
                       />
+                    </div>
+                    <span style="font-size: 13px; font-weight: 600">
                       {{ net }}</span
                     >
                   </li>

@@ -72,7 +72,12 @@
               <Transition enter-active-class="fade-in">
                 <div v-if="!isCopying" class="is-flex is-align-items-center">
                   <p>
-                    {{ web3Store.account }}
+                    <span v-if="$route.name !== 'wallet-specs'">
+                      {{ web3Store.account }}</span
+                    >
+                    <span v-if="$route.name === 'wallet-specs'">
+                      {{ wallet }}</span
+                    >
                   </p>
 
                   <div class="pointer ml-4" @click="copyToClipboard()">
@@ -274,16 +279,30 @@ export default {
   methods: {
     copyToClipboard() {
       const app = this;
-      if (app.wallet) {
-        app.isCopying = true;
-        let copyText = app.wallet;
-        navigator.clipboard.writeText(copyText).then(() => {
-          console.log("Copied to Clipboard");
-        });
+      if (app.$route.name === "wallet-specs") {
+        if (app.wallet) {
+          app.isCopying = true;
+          let copyText = app.wallet;
+          navigator.clipboard.writeText(copyText).then(() => {
+            console.log("Copied to Clipboard");
+          });
+        } else {
+          console.log("Nothing to copy, make sure that you're connected!");
+          app.isCopying = false;
+        }
       } else {
-        console.log("Nothing to copy, make sure that you're connected!");
-        app.isCopying = false;
+        if (app.web3Store.account) {
+          app.isCopying = true;
+          let copyText = app.web3Store.account;
+          navigator.clipboard.writeText(copyText).then(() => {
+            console.log("Copied to Clipboard");
+          });
+        } else {
+          console.log("Nothing to copy, make sure that you're connected!");
+          app.isCopying = false;
+        }
       }
+
       setTimeout(function () {
         app.isCopying = false;
       }, 1000);
