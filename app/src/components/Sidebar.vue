@@ -26,7 +26,7 @@
         <!-- PAGE LINK -->
         <a
           href="/#/app/"
-          class="is-flex is-align-items-center sidebar-link px-5 pt-6 pb-4"
+          class="is-flex is-align-items-center sidebar-link px-5 mt-6 py-3"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
           }"
@@ -43,7 +43,7 @@
         </a>
         <a
           href="/#/app/deal-maker-tool"
-          class="is-flex is-align-items-center sidebar-link px-5 py-4"
+          class="is-flex is-align-items-center sidebar-link px-5 py-3"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
           }"
@@ -59,7 +59,7 @@
           </div>
         </a>
         <div
-          class="is-flex is-align-items-center disabled sidebar-link px-5 py-4"
+          class="is-flex is-align-items-center disabled sidebar-link px-5 py-3"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
             'is-justify-content-space-between': utilsStore.showSidebar,
@@ -95,7 +95,7 @@
           >
         </div> -->
         <a
-          class="disabled is-flex is-align-items-center sidebar-link px-5 py-4"
+          class="disabled is-flex is-align-items-center sidebar-link px-5 py-3"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
             'is-justify-content-space-between': utilsStore.showSidebar,
@@ -118,7 +118,7 @@
           </div>
         </a>
         <a
-          class="disabled is-flex is-align-items-center sidebar-link px-5 py-4"
+          class="disabled is-flex is-align-items-center sidebar-link px-5 py-3"
           :class="{
             'is-justify-content-center': !utilsStore.showSidebar,
             'is-justify-content-space-between': utilsStore.showSidebar,

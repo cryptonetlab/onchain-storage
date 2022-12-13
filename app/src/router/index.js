@@ -3,9 +3,9 @@ import VueRouter from "vue-router";
 
 // App
 import Dashboard from "../views/Dashboard.vue";
-import MyDeals from "../views/MyDeals.vue";
 import CreateDeal from "../views/CreateDeal.vue";
 import CIDSpec from "../views/CIDSpec.vue";
+import Wallet from "../views/Wallet.vue";
 
 // Landing Page
 import Landing from "../views/Landing.vue";
@@ -22,19 +22,14 @@ const routes = [
     component: Dashboard,
   },
   {
+    path: "/app/wallet/:wallet",
+    name: "wallet-specs",
+    component: Wallet,
+  },
+  {
     path: "/app/cid/:id",
     name: "cid-specs",
     component: CIDSpec,
-  },
-  {
-    path: "/app/my-deals/:searcher",
-    name: "deal-list",
-    component: MyDeals,
-  },
-  {
-    path: "/app/my-deals",
-    name: "deal-list",
-    component: MyDeals,
   },
   {
     path: "/app/deal-maker-tool",

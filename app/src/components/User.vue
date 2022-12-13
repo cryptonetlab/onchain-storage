@@ -10,8 +10,14 @@
           <div
             class="is-flex is-flex-grow-2 is-align-items-start is-justify-content-space-between"
           >
-            <p class="small mb-4">Personal Account</p>
+            <p v-if="$route.name !== 'wallet-specs'" class="small mb-4">
+              Personal Account
+            </p>
+            <p v-if="$route.name === 'wallet-specs'" class="small mb-4">
+              User Account
+            </p>
             <div
+              v-if="$route.name !== 'wallet-specs'"
               class="btn-icon-transparent pointer"
               @click="web3Store.disconnect()"
             >
@@ -20,26 +26,48 @@
           </div>
 
           <div class="is-flex is-flex-grow-0 is-align-items-center">
-            <v-gravatar
-              v-if="isDesktop"
-              class="gravatar mr-4"
-              :email="web3Store.account"
-              :size="95"
-            />
+            <div v-if="$route.name !== 'wallet-specs'">
+              <v-gravatar
+                v-if="isDesktop"
+                class="gravatar mr-4"
+                :email="web3Store.account"
+                :size="95"
+              />
 
-            <v-gravatar
-              v-if="!isDesktop"
-              class="gravatar mr-4"
-              :email="web3Store.account"
-              :size="50"
-            />
+              <v-gravatar
+                v-if="!isDesktop"
+                class="gravatar mr-4"
+                :email="web3Store.account"
+                :size="50"
+              />
+            </div>
+
+            <div v-if="$route.name === 'wallet-specs'">
+              <v-gravatar
+                v-if="isDesktop"
+                class="gravatar mr-4"
+                :email="wallet"
+                :size="95"
+              />
+
+              <v-gravatar
+                v-if="!isDesktop"
+                class="gravatar mr-4"
+                :email="wallet"
+                :size="50"
+              />
+            </div>
 
             <div>
               <h3 class="mt-1 mb-2" style="font-weight: 700">
                 <span v-if="web3Store.ensAccount">{{
                   web3Store.ensAccount
                 }}</span>
-                <span v-if="!web3Store.ensAccount">My account</span>
+                <span
+                  v-if="!web3Store.ensAccount && $route.name !== 'wallet-specs'"
+                  >My account</span
+                >
+                <span v-if="$route.name === 'wallet-specs'">Wallet </span>
               </h3>
               <Transition enter-active-class="fade-in">
                 <div v-if="!isCopying" class="is-flex is-align-items-center">
@@ -211,6 +239,7 @@ import IcoDisconnect from "@/components/elements/IcoDisconnect.vue";
 export default {
   name: "user",
   mixins: [checkViewport],
+  props: ["wallet"],
   components: {
     IcoCopy,
     IcoDisconnect,
@@ -245,9 +274,9 @@ export default {
   methods: {
     copyToClipboard() {
       const app = this;
-      if (app.web3Store.account) {
+      if (app.wallet) {
         app.isCopying = true;
-        let copyText = app.web3Store.account;
+        let copyText = app.wallet;
         navigator.clipboard.writeText(copyText).then(() => {
           console.log("Copied to Clipboard");
         });
@@ -259,62 +288,6 @@ export default {
         app.isCopying = false;
       }, 1000);
     },
-    toggleWithdraw() {
-      const app = this;
-      app.isWithdraw = !this.isWithdraw;
-    },
-    // async withdraw() {
-    //   const app = this;
-    //   if (!app.isWorking) {
-    //     app.isWorking = true;
-    //     app.showLoadingToast("Please confirm action with metamask..");
-    //     try {
-    //       const contract = new app.web3Store.web3.eth.Contract(
-    //         app.abi,
-    //         app.web3Store.protocolsContracts.Retriev
-    //       );
-    //       const balance = await contract.methods
-    //         .vault(app.web3Store.account)
-    //         .call();
-    //       app.log("Balance found in contract is: " + balance);
-    //       if (balance > 0) {
-    //         const gasPrice = await app.web3Store.web3.eth.getGasPrice();
-    //         await contract.methods
-    //           .withdrawFromVault(balance)
-    //           .send({
-    //             from: app.web3Store.account,
-    //             gasPrice,
-    //           })
-    //           .on("transactionHash", (tx) => {
-    //             this.$toast.warning("Found pending transaction at: " + tx, {
-    //               position: "top-right",
-    //               timeout: 15000,
-    //               closeOnClick: true,
-    //               pauseOnFocusLoss: true,
-    //               pauseOnHover: true,
-    //               draggable: true,
-    //               draggablePercent: 0.6,
-    //               showCloseButtonOnHover: true,
-    //               hideProgressBar: true,
-    //               closeButton: "button",
-    //               icon: "fa-solid fa-arrow-right-arrow-left",
-    //               rtl: false,
-    //             });
-    //             app.log(app.workingMessage);
-    //           });
-    //         app.$toast.clear();
-    //         app.alertCustomError("Withdraw done!");
-    //         app.loadState();
-    //       } else {
-    //         app.isWorking = false;
-    //         app.alertCustomError("You have nothing to withdraw");
-    //       }
-    //     } catch (e) {
-    //       app.isWorking = false;
-    //       app.alertCustomError(e.message);
-    //     }
-    //   }
-    // },
   },
 };
 </script>

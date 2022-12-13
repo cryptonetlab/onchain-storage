@@ -154,7 +154,7 @@
               class="is-flex is-align-items-center is-justify-content-space-between my-4 px-5"
             >
               <div class="is-flex is-align-items-center">
-                <p style="width: 10.3rem">User</p>
+                <p style="width: 10.3rem">Wallet</p>
                 <div
                   v-if="isDesktop"
                   class="is-flex is-align-items-center"

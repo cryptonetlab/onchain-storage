@@ -4,7 +4,7 @@
       <div class="custom-card" :class="{ pointer: !isOpen }">
         <div class="card-header p-0 is-justify-content-space-between">
           <div class="is-flex is-align-items-center">
-            <div>
+            <a :href="'/#/app/wallet/' + user">
               <h4
                 class="px-4"
                 style="
@@ -15,7 +15,7 @@
               >
                 <span>{{ user.substr(0, 4) + "..." + user.substr(-4) }}</span>
               </h4>
-            </div>
+            </a>
             <div @click="copyToClipboard()" class="ml-3">
               <IcoCopy />
             </div>
