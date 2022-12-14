@@ -59,15 +59,22 @@
             </div>
 
             <div>
-              <h3 class="mt-1 mb-2" style="font-weight: 700">
+              <h3
+                v-if="$route.name !== 'wallet-specs'"
+                class="mt-1 mb-2"
+                style="font-weight: 700"
+              >
                 <span v-if="web3Store.ensAccount">{{
                   web3Store.ensAccount
                 }}</span>
-                <span
-                  v-if="!web3Store.ensAccount && $route.name !== 'wallet-specs'"
-                  >My account</span
-                >
-                <span v-if="$route.name === 'wallet-specs'">Wallet </span>
+                <span v-if="!web3Store.ensAccount">My account</span>
+              </h3>
+              <h3
+                v-if="$route.name === 'wallet-specs'"
+                class="mt-1 mb-2"
+                style="font-weight: 700"
+              >
+                Wallet
               </h3>
               <Transition enter-active-class="fade-in">
                 <div v-if="!isCopying" class="is-flex is-align-items-center">

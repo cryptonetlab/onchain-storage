@@ -33,7 +33,7 @@
               class="badge-protocol ml-3"
             >
               <span style="text-transform: uppercase">
-                <b>{{ protocol.split("-")[1].toString() }}</b></span
+                <b>{{ protocol.split("-")[0].toString() }}</b></span
               >
             </div>
 
@@ -111,6 +111,7 @@
                     <p v-if="parseInt(deal.left) === 0">
                       <b>Expired</b>
                     </p>
+                    <p v-if="deal.expiration === 'NaN'"><b>N/A</b></p>
                   </div>
                   <div
                     v-if="deal.provider.length === 0"

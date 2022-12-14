@@ -22,7 +22,13 @@
             </Transition>
 
             <div v-if="isDesktop" class="ml-6">
-              <p>Time Left: {{ secondsToD(longestDeal / 1000) }}</p>
+              <p>
+                Time Left:
+                <span v-if="parseInt(longestDeal) > 0">
+                  {{ secondsToD(longestDeal / 1000) }}
+                </span>
+                <span v-if="parseInt(longestDeal) === 0"> Expired </span>
+              </p>
             </div>
           </div>
 
