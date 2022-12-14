@@ -63,7 +63,6 @@
           </div>
         </div>
         <!-- END LOADER -->
-
         <div
           v-if="
             web3Store.connected &&
@@ -79,7 +78,10 @@
 
             <div
               v-if="
-                userStore.deals !== undefined && userStore.deals !== 'error-api'
+                userStore.deals !== undefined &&
+                userStore.deals !== 'error-api' &&
+                userStore.deals !== undefined &&
+                userStore.deals.active > 0
               "
             >
               <div>
@@ -109,6 +111,7 @@
 
                 <p style="margin-right: 3.3rem !important">Protocol(s)</p>
               </div>
+
               <div
                 v-if="userStore.deals !== undefined"
                 class="custom-card border-primary-lighter"

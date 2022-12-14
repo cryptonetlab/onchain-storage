@@ -152,6 +152,14 @@
                     <IcoEth />
                     <b class="ml-2"> Goerli</b>
                   </div>
+
+                  <div
+                    class="is-flex is-align-items-center"
+                    v-if="parseInt(web3Store.network) === 1"
+                  >
+                    <IcoEth />
+                    <b class="ml-2"> Ethereum</b>
+                  </div>
                   <div
                     class="is-flex is-align-items-center"
                     v-if="web3Store.selectedContract === 'polygon'"

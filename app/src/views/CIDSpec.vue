@@ -149,7 +149,7 @@
           <!-- DEAL LIST -->
           <div>
             <h2 class="mt-6 mb-4">Deal list</h2>
-            <DealFilters />
+            <DealFilters @filterActive="filterActive()" />
             <div
               class="is-flex is-align-items-center is-justify-content-space-between my-4 px-5"
             >
@@ -172,7 +172,7 @@
               <p style="margin-right: 3.3rem !important">Protocol(s)</p>
             </div>
             <div class="custom-card border-primary-lighter mt-2">
-              <div v-for="(user, index) in cid.deals" :key="index">
+              <div v-for="(user, index) in filteredDeals" :key="index">
                 <SingleUser
                   :deals="user"
                   :user="index"
@@ -244,6 +244,8 @@ export default {
   data() {
     return {
       cid: {},
+      allDeals: [],
+      filteredDeals: [],
       api: process.env.VUE_APP_API_ONCHAINSTORAGE,
       protocols: [],
       totalValue: 0,
@@ -297,6 +299,8 @@ export default {
             cidAddress
         );
         app.cid = cid.data;
+        app.allDeals = app.cid.deals;
+        app.filteredDeals = app.cid.deals;
         console.log("THIS IS CID", app.cid);
         app.totalValue = parseFloat(
           app.web3Store.web3.utils.fromWei(app.cid.value.toString(), "ether")
@@ -315,6 +319,7 @@ export default {
         app.isLoadingCID = false;
       }
     },
+
     checkTabletViewport() {
       const app = this;
       if (app.isTablet) {

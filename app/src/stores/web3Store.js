@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import Web3 from "web3";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import { connect } from "socket.io-client";
 
 ////////////////////////////////////////////////////////////
 const CONFIG = require("../config.json");
@@ -21,6 +22,7 @@ export const useWeb3Store = defineStore("web3", {
     network: 137,
     explorer: "https://polygonscan.com/tx/",
     connected: false,
+    contractsFound: false,
     account: "",
     networks: [],
     ensAccount: "",
@@ -111,7 +113,6 @@ export const useWeb3Store = defineStore("web3", {
       );
 
       app.fetchEndpoints();
-      await app.connect();
     },
     async fetchEndpoints() {
       const app = this;
@@ -136,14 +137,15 @@ export const useWeb3Store = defineStore("web3", {
     // End fetching data from API and SC
 
     //Switch network fucntions (the first is auto and manual the second one)
-    async switchNetwork() {
+    async switchNetwork(networkSelected) {
       const app = this;
+      console.log("try switch network");
       try {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: "0x" + Number(app.network).toString(16),
+              chainId: "0x" + Number(networkSelected).toString(16),
             },
           ],
         });
@@ -161,7 +163,7 @@ export const useWeb3Store = defineStore("web3", {
               method: "wallet_addEthereumChain",
               params: [
                 {
-                  chainId: "0x" + Number(app.network).toString(16),
+                  chainId: "0x" + Number(networkSelected).toString(16),
                   blockExplorerUrls: ["https://polygonscan.com/"],
                   chainName: "Polygon Mainnet",
                   nativeCurrency: {
@@ -185,16 +187,43 @@ export const useWeb3Store = defineStore("web3", {
       }
       window.location.reload();
     },
-    switchContract(net) {
+    async switchContract(net) {
       const app = this;
       app.isLoadingState = true;
-      console.log("NEt is", net);
-      localStorage.setItem("contract", net);
-      console.log(
-        "Funtcion selectContract CONTRACT",
-        localStorage.getItem("contract")
-      );
-      window.location.reload();
+      // console.log("NEt is", net);
+      // localStorage.setItem("contract", net);
+      // console.log(
+      //   "Funtcion selectContract CONTRACT",
+      //   localStorage.getItem("contract")
+      // );
+      // window.location.reload();
+      console.log("NET IS:", net);
+      const netId = await app.web3.eth.net.getId();
+      let networkSelected;
+      if (net === "polygon") {
+        app.selectedContract = localStorage.setItem("contract", "polygon");
+        networkSelected = 137;
+        console.log(
+          "network selected",
+          networkSelected,
+          localStorage.getItem("contract")
+        );
+      } else if (net === "goerli") {
+        app.selectedContract = localStorage.setItem("contract", "goerli");
+        networkSelected = 5;
+        console.log(
+          "network selected",
+          networkSelected,
+          localStorage.getItem("contract")
+        );
+      }
+      console.log("NET ID IS", netId);
+      if (parseInt(netId) !== parseInt(networkSelected)) {
+        console.log("SWITCHING NETWORK");
+        app.switchNetwork(networkSelected);
+      } else {
+        window.location.reload();
+      }
     },
     // End switch network
 
@@ -227,17 +256,39 @@ export const useWeb3Store = defineStore("web3", {
       }
 
       const netId = await app.web3.eth.net.getId();
+      app.contractsFound = false;
+      // Goerli or Polygon
+      if (parseInt(netId) === 5) {
+        app.network = 5;
+        localStorage.setItem("contract", "goerli");
+        app.contractsFound = true;
+        await app.fetchingContract();
+      } else if (parseInt(netId) === 137) {
+        app.network = 137;
+        localStorage.setItem("contract", "polygon");
+        app.contractsFound = true;
+        await app.fetchingContract();
+      } else {
+        app.network = netId;
+      }
       console.log("Current network is:", netId);
 
-      if (parseInt(netId) === parseInt(app.network)) {
+      if (app.contractsFound) {
         try {
           const accounts = await app.web3.eth.getAccounts();
-          // window.ethereum.on("accountsChanged", function (accounts) {
-          //   console.log("account changed ====>", accounts[0]);
-          //   setTimeout(function () {
-          //     window.location.reload();
-          //   }, 1000);
-          // });
+          window.ethereum.on("accountsChanged", function (accounts) {
+            console.log("account changed ====>", accounts[0]);
+            setTimeout(function () {
+              window.location.reload();
+            }, 1000);
+          });
+          // detect Network account change
+          window.ethereum.on("networkChanged", function (networkId) {
+            console.log("networkChanged", networkId);
+            setTimeout(function () {
+              window.location.reload();
+            }, 1000);
+          });
           if (accounts.length > 0) {
             app.account = accounts[0];
             localStorage.setItem("connected", true);
@@ -281,10 +332,6 @@ export const useWeb3Store = defineStore("web3", {
           app.connected = false;
           // window.location = "/#/";
         }
-      } else {
-        localStorage.setItem("connected", false);
-        app.connected = false;
-        app.switchNetwork();
       }
       app.isLoadingState = false;
     },

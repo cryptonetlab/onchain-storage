@@ -21,7 +21,7 @@ export default {
         if (!app.web3Store.web3) {
           try {
             app.web3Store.fetchNetowrk();
-            await app.web3Store.fetchingContract();
+            await app.web3Store.connect();
           } catch (e) {
             console.log("Fetching Networks failed!");
           }
@@ -36,7 +36,7 @@ export default {
       if (!app.web3Store.web3) {
         try {
           app.web3Store.fetchNetowrk();
-          await app.web3Store.fetchingContract();
+          await app.web3Store.connect();
         } catch (e) {
           console.log("Fetching Networks failed!");
         }
