@@ -126,7 +126,7 @@
 
             <!-- Select Blockchain contract -->
             <div
-              v-if="!web3Store.isLoadingState"
+              v-if="!web3Store.isLoadingState && web3Store.connected"
               class="custom_dropdown-2 mr-1"
             >
               <div

@@ -1,9 +1,7 @@
 <template>
   <div>
-    <div
-      class="columns p-0 m-0 is-centered"
-      v-if="!web3Store.connected && web3Store.contractsFound"
-    >
+    <!-- NO CONNECTION FOUND -->
+    <div class="columns p-0 m-0 is-centered" v-if="!web3Store.connected">
       <div
         class="custom-card border-primary-lighter column is-9 has-text-centered mt-5 py-5"
         style="position: relative; z-index: 9999"
@@ -16,7 +14,17 @@
         </div>
       </div>
     </div>
-    <div class="columns p-0 m-0 is-centered" v-if="!web3Store.contractsFound">
+    <!-- END NO CONNECTION FOUND -->
+
+    <!-- Check cotract found -->
+    <div
+      class="columns p-0 m-0 is-centered"
+      v-if="
+        !web3Store.contractsFound &&
+        !web3Store.isLoadingState &&
+        web3Store.connected
+      "
+    >
       <div
         class="custom-card border-primary-lighter column is-9 has-text-centered mt-5 py-5"
         style="position: relative; z-index: 9999"
@@ -35,6 +43,9 @@
         </div>
       </div>
     </div>
+    <!-- End check contract found -->
+
+    <!-- No deals Message -->
     <div
       v-if="
         web3Store.connected &&
@@ -66,6 +77,7 @@
         </div>
       </div>
     </div>
+    <!-- END no deals message -->
   </div>
 </template>
 
