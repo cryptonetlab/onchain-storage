@@ -249,7 +249,6 @@ export default {
               if (name === "connect" || name === "switchNetwork") {
                 console.log("Try load State");
                 if (store.web3) {
-                  console.log("init loadState");
                   app.stateIsLoaded = true;
                   await app.loadState();
                   unsubscribe();

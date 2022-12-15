@@ -613,7 +613,8 @@ span.small {
 .btn-account {
   @include font-albert;
   padding: 8px 11px !important;
-  border-radius: 9px !important;
+  border-top-right-radius: 9px !important;
+  border-bottom-right-radius: 9px !important ;
   box-sizing: border-box;
   letter-spacing: 0.04em !important;
   font-size: 0.813rem !important;
@@ -754,24 +755,30 @@ span.small {
   @include btn-dark();
 }
 
+.ico-disconnected {
+  path {
+    stroke: #6d6d6d !important;
+  }
+}
 .btn-icon-transparent {
-  background-color: transparent;
-  text-transform: uppercase;
+  height: 46px;
+  width: 46px;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px;
-  cursor: pointer;
+  border-radius: 9px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right-style: solid;
+  border-right-width: 1px;
   transition: all 0.3s;
+  text-transform: uppercase;
   @include font-albert;
   font-size: 1.4rem;
-  color: var(--theme-color);
-  border: 1px solid var(--theme-color);
-  border-radius: 9px !important;
-  transition: all 0.3s;
+  cursor: pointer;
   &:hover {
-    background-color: var(--theme-color);
+    background-color: var(--theme-color) !important;
     transition: all 0.3s;
     color: var(--primary-color-contrast);
     svg {
@@ -2060,13 +2067,12 @@ hr {
   }
 }
 
-
 .fade-in {
-	-webkit-animation: fade-in 1.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
-	        animation: fade-in 1.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+  -webkit-animation: fade-in 1.2s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+  animation: fade-in 1.2s cubic-bezier(0.39, 0.575, 0.565, 1) both;
 }
 
- @-webkit-keyframes fade-in {
+@-webkit-keyframes fade-in {
   0% {
     opacity: 0;
   }

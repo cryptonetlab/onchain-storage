@@ -54,17 +54,14 @@ export const useWeb3Store = defineStore("web3", {
         app.connected = true;
       }
       app.isLoadingState = true;
+      // console.log("fetchingContract loading state:", app.isLoadingState);
+
       // Fetching data by contract selected
       if (localStorage.getItem("contract") === null) {
         localStorage.setItem("contract", "polygon");
       }
-      // if (window.ethereum !== undefined) {
-      //   window.ethereum.on("chainChanged", function (accounts) {
-      //     app.connect();
-      //   });
-      // }
       app.selectedContract = localStorage.getItem("contract");
-      console.log("CONTRACT Selected is:", app.selectedContract);
+      // console.log("CONTRACT Selected is:", app.selectedContract);
 
       if (app.selectedContract === "polygon") {
         (app.protocolsContracts = {
@@ -104,15 +101,10 @@ export const useWeb3Store = defineStore("web3", {
         app.explorer = "https://polygonscan.com/tx/";
       }
 
-      console.log(
-        "contract spec",
-        "address",
-        app.protocolsContracts,
-        "network",
-        app.network
-      );
-
+      // Fetching data from API
       app.fetchEndpoints();
+      app.isLoadingState = false;
+      // console.log("fetchingEnpoints loading state (end):", app.isLoadingState);
     },
     async fetchEndpoints() {
       const app = this;
@@ -139,6 +131,8 @@ export const useWeb3Store = defineStore("web3", {
     //Switch network fucntions (the first is auto and manual the second one)
     async switchNetwork(networkSelected) {
       const app = this;
+      app.isLoadingState = true;
+      // console.log("switch network loading state:", app.isLoadingState);
       console.log("try switch network");
       try {
         await window.ethereum.request({
@@ -180,9 +174,13 @@ export const useWeb3Store = defineStore("web3", {
             }, 100);
           } catch (e) {
             alert("Can't add Polygon network, please do it manually.");
+            app.isLoadingState = false;
+            console.log("swhitch error 1 loading state:", app.isLoadingState);
           }
         } else {
           alert("Can't switch network, please do it manually.");
+          app.isLoadingState = false;
+          console.log("switch error 2 loading state:", app.isLoadingState);
         }
       }
       window.location.reload();
@@ -190,13 +188,8 @@ export const useWeb3Store = defineStore("web3", {
     async switchContract(net) {
       const app = this;
       app.isLoadingState = true;
-      // console.log("NEt is", net);
-      // localStorage.setItem("contract", net);
-      // console.log(
-      //   "Funtcion selectContract CONTRACT",
-      //   localStorage.getItem("contract")
-      // );
-      // window.location.reload();
+      // console.log("switchContract loading state (init):", app.isLoadingState);
+
       console.log("NET IS:", net);
       const netId = await app.web3.eth.net.getId();
       let networkSelected;
@@ -230,6 +223,8 @@ export const useWeb3Store = defineStore("web3", {
     // Connect wallet functions
     async connect() {
       const app = this;
+      app.isLoadingState = true;
+      // console.log("connect loading state (init):", app.isLoadingState);
       let providerOptions = {};
       if (app.infuraId !== undefined) {
         providerOptions = {
@@ -243,20 +238,20 @@ export const useWeb3Store = defineStore("web3", {
       }
       // Instantiating Web3Modal
       const web3Modal = new Web3Modal({
-        cacheProvider: true,
+        cacheProvider: false,
         providerOptions: providerOptions,
       });
 
       try {
-        const provider = await web3Modal.connect();
+        const provider = await web3Modal.connect({ force: true });
         app.web3 = await new Web3(provider);
       } catch (e) {
         console.log("PROVIDER_ERROR", e.message);
-        // window.location = "/#/";
       }
 
       const netId = await app.web3.eth.net.getId();
       app.contractsFound = false;
+
       // Goerli or Polygon
       if (parseInt(netId) === 5) {
         app.network = 5;
@@ -334,8 +329,9 @@ export const useWeb3Store = defineStore("web3", {
         }
       }
       app.isLoadingState = false;
+      // console.log("connect loading state (end):", app.isLoadingState);
     },
-    disconnect() {
+    async disconnect() {
       const app = this;
       localStorage.setItem("connected", false);
       app.connected = false;

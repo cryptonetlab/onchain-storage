@@ -16,13 +16,6 @@
             <p v-if="$route.name === 'wallet-specs'" class="small mb-4">
               User Account
             </p>
-            <div
-              v-if="$route.name !== 'wallet-specs'"
-              class="btn-icon-transparent pointer"
-              @click="web3Store.disconnect()"
-            >
-              <IcoDisconnect />
-            </div>
           </div>
 
           <div class="is-flex is-flex-grow-0 is-align-items-center">
@@ -246,7 +239,6 @@ const abi = require("../components/retrieval-pinning/abi.json");
 // Elements adn Icons
 import IcoCopy from "@/components/elements/IcoCopy.vue";
 import Spinner from "@/components/elements/IcoSpinner.vue";
-import IcoDisconnect from "@/components/elements/IcoDisconnect.vue";
 
 export default {
   name: "user",
@@ -254,7 +246,6 @@ export default {
   props: ["wallet"],
   components: {
     IcoCopy,
-    IcoDisconnect,
     Spinner,
   },
   data() {

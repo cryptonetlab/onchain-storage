@@ -63,6 +63,7 @@
           </div>
         </div>
         <!-- END LOADER -->
+        
         <div
           v-if="
             web3Store.connected &&
@@ -235,7 +236,6 @@ export default {
         after(async () => {
           if (name === "connect" || name === "switchNetwork") {
             if (store.web3) {
-              console.log("init loadState");
               app.userStore.fetchDeals(
                 app.web3Store.selectedContract,
                 app.web3Store.account,

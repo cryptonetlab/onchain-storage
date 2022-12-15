@@ -61,7 +61,7 @@
           >
             <div
               class="loading_box mr-4"
-              style="width: 153px; height: 47px"
+              style="width: 200px; height: 47px"
             ></div>
             <div
               class="loading_box mr-4"
@@ -74,6 +74,27 @@
             class="is-flex is-align-items-center"
             :class="{ 'is-justify-content-flex-end': !isMobile }"
           >
+            <!-- Disconnect button -->
+            <div
+              v-if="
+                $route.name !== 'wallet-specs' &&
+                web3Store.account &&
+                !web3Store.isLoadingState
+              "
+              class="btn-icon-transparent"
+              @click="web3Store.disconnect()"
+              :style="[
+                web3Store.connected
+                  ? { backgroundColor: '#E3EBFF', borderColor: '#0042ec' }
+                  : { backgroundColor: '#d7d7d7', borderColor: '#6d6d6d' },
+              ]"
+            >
+              <IcoDisconnect
+                :class="{ 'ico-disconnected': !web3Store.connected }"
+              />
+            </div>
+            <!-- END disconnect button -->
+
             <!-- Profile Details -->
             <a
               href="/#/app"
@@ -209,7 +230,9 @@
               v-if="
                 web3Store.feeData !== undefined &&
                 web3Store.feeData.length !== 0 &&
-                !web3Store.isLoadingState
+                !web3Store.isLoadingState &&
+                web3Store.account &&
+                web3Store.connected
               "
               class="is-flex is-align-items-center me-10-desktop"
             >
@@ -304,6 +327,7 @@ import checkViewport from "@/mixins/checkViewport";
 import IcoPolygon from "@/components/elements/IcoPolygon.vue";
 import IcoEth from "@/components/elements/IcoEth.vue";
 import IcoChevronRight from "@/components/elements/IcoChevronRight.vue";
+import IcoDisconnect from "@/components/elements/IcoDisconnect.vue";
 
 export default {
   mixins: [checkViewport],
@@ -312,6 +336,7 @@ export default {
     IcoEth,
     IcoPolygon,
     IcoChevronRight,
+    IcoDisconnect,
   },
   data() {
     return {
