@@ -238,7 +238,7 @@ export const useWeb3Store = defineStore("web3", {
       }
       // Instantiating Web3Modal
       const web3Modal = new Web3Modal({
-        cacheProvider: false,
+        cacheProvider: true,
         providerOptions: providerOptions,
       });
 
@@ -268,66 +268,65 @@ export const useWeb3Store = defineStore("web3", {
       }
       console.log("Current network is:", netId);
 
-      if (app.contractsFound) {
-        try {
-          const accounts = await app.web3.eth.getAccounts();
-          window.ethereum.on("accountsChanged", function (accounts) {
-            console.log("account changed ====>", accounts[0]);
-            setTimeout(function () {
-              window.location.reload();
-            }, 1000);
-          });
-          // detect Network account change
-          window.ethereum.on("networkChanged", function (networkId) {
-            console.log("networkChanged", networkId);
-            setTimeout(function () {
-              window.location.reload();
-            }, 1000);
-          });
-          if (accounts.length > 0) {
-            app.account = accounts[0];
-            localStorage.setItem("connected", true);
-            app.connected = true;
-            app.accountBalance = await app.web3.eth.getBalance(accounts[0]);
-            console.log("account balance is", app.accountBalance);
-            app.accountBalance = parseFloat(
-              app.web3.utils.fromWei(app.accountBalance, "ether")
-            ).toFixed(10);
-            // const provider = new ethers.providers.Web3Provider(window.ethereum);
+      try {
+        const accounts = await app.web3.eth.getAccounts();
+        window.ethereum.on("accountsChanged", function (accounts) {
+          console.log("account changed ====>", accounts[0]);
+          setTimeout(function () {
+            window.location.reload();
+          }, 1000);
+        });
+        // detect Network account change
+        window.ethereum.on("networkChanged", function (networkId) {
+          console.log("networkChanged", networkId);
+          setTimeout(function () {
+            window.location.reload();
+          }, 1000);
+        });
+        if (accounts.length > 0) {
+          app.account = accounts[0];
+          localStorage.setItem("connected", true);
+          app.connected = true;
+          app.accountBalance = await app.web3.eth.getBalance(accounts[0]);
+          console.log("account balance is", app.accountBalance);
+          app.accountBalance = parseFloat(
+            app.web3.utils.fromWei(app.accountBalance, "ether")
+          ).toFixed(10);
+          // const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-            const provider =
-              window.ethereum != null
-                ? new ethers.providers.Web3Provider(window.ethereum)
-                : ethers.providers.getDefaultProvider();
-            // Check ENS NAME
-            try {
-              app.ensAccount = await provider.lookupAddress(app.account);
-            } catch (e) {
-              console.log("No ENS Registered or compatible");
-            }
-            // Check Fee Data of the Network
-            try {
-              app.feeData = await provider.getFeeData();
-              app.feeData = ethers.utils.formatUnits(
-                app.feeData.maxFeePerGas,
-                "gwei"
-              );
-              console.log("fee data is", app.feeData);
-            } catch (e) {
-              console.log(e.message);
-            }
-          } else {
-            // window.location = "/";
-            localStorage.setItem("connected", false);
-            app.connected = false;
+          const provider =
+            window.ethereum != null
+              ? new ethers.providers.Web3Provider(window.ethereum)
+              : ethers.providers.getDefaultProvider();
+          // Check ENS NAME
+          try {
+            app.ensAccount = await provider.lookupAddress(app.account);
+          } catch (e) {
+            console.log("No ENS Registered or compatible");
           }
-        } catch (e) {
-          console.log("USER_CONNECT", e);
+          // Check Fee Data of the Network
+          try {
+            app.feeData = await provider.getFeeData();
+            app.feeData = ethers.utils.formatUnits(
+              app.feeData.maxFeePerGas,
+              "gwei"
+            );
+            console.log("fee data is", app.feeData);
+          } catch (e) {
+            console.log(e.message);
+          }
+        } else {
+          // window.location = "/";
           localStorage.setItem("connected", false);
           app.connected = false;
-          // window.location = "/#/";
         }
+      } catch (e) {
+        console.log("USER_CONNECT", e);
+        localStorage.setItem("connected", false);
+        app.connected = false;
+        // window.location = "/#/";
       }
+
       app.isLoadingState = false;
       // console.log("connect loading state (end):", app.isLoadingState);
     },
