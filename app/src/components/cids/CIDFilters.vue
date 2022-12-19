@@ -31,13 +31,13 @@
           v-if="filterStatus"
           class="custom_dropdown__items"
         >
-          <li>
+          <li @click="$emit('filterActive')">
             <span> Active</span>
           </li>
-          <li>
+          <li @click="$emit('filterActive')">
             <span> All</span>
           </li>
-          <li>
+          <li @click="$emit('filterActive')">
             <span> Ended</span>
           </li>
         </ul>

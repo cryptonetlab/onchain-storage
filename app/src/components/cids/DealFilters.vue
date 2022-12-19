@@ -34,10 +34,10 @@
           <li @click="$emit('filterActive')">
             <span> Active</span>
           </li>
-          <li>
+          <li @click="$emit('filterAll')">
             <span> All</span>
           </li>
-          <li>
+          <li @click="$emit('filterEnded')">
             <span> Ended</span>
           </li>
         </ul>
@@ -49,9 +49,9 @@
     <div class="custom_filters mr-4" style="min-width: 100px">
       <div
         class="custom_dropdown__face"
-        @click="filterTime = !filterTime"
+        @click="showFilterTime = !showFilterTime"
         :style="[
-          filterTime
+          showFilterTime
             ? {
                 borderBottom: 'none',
                 borderBottomLeftRadius: '0',
@@ -61,9 +61,11 @@
         ]"
       >
         <div class="custom_dropdown__text is-flex is-align-items-center">
-          <p><b>Today</b></p>
-          <IcoChevronRight class="ml-2" v-if="!filterTime" />
-          <IcoChevronDown class="ml-2" v-if="filterTime" />
+          <p>
+            <b>{{ filteringForTime }}</b>
+          </p>
+          <IcoChevronRight class="ml-2" v-if="!showFilterTime" />
+          <IcoChevronDown class="ml-2" v-if="showFilterTime" />
         </div>
       </div>
       <Transition
@@ -73,16 +75,23 @@
       >
         <ul
           style="z-index: 999"
-          v-if="filterTime"
+          v-if="showFilterTime"
           class="custom_dropdown__items"
         >
-          <li>
+          <li @click="$emit('filterTime', 7), (filteringForTime = 'Last Week')">
             <span> Last Week</span>
           </li>
-          <li>
+          <li
+            @click="$emit('filterTime', 31), (filteringForTime = 'Last Month')"
+          >
             <span> Last Month</span>
           </li>
-          <li>
+          <li
+            @click="$emit('filterTime', 365), (filteringForTime = 'Last Year')"
+          >
+            <span> Last Year</span>
+          </li>
+          <li @click="$emit('filterTime', 1), (filteringForTime = 'Today')">
             <span> Today</span>
           </li>
         </ul>
@@ -139,14 +148,20 @@ export default {
   data() {
     return {
       filterStatus: false,
-      filterTime: false,
+      showFilterTime: false,
       filterCosts: false,
+      filteringForTime: "Last Year",
     };
   },
   components: {
     IcoChevronDown,
     IcoChevronRight,
     IcoGreater,
+  },
+  mounted() {
+    // const app = this;
+    // app.$emit("filterTime", 365);
+    // app.filteringForTime = "Last Year";
   },
 };
 </script>

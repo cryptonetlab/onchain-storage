@@ -21,6 +21,7 @@
 
           <!-- ============================== Searcher ============================== -->
           <div
+            v-if="!utilsStore.disabled"
             class="field ml-5 mb-0"
             :style="[
               isDesktop

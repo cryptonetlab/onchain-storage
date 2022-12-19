@@ -63,7 +63,7 @@
           </div>
         </div>
         <!-- END LOADER -->
-        
+
         <div
           v-if="
             web3Store.connected &&
@@ -90,7 +90,14 @@
                 <ProtocolsList :deals="userStore.deals" />
               </div>
               <h2 class="mt-6 mb-3">CIDs list</h2>
-              <CIDFilters />
+              <div v-if="!utilsStore.disabled">
+                <CIDFilters
+                  @filterActive="filterActive()"
+                  @filterEnded="filterEnded()"
+                  @filterAll="filterAll()"
+                />
+              </div>
+
               <div
                 class="is-flex is-align-items-center is-justify-content-space-between mt-3 mb-3 px-5"
               >
@@ -101,12 +108,12 @@
                     class="is-flex is-align-items-center"
                     @click="orderAsc = !orderAsc"
                   >
-                    <p class="mr-3"><b>Expire Date</b></p>
-                    <IcoChevronRight
+                    <p class="mr-3">Expire Date</p>
+                    <!-- <IcoChevronRight
                       :style="[
                         orderAsc ? { rotate: '90deg' } : { rotate: '272deg' },
                       ]"
-                    />
+                    /> -->
                   </div>
                 </div>
 
@@ -118,7 +125,7 @@
                 class="custom-card border-primary-lighter"
               >
                 <div
-                  v-for="(details, index) in userStore.deals.list"
+                  v-for="(details, index) in userStore.filteredDeals.list"
                   :key="index"
                 >
                   <SingleCID :details="details" :cid="index" />

@@ -5,6 +5,7 @@ import axios from "axios";
 export const useUserStore = defineStore("user", {
   state: () => ({
     deals: [],
+    filteredDeals: [],
     totalValue: 0,
     countDeals: 0,
     activeProtocols: "",
@@ -21,11 +22,13 @@ export const useUserStore = defineStore("user", {
           app.api + "/list/" + network + "/" + account
         );
         app.deals = deals.data;
+
         console.log("Deal value", app.deals.value);
         app.totalValue = app.deals.value;
         app.countDeals = app.deals.active;
         app.activeProtocols = app.deals.protocols;
         app.countActiveProtocols = app.deals.protocols.length;
+        app.filteredDeals = app.deals;
         console.log("DEALS ARE", app.deals);
         if (app.totalValue !== undefined && app.totalValue !== null) {
           app.totalValue = parseFloat(

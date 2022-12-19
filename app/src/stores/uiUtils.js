@@ -4,6 +4,7 @@ import { defineStore } from "pinia";
 export const useUiUtils = defineStore("utils", {
   state: () => ({
     showSidebar: localStorage.getItem("showSidebar"),
+    disabled: true,
   }),
   actions: {
     toggleSidebar() {

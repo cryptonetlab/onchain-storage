@@ -149,23 +149,27 @@
           <!-- DEAL LIST -->
           <div>
             <h2 class="mt-6 mb-4">Deal list</h2>
-            <DealFilters @filterActive="filterActive()" />
+            <div v-if="!utilsStore.disabled">
+              <DealFilters
+                @filterActive="filterActive()"
+                @filterEnded="filterEnded()"
+                @filterAll="filterAll()"
+                @filterTime="filterTime($event)"
+              />
+            </div>
+
             <div
               class="is-flex is-align-items-center is-justify-content-space-between my-4 px-5"
             >
               <div class="is-flex is-align-items-center">
                 <p style="width: 10.3rem">Wallet</p>
-                <div
-                  v-if="isDesktop"
-                  class="is-flex is-align-items-center"
-                  @click="orderAsc = !orderAsc"
-                >
-                  <p class="mr-3"><b>Expire Date</b></p>
-                  <IcoChevronRight
+                <div v-if="isDesktop" class="is-flex is-align-items-center">
+                  <p class="mr-3">Expire Date</p>
+                  <!-- <IcoChevronRight
                     :style="[
                       orderAsc ? { rotate: '90deg' } : { rotate: '272deg' },
                     ]"
-                  />
+                  /> -->
                 </div>
               </div>
 
@@ -183,9 +187,9 @@
           </div>
           <!-- END DEAL LIST -->
         </div>
+
         <Connect />
       </div>
-
       <!-- FAST CREATION DEAL -->
       <div
         class="column p-0 m-0"
@@ -301,7 +305,7 @@ export default {
         app.cid = cid.data;
         app.allDeals = app.cid.deals;
         app.filteredDeals = app.cid.deals;
-        console.log("THIS IS CID", app.cid);
+        console.log("THIS IS CID", cid.data);
         app.totalValue = parseFloat(
           app.web3Store.web3.utils.fromWei(app.cid.value.toString(), "ether")
         ).toFixed(10);
@@ -340,6 +344,51 @@ export default {
       } else {
         console.log("Nothing to copy, make sure that you're connected!");
       }
+    },
+
+    // Filters
+    filterActive() {
+      const app = this;
+      app.filteredDeals = { ...app.allDeals };
+      console.log("SONO TUTTI I DEALS", app.filteredDeals);
+      console.log("init filter active");
+      for (const [cid, deals] of Object.entries(app.filteredDeals)) {
+        app.filteredDeals[cid] = deals.filter(
+          (deal) => deal.left > 0 && deal.left !== undefined
+        );
+      }
+      console.log("prova filtrati", app.filteredDeals);
+    },
+    filterEnded() {
+      const app = this;
+      app.filteredDeals = { ...app.allDeals };
+      console.log("init filter ended");
+      for (const [cid, deals] of Object.entries(app.filteredDeals)) {
+        app.filteredDeals[cid] = deals.filter(
+          (deal) => deal.left === 0 && deal.left !== undefined
+        );
+      }
+      console.log("prova filtrati", app.filteredDeals);
+    },
+    filterAll() {
+      const app = this;
+      app.filteredDeals = { ...app.allDeals };
+      console.log("init filter all");
+      app.filteredDeals = app.allDeals;
+    },
+
+    filterTime(d) {
+      const app = this;
+      app.filteredDeals = { ...app.allDeals };
+      console.log("days is", d);
+      const timeAgo = Date.now() - d * 24 * 60 * 60 * 1000;
+      console.log("time ago is", timeAgo);
+      for (const [cid, deals] of Object.entries(app.filteredDeals)) {
+        app.filteredDeals[cid] = deals.filter(
+          (deal) => new Date(deal.timestamp_start).getTime() >= timeAgo
+        );
+      }
+      console.log("filtered for", d, "day(s)", app.filteredDeals);
     },
   },
 };
