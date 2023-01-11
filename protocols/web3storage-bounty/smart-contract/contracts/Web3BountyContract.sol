@@ -122,7 +122,8 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
 
     // Function to cancel a deal request before is accepted
     function cancelDealProposal(uint256 _deal_id) external nonReentrant {
-        require(isDealActive(_deal_id), "Deal is not active");
+        require(deals[_deal_id].timestamp_start == 0, "Deal was accepted, can't cancel");
+        require(!deals[_deal_id].canceled, "Deal was canceled yet");
         require(
             deals[_deal_id].owner == msg.sender,
             "Can't cancel someone else request"
