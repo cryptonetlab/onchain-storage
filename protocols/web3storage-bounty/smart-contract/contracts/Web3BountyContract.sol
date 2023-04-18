@@ -187,8 +187,8 @@ contract Web3BountyContract is Ownable, ReentrancyGuard {
         require(deals[_deal_id].timestamp_start > 0, "Deal didn't started");
         require(!deals[_deal_id].claimed, "Deal claimed yet");
         require(deals[_deal_id].value > 0, "Deal doesn't have value to claim");
-        //KS-PLW-04 Dealer can claim bounty when deal is cancelled 
-        require(!deals[_deal_id].cancelled, "Deal already cancelled"); 
+        //KS-PLW-04 Dealer can claim bounty when deal is canceled 
+        require(!deals[_deal_id].canceled, "Deal already canceled"); 
         // NOTE:
         // _proof is maintained for compatibility purposes
         // contract will not use it so we suggest to send it empty
